@@ -3,6 +3,7 @@ package com.blooddonation.system.models;
 import lombok.Getter;
 
 @Getter
+@SuppressWarnings("unused")
 public class Address {
     private final String name;
     private final Address parent;
@@ -10,6 +11,10 @@ public class Address {
     public Address(String name, Address parent) {
         this.name = name;
         this.parent = parent;
+    }
+
+    public Address() {
+        this("None", null);
     }
 
     // Helper method to print the full address in a readable format

@@ -1,10 +1,13 @@
-package com.blooddonation.system.models;
+package com.blooddonation.system.models.people;
 
+import com.blooddonation.system.models.Address;
+import com.blooddonation.system.models.BloodGroup;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@SuppressWarnings("unused")
 public class Recepient extends Person {
     private BloodGroup bloodGroup;
     private String hospitalName;
