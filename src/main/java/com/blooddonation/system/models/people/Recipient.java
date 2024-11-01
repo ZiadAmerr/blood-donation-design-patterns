@@ -8,13 +8,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @SuppressWarnings("unused")
-public class Recepient extends Person {
+public class Recipient extends Person {
     private BloodGroup bloodGroup;
     private String hospitalName;
     private Address hospitalAddress;
     private String hospitalPhone;
 
-    public Recepient(String name, String email, String phone, Address address, BloodGroup bloodGroup, String hospitalName, Address hospitalAddress, String hospitalPhone) {
+    public Recipient(String name, String email, String phone, Address address, BloodGroup bloodGroup, String hospitalName, Address hospitalAddress, String hospitalPhone) {
         super(name, email, phone, address);
         this.bloodGroup = bloodGroup;
         this.hospitalName = hospitalName;
@@ -22,6 +22,6 @@ public class Recepient extends Person {
         this.hospitalPhone = hospitalPhone;
     }
 
-    public Recepient() {
+    public Recipient() {
     }
 }
