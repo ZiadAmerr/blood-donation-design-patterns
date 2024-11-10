@@ -1,9 +1,9 @@
 package com.blooddonation.system.Repository;
 
-import com.blooddonation.system.models.donations.MoneyDonation.MoneyDonation;
+import com.blooddonation.system.models.donations.MoneyDonation.PaymentMethod.Cash;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MoneyDonationRepository extends JpaRepository<MoneyDonation, Long> {
+public interface CashRepository extends JpaRepository<Cash, Long> {
 }
