@@ -13,16 +13,15 @@ import java.util.Set;
 @Getter
 @SuppressWarnings("unused")
 public class Donor extends Person {
-    private @Setter String occupation;
     private @Setter BloodGroup bloodGroup;
     private final Set<Donation> donations = new HashSet<>();
 
-    public Donor(String name, String email, String phone, Address address, String occupation, BloodGroup bloodGroup) {
+    public Donor(String name, String email, String phone, Address address, BloodGroup bloodGroup) {
         super(name, email, phone, address);
-        this.occupation = occupation;
         this.bloodGroup = bloodGroup;
     }
-
-    public Donor() {
+    // To be modified
+    private boolean makeDonation() {
+        return true;
     }
 }
