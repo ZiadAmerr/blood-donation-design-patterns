@@ -4,28 +4,20 @@ import com.blooddonation.system.models.Address;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-@SuppressWarnings("unused")
-public class Volunteer extends Person {
-    private String occupation;
-    private String bloodGroup;
-    private String lastDonationDate;
+import java.util.ArrayList;
+import java.util.List;
 
-    public Volunteer(
-        String name,
-        String email,
-        String phone, Address address,
-        String occupation,
-        String bloodGroup,
-        String lastDonationDate
-    ) {
-        super(name, email, phone, address);
-        this.occupation = occupation;
-        this.bloodGroup = bloodGroup;
-        this.lastDonationDate = lastDonationDate;
+public class Volunteer implements IVolunteer {
+    private boolean isAvailable;
+    private List<String> skills;
+
+    public Volunteer(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+        this.skills = new ArrayList<>();
     }
 
-    public Volunteer() {
+    @Override
+    public List<String> skill() {
+        return skills;
     }
 }
