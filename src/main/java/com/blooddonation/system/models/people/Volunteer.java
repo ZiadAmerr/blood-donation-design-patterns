@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Volunteer implements IVolunteer {
+public class Volunteer extends Person implements IVolunteer {
     private boolean isAvailable;
     private List<String> skills;
 
