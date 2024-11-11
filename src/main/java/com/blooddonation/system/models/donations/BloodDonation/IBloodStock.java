@@ -1,7 +1,8 @@
 package com.blooddonation.system.models.donations.BloodDonation;
+import com.blooddonation.system.models.donations.BloodDonation.Beneficiaries.Beneficiary;
 
 public interface IBloodStock {
-    void addBeneficiary(Beneficiary beneficiary);
+    void registerBeneficiary(Beneficiary beneficiary);
     void removeBeneficiary(Beneficiary beneficiary);
     void notifyBeneficiaries();
 }

@@ -1,4 +1,4 @@
-package com.blooddonation.system.models.donations;
+package com.blooddonation.system.models.donations.BloodDonation;
 
 public enum BloodTypeEnum {
     AB_PLUS, AB_MINUS,
