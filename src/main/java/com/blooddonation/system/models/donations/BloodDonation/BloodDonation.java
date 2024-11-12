@@ -8,12 +8,13 @@ public class BloodDonation extends Donation {
     private BloodTypeEnum bloodType;
 
     public BloodDonation(Donor donor, int numberOfLiters, BloodTypeEnum bloodType) {
-        super(donor);  // Call the constructor of the parent class Donation
+        super(donor);
         this.numberOfLiters = numberOfLiters;
         this.bloodType = bloodType;
     }
 
-    public int getNumberOfLiters() {
+    public int getNumberOfLiters()
+    {
         return numberOfLiters;
     }
 
@@ -30,9 +31,7 @@ public class BloodDonation extends Donation {
     }
 
     public boolean increaseBloodStock(BloodStock bloodStock) {
-        int currentAmount = bloodStock.getBloodAmount().getOrDefault(bloodType, 0);
-        bloodStock.getBloodAmount().put(bloodType, currentAmount + numberOfLiters);
-        bloodStock.notifyBeneficiaries();
+        bloodStock.increaseBloodAmount(bloodType, numberOfLiters);
         return true;
     }
 }

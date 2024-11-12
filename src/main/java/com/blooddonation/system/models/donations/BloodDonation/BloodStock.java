@@ -24,6 +24,33 @@ public class BloodStock implements IBloodStock {
         return bloodAmount;
     }
 
+    public void increaseBloodAmount(BloodTypeEnum bloodType, int liters) {
+
+        int currentAmount = bloodAmount.getOrDefault(bloodType, 0);
+        bloodAmount.put(bloodType, currentAmount + liters);
+
+        notifyBeneficiaries(bloodType, currentAmount + liters);
+    }
+
+    // Method to decrease the blood amount for a specific blood type
+    public void decreaseBloodAmount(BloodTypeEnum bloodType, int liters) {
+        if (liters < 0)
+        {
+            throw new IllegalArgumentException("Amount to decrease must be positive.");
+        }
+
+        int currentAmount = bloodAmount.getOrDefault(bloodType, 0);
+
+        if (currentAmount < liters)
+        {
+            throw new IllegalArgumentException("Insufficient blood amount for the given type.");
+        }
+
+        bloodAmount.put(bloodType, currentAmount - liters);
+
+        notifyBeneficiaries(bloodType, currentAmount - liters);
+    }
+
     @Override
     public void registerBeneficiary(Beneficiary beneficiary) {
         beneficiaries.add(beneficiary);
@@ -35,9 +62,9 @@ public class BloodStock implements IBloodStock {
     }
 
     @Override
-    public void notifyBeneficiaries() {
+    public void notifyBeneficiaries(BloodTypeEnum bloodType, int amount) {
         for (Beneficiary beneficiary : beneficiaries) {
-            beneficiary.update();
+            beneficiary.receiveBloodDonation(bloodType, amount);
         }
     }
 }
