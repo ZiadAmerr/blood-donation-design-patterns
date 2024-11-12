@@ -4,5 +4,5 @@ import com.blooddonation.system.models.donations.BloodDonation.Beneficiaries.Ben
 public interface IBloodStock {
     void registerBeneficiary(Beneficiary beneficiary);
     void removeBeneficiary(Beneficiary beneficiary);
-    void notifyBeneficiaries(BloodTypeEnum bloodType, int amountInLiters);
+    void notifyBeneficiaries(BloodTypeEnum bloodType, int newAmount);
 }

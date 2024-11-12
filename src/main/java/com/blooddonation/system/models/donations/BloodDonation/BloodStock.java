@@ -7,11 +7,14 @@ import java.util.List;
 import java.util.Map;
 
 public class BloodStock implements IBloodStock {
-    private List<Beneficiary> beneficiaries = new ArrayList<>();
+    private List<Beneficiary> beneficiaries;
     private static BloodStock instance;
-    private Map<BloodTypeEnum, Integer> bloodAmount = new HashMap<>();
+    private Map<BloodTypeEnum, Integer> bloodAmount;
 
-    private BloodStock() {}
+    private BloodStock() {
+        beneficiaries = new ArrayList<>();
+        bloodAmount = new HashMap<>();
+    }
 
     public static BloodStock getInstance() {
         if (instance == null) {
@@ -28,7 +31,6 @@ public class BloodStock implements IBloodStock {
 
         int currentAmount = bloodAmount.getOrDefault(bloodType, 0);
         bloodAmount.put(bloodType, currentAmount + liters);
-
         notifyBeneficiaries(bloodType, currentAmount + liters);
     }
 
@@ -45,9 +47,7 @@ public class BloodStock implements IBloodStock {
         {
             throw new IllegalArgumentException("Insufficient blood amount for the given type.");
         }
-
         bloodAmount.put(bloodType, currentAmount - liters);
-
         notifyBeneficiaries(bloodType, currentAmount - liters);
     }
 
@@ -62,9 +62,9 @@ public class BloodStock implements IBloodStock {
     }
 
     @Override
-    public void notifyBeneficiaries(BloodTypeEnum bloodType, int amount) {
+    public void notifyBeneficiaries(BloodTypeEnum bloodType, int newAmount) {
         for (Beneficiary beneficiary : beneficiaries) {
-            beneficiary.receiveBloodDonation(bloodType, amount);
+            beneficiary.update(bloodType, newAmount);
         }
     }
 }

@@ -4,15 +4,29 @@ import com.blooddonation.system.models.donations.BloodDonation.BloodStock;
 import com.blooddonation.system.models.donations.BloodDonation.BloodTypeEnum;
 import com.blooddonation.system.models.donations.BloodDonation.IBloodStock;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WaitingPatients implements Beneficiary {
     private IBloodStock bloodStock;
     private BloodStock bloodBank = BloodStock.getInstance();
+    private Map<BloodTypeEnum, Integer> bloodStorage;
+
 
     public WaitingPatients(IBloodStock bloodStock)
     {
         this.bloodStock = bloodStock;
+        bloodStorage = new HashMap<>();
         bloodStock.registerBeneficiary(this);
     }
+
+    @Override
+    public void update(BloodTypeEnum bloodType, int newAmount)
+    {
+        int currentAmount = bloodStorage.getOrDefault(bloodType, 0);
+        bloodStorage.put(bloodType, newAmount);
+    }
+
     @Override
     public boolean receiveBloodDonation(BloodTypeEnum bloodType, int liters) {
         if (liters <= 0) {
