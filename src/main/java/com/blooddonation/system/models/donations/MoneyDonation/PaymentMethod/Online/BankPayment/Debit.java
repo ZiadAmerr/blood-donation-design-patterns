@@ -2,10 +2,8 @@ package com.blooddonation.system.models.donations.MoneyDonation.PaymentMethod.On
 
 public class Debit extends BankPayment {
 
-    public Debit(String cardNumber, String expiryDate, String cvv, String cardType) {
-        this.setCardNumber(cardNumber);
-        this.setExpiryDate(expiryDate);
-        this.setCvv(cvv);
+    public Debit(String cardNumber, String expiryDate, String cvv) {
+        super(cardNumber, expiryDate, cvv);
     }
 
     @Override

@@ -15,4 +15,7 @@ public class Item {
         this.price = price;
     }
 
+    public float getPrice() {
+        return price;
+    }
 }
