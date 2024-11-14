@@ -7,11 +7,15 @@ import lombok.Getter;
 @SuppressWarnings("unused")
 public abstract class Donation {
     private static int idCounter = 0;
-    private final int id;
-    private final Donor donor;
+    private int id;
+    private Donor donor;
 
     public Donation(Donor donor) {
         this.id = idCounter++;
         this.donor = donor;
+    }
+
+    public Donation() {
+
     }
 }

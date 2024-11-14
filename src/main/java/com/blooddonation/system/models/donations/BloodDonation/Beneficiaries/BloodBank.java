@@ -3,15 +3,28 @@ package com.blooddonation.system.models.donations.BloodDonation.Beneficiaries;
 import com.blooddonation.system.models.donations.BloodDonation.BloodStock;
 import com.blooddonation.system.models.donations.BloodDonation.BloodTypeEnum;
 import com.blooddonation.system.models.donations.BloodDonation.IBloodStock;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+@Entity
 public class BloodBank implements Beneficiary {
+    @Id
+    private int id;
 
+    @Embedded
+    private BloodStock bloodBank;
+
+    @Embedded
     private IBloodStock bloodStock;
-    private BloodStock bloodBank = BloodStock.getInstance();
+
+    @ElementCollection
+    @CollectionTable(name = "blood_storage", joinColumns = @JoinColumn(name = "blood_bank_id"))
+    @MapKeyEnumerated(EnumType.STRING)
+    @MapKeyColumn(name = "blood_type")
+    @Column(name = "amount")
     private Map<BloodTypeEnum, Integer> bloodStorage;
 
     public BloodBank(IBloodStock bloodStock)
@@ -19,6 +32,10 @@ public class BloodBank implements Beneficiary {
         this.bloodStock = bloodStock;
         bloodStorage = new HashMap<>();
         bloodStock.registerBeneficiary(this);
+    }
+
+    public BloodBank() {
+
     }
 
     @Override

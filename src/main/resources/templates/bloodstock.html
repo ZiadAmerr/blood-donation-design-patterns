@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Blood Stock Management</title>
+</head>
+<body>
+<h1>Current Blood Stock</h1>
+<div>
+    <h2>Blood Amounts</h2>
+    <ul>
+        <li th:each="entry : ${bloodAmounts}">
+            <span th:text="${entry.key}"></span>: <span th:text="${entry.value}"></span> liters
+        </li>
+    </ul>
+</div>
+
+<form action="/bloodstock/increase" method="post">
+    <h3>Increase Blood Amount</h3>
+    <label for="increaseBloodType">Blood Type:</label>
+    <select name="bloodType" id="increaseBloodType">
+        <option value="A_POS">A+</option>
+        <option value="B_POS">B+</option>
+        <option value="O_POS">O+</option>
+        <option value="AB_POS">AB+</option>
+    </select>
+    <label for="increaseLiters">Liters:</label>
+    <input type="number" name="liters" id="increaseLiters" required>
+    <button type="submit">Increase Blood</button>
+</form>
+
+<form action="/bloodstock/decrease" method="post">
+    <h3>Decrease Blood Amount</h3>
+    <label for="decreaseBloodType">Blood Type:</label>
+    <select name="bloodType" id="decreaseBloodType">
+        <option value="A_POS">A+</option>
+        <option value="B_POS">B+</option>
+        <option value="O_POS">O+</option>
+        <option value="AB_POS">AB+</option>
+    </select>
+    <label for="decreaseLiters">Liters:</label>
+    <input type="number" name="liters" id="decreaseLiters" required>
+    <button type="submit">Decrease Blood</button>
+</form>
+
+</body>
+</html>
