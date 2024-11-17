@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Blood Stock Management</title>
+</head>
+<body>
+<h1>Blood Stock</h1>
+<table>
+    <tr>
+        <th>Blood Type</th>
+        <th>Amount</th>
+    </tr>
+    <tr th:each="entry : ${bloodStock.bloodAmount}">
+        <td th:text="${entry.key}">Blood Type</td>
+        <td th:text="${entry.value}">Amount</td>
+    </tr>
+</table>
+
+<h2>Add Blood</h2>
+<form method="post" action="/bloodstock/addBlood">
+    <label for="bloodType">Blood Type:</label>
+    <select name="type" id="bloodType">
+        <option>A_POS</option>
+        <option>A_NEG</option>
+        <option>B_POS</option>
+        <option>B_NEG</option>
+        <option>AB_POS</option>
+        <option>AB_NEG</option>
+        <option>O_POS</option>
+        <option>O_NEG</option>
+    </select>
+    <label for="bloodAmount">Amount:</label>
+    <input type="number" name="amount" id="bloodAmount" required />
+    <button type="submit">Add</button>
+</form>
+
+<h2>Withdraw Blood</h2>
+<form method="post" action="/bloodstock/withdrawBlood">
+    <label for="withdrawType">Blood Type:</label>
+    <select name="type" id="withdrawType">
+        <option>A_POS</option>
+        <option>A_NEG</option>
+        <option>B_POS</option>
+        <option>B_NEG</option>
+        <option>AB_POS</option>
+        <option>AB_NEG</option>
+        <option>O_POS</option>
+        <option>O_NEG</option>
+    </select>
+    <label for="withdrawAmount">Amount:</label>
+    <input type="number" name="amount" id="withdrawAmount" required />
+    <button type="submit">Withdraw</button>
+</form>
+
+<h2>Add Beneficiary</h2>
+<form method="post" action="/bloodstock/addBeneficiary">
+    <label for="beneficiaryName">Name:</label>
+    <input type="text" name="name" id="beneficiaryName" required />
+    <button type="submit">Add</button>
+</form>
+</body>
+</html>

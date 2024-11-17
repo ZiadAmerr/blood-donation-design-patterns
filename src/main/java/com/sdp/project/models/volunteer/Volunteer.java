@@ -1,9 +1,12 @@
 
 package com.sdp.project.models.volunteer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Volunteer implements IVolunteer {
     private boolean isAvailable;
-    private List<String> skills;
+    private final List<String> skills;
 
     public Volunteer() {
         skills = new ArrayList<>();

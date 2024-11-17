@@ -1,46 +1,44 @@
 package com.sdp.project.models.bloodbank;
 
-public class BloodBank {
-    private String name;
-    private String location;
-    private BloodStock bloodStock;
+import java.util.Map;
+import java.util.HashMap;
 
-    public BloodBank(String name, String location) {
-        this.name = name;
-        this.location = location;
-        this.bloodStock = new BloodStock();
+public class BloodBank implements IBeneficiary {
+
+    private final String name;
+    private final Map<BloodType, Integer> bloodInventory = new HashMap<>();
+
+    {
+        for (BloodType type : BloodType.values()) {
+            bloodInventory.put(type, 0);
+        }
     }
 
-    // Getters and Setters
+    public BloodBank(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void update(BloodStock bloodStock) {
+        System.out.println(name + " received blood stock update: " + bloodStock.getBloodAmount());
+        // Logic to check stock and replenish if needed
+    }
+
+    @Override
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    // Additional methods for managing inventory
+    public void replenishStock(BloodType type, int amount) {
+        bloodInventory.put(type, bloodInventory.getOrDefault(type, 0) + amount);
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public BloodStock getBloodStock() {
-        return bloodStock;
-    }
-
-    public void setBloodStock(BloodStock bloodStock) {
-        this.bloodStock = bloodStock;
-    }
-
-    public void addBeneficiary(String beneficiary) {
-        bloodStock.addBeneficiary(beneficiary);
-    }
-
-    public void removeBeneficiary(String beneficiary) {
-        bloodStock.removeBeneficiary(beneficiary);
+    public boolean withdrawBlood(BloodType type, int amount) {
+        if (bloodInventory.getOrDefault(type, 0) >= amount) {
+            bloodInventory.put(type, bloodInventory.get(type) - amount);
+            return true;
+        }
+        return false;
     }
 }
