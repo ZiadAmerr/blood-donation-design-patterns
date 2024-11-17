@@ -20,8 +20,9 @@ public class VolunteerController {
     // Display all volunteers
     @GetMapping
     public String showVolunteerPage(Model model) {
-        Iterable<Volunteer> listOfVolunteers = volunteerRepository.findAll();
         try {
+            Iterable<Volunteer> listOfVolunteers = volunteerRepository.findAll();
+            System.out.println("Volunteers Retrieved: " + listOfVolunteers); // Debug log
             model.addAttribute("volunteers", listOfVolunteers);
             return "volunteers";
         } catch (Exception e) {
@@ -30,6 +31,7 @@ public class VolunteerController {
             return "error";
         }
     }
+
 
     // Show Add Volunteer form
     @GetMapping("/add-volunteer-form")

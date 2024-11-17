@@ -1,20 +1,24 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-public class BloodStock {
+@Repository
+public class BloodStock implements IBloodStock{
 
     // Singleton instance
     private static BloodStock instance;
 
     // Observers implementing the IBeneficiary interface
-    private final List<IBeneficiary> beneficiaries = new ArrayList<>();
+    private List<IBeneficiary> beneficiaries = new ArrayList<>();
 
     // Blood stock data
-    private final Map<BloodType, Integer> bloodAmount = new HashMap<>();
+    private Map<BloodType, Integer> bloodAmount = new HashMap<>();
 
     // Private constructor for Singleton
-    private BloodStock() {
+    public BloodStock() {
         // Initialize blood stock levels if needed
         for (BloodType type : BloodType.values()) {
             bloodAmount.put(type, 0);
@@ -22,6 +26,7 @@ public class BloodStock {
     }
 
     // Public method to get the Singleton instance
+    @PostConstruct
     public static BloodStock getInstance() {
         if (instance == null) {
             instance = new BloodStock();

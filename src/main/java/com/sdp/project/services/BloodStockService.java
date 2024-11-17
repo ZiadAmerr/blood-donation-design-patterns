@@ -2,7 +2,7 @@ package com.sdp.project.services;
 
 import org.springframework.stereotype.Service;
 
-import com.sdp.project.models.bloodbank.*;
+import com.sdp.project.models.blood.*;
 import com.sdp.project.repositories.BeneficiaryRepository;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class BloodStockService {
     private IBeneficiary createBeneficiary(String name, String type) {
         return switch (type.toLowerCase()) {
             case "bloodbank" -> new BloodBank(name);
-            case "waitingpatients" -> new WaitingPatients(name);
+            case "waitingpatients" -> new WaitingPatient(name);
             case "hospitals" -> new Hospital(name);
             default -> null;
         };

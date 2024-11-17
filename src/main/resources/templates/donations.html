@@ -75,6 +75,14 @@
 <body>
 <h1>Donations</h1>
 <h2>Donors List</h2>
+
+<!-- Button to Add New Donor -->
+<div style="text-align: center; margin-bottom: 20px;">
+    <a href="/donations/new-donor">
+        <button type="button">Add New Donor</button>
+    </a>
+</div>
+
 <ul>
     <li th:each="donor : ${donors}">
         <span th:text="${donor.name}"></span>
@@ -103,5 +111,6 @@
         </form>
     </li>
 </ul>
+
 </body>
 </html>

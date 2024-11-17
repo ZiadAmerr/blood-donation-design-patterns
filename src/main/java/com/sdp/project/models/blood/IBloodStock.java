@@ -1,4 +1,4 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
 
 public interface IBloodStock {
     void addBeneficiary(IBeneficiary beneficiary);

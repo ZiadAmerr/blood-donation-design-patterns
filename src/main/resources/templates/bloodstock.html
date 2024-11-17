@@ -6,28 +6,32 @@
 <body>
 <h1>Blood Stock</h1>
 <table>
+    <thead>
     <tr>
         <th>Blood Type</th>
         <th>Amount</th>
     </tr>
+    </thead>
+    <tbody>
     <tr th:each="entry : ${bloodStock.bloodAmount}">
         <td th:text="${entry.key}">Blood Type</td>
         <td th:text="${entry.value}">Amount</td>
     </tr>
+    </tbody>
 </table>
 
 <h2>Add Blood</h2>
 <form method="post" action="/bloodstock/addBlood">
     <label for="bloodType">Blood Type:</label>
     <select name="type" id="bloodType">
-        <option>A_POS</option>
-        <option>A_NEG</option>
-        <option>B_POS</option>
-        <option>B_NEG</option>
-        <option>AB_POS</option>
-        <option>AB_NEG</option>
-        <option>O_POS</option>
-        <option>O_NEG</option>
+        <option value="A_POSITIVE">A+</option>
+        <option value="A_NEGATIVE">A-</option>
+        <option value="B_POSITIVE">B+</option>
+        <option value="B_NEGATIVE">B-</option>
+        <option value="AB_POSITIVE">AB+</option>
+        <option value="AB_NEGATIVE">AB-</option>
+        <option value="O_POSITIVE">O+</option>
+        <option value="O_NEGATIVE">O-</option>
     </select>
     <label for="bloodAmount">Amount:</label>
     <input type="number" name="amount" id="bloodAmount" required />
@@ -38,14 +42,14 @@
 <form method="post" action="/bloodstock/withdrawBlood">
     <label for="withdrawType">Blood Type:</label>
     <select name="type" id="withdrawType">
-        <option>A_POS</option>
-        <option>A_NEG</option>
-        <option>B_POS</option>
-        <option>B_NEG</option>
-        <option>AB_POS</option>
-        <option>AB_NEG</option>
-        <option>O_POS</option>
-        <option>O_NEG</option>
+        <option value="A_POSITIVE">A+</option>
+        <option value="A_NEGATIVE">A-</option>
+        <option value="B_POSITIVE">B+</option>
+        <option value="B_NEGATIVE">B-</option>
+        <option value="AB_POSITIVE">AB+</option>
+        <option value="AB_NEGATIVE">AB-</option>
+        <option value="O_POSITIVE">O+</option>
+        <option value="O_NEGATIVE">O-</option>
     </select>
     <label for="withdrawAmount">Amount:</label>
     <input type="number" name="amount" id="withdrawAmount" required />
@@ -56,6 +60,12 @@
 <form method="post" action="/bloodstock/addBeneficiary">
     <label for="beneficiaryName">Name:</label>
     <input type="text" name="name" id="beneficiaryName" required />
+    <label for="beneficiaryType">Type:</label>
+    <select name="type" id="beneficiaryType">
+        <option value="BloodBank">Blood Bank</option>
+        <option value="Hospital">Hospital</option>
+        <option value="WaitingPatient">Waiting Patient</option>
+    </select>
     <button type="submit">Add</button>
 </form>
 </body>

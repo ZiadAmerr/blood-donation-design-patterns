@@ -1,15 +1,15 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
 
 import com.sdp.project.models.Person;
 
 import java.util.*;
 
-public class WaitingPatients implements IBeneficiary {
+public class WaitingPatient implements IBeneficiary {
 
-    private final String name;
-    private final Queue<Person> patientQueue;
+    private String name;
+    private Queue<Person> patientQueue;
 
-    public WaitingPatients(String name) {
+    public WaitingPatient(String name) {
         this.name = name;
         this.patientQueue = new LinkedList<>();
     }
@@ -20,7 +20,6 @@ public class WaitingPatients implements IBeneficiary {
         // Notify patients if their required blood type becomes available
     }
 
-    @Override
     public String getName() {
         return name;
     }

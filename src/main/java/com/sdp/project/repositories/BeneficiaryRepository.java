@@ -3,7 +3,7 @@ package com.sdp.project.repositories;
 import org.springframework.stereotype.Repository;
 import java.util.*;
 
-import com.sdp.project.models.bloodbank.IBeneficiary;
+import com.sdp.project.models.blood.IBeneficiary;
 
 @Repository
 public class BeneficiaryRepository {

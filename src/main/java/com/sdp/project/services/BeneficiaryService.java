@@ -3,8 +3,8 @@ package com.sdp.project.services;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.sdp.project.models.bloodbank.IBeneficiary;
-import com.sdp.project.models.bloodbank.BloodStock;
+import com.sdp.project.models.blood.IBeneficiary;
+import com.sdp.project.models.blood.BloodStock;
 import com.sdp.project.repositories.BeneficiaryRepository;
 
 import java.util.List;

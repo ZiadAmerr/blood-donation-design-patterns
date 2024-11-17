@@ -1,12 +1,12 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
 
 import java.util.Map;
 import java.util.HashMap;
 
 public class BloodBank implements IBeneficiary {
 
-    private final String name;
-    private final Map<BloodType, Integer> bloodInventory = new HashMap<>();
+    private String name;
+    private Map<BloodType, Integer> bloodInventory = new HashMap<>();
 
     {
         for (BloodType type : BloodType.values()) {
@@ -24,7 +24,6 @@ public class BloodBank implements IBeneficiary {
         // Logic to check stock and replenish if needed
     }
 
-    @Override
     public String getName() {
         return name;
     }

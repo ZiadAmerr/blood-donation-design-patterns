@@ -1,6 +1,5 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
 
 public interface IBeneficiary {
     void update(BloodStock bloodStock); // React to blood stock updates
-    String getName(); // Get the name of the beneficiary
 }

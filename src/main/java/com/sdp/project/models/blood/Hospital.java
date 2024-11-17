@@ -1,10 +1,10 @@
-package com.sdp.project.models.bloodbank;
+package com.sdp.project.models.blood;
 
 import java.util.Map;
 
 public class Hospital implements IBeneficiary {
 
-    private final String name;
+    private String name;
     private Map<BloodType, Integer> bloodInventory;
 
     public Hospital(String name) {
@@ -17,7 +17,6 @@ public class Hospital implements IBeneficiary {
         // Logic to synchronize blood inventory with central stock
     }
 
-    @Override
     public String getName() {
         return name;
     }

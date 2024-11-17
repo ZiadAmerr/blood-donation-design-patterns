@@ -1,12 +1,11 @@
 package com.sdp.project.controllers;
 
+import com.sdp.project.models.blood.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import com.sdp.project.models.bloodbank.BloodStock;
-import com.sdp.project.models.bloodbank.BloodType;
 import com.sdp.project.services.*;
 
 @Controller
@@ -36,8 +35,26 @@ public class BloodStockController {
 
     @PostMapping("/addBeneficiary")
     public String addBeneficiary(@RequestParam("name") String name, @RequestParam("type") String type) {
-        bloodStockService.registerBeneficiary(name, type);
-        return "redirect:/beneficiaries";
+        BloodStock bloodStock = BloodStock.getInstance();
+
+        IBeneficiary beneficiary;
+        switch (type) {
+            case "BloodBank":
+                beneficiary = new BloodBank(name);
+                break;
+            case "Hospital":
+                beneficiary = new Hospital(name);
+                break;
+            case "WaitingPatient":
+                beneficiary = new WaitingPatient(name);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid beneficiary type: " + type);
+        }
+
+        bloodStock.addBeneficiary(beneficiary);
+        return "redirect:/bloodstock";
     }
+
 
 }
