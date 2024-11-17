@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Volunteers</title>
+</head>
+<body>
+<h1>Volunteer List</h1>
+
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Date of Birth</th>
+    </tr>
+    <th:block th:each="volunteer : ${volunteers}">
+        <tr>
+            <td th:text="${volunteer.name}"></td>
+            <td th:text="${volunteer.dateOfBirth}"></td>
+        </tr>
+    </th:block>
+</table>
+
+<a href="/volunteers/add-volunteer-form">Add Volunteer</a>
+</body>
+</html>
