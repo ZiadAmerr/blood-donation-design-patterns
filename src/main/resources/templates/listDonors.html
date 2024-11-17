@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Donors List</title>
+</head>
+<body>
+<h1>List of Donors</h1>
+<ul>
+    <li th:each="donor : ${donors}">
+        <span th:text="${donor.name}">Donor Name</span>
+        (Born: <span th:text="${donor.dateOfBirth}">Date of Birth</span>)
+        <a th:href="@{/donations/form(donorId=${donor.id})}">Donate</a>
+    </li>
+</ul>
+</body>
+</html>
