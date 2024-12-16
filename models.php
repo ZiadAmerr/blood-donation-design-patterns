@@ -52,14 +52,21 @@ abstract class Person {
         $query = $db->prepare("INSERT INTO Person (name, date_of_birth, national_id, address_id) VALUES (?, ?, ?, ?)");
         $query->bind_param("sssi", $name, $date_of_birth, $national_id, $address_id);
         $query->execute();
-        return $query->insert_id;
+        return new static($db->insert_id); // Return new object
     }
 
-    public static function delete($id) {
+    public function update($name, $date_of_birth, $national_id, $address_id) {
+        $db = Database::getInstance();
+        $query = $db->prepare("UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ? WHERE id = ?");
+        $query->bind_param("sssii", $name, $date_of_birth, $national_id, $address_id, $this->id);
+        $query->execute();
+    }
+
+    public function delete() {
         $db = Database::getInstance();
         $query = $db->prepare("DELETE FROM Person WHERE id = ?");
-        $query->bind_param("i", $id);
-        return $query->execute();
+        $query->bind_param("i", $this->id);
+        $query->execute();
     }
 }
 
@@ -87,21 +94,21 @@ class Address {
         $query = $db->prepare("INSERT INTO Address (name, parent_id) VALUES (?, ?)");
         $query->bind_param("si", $name, $parent_id);
         $query->execute();
-        return $query->insert_id;
+        return new Address($db->insert_id);
     }
 
-    public static function update($id, $name, $parent_id = null) {
+    public function update($name, $parent_id = null) {
         $db = Database::getInstance();
         $query = $db->prepare("UPDATE Address SET name = ?, parent_id = ? WHERE id = ?");
-        $query->bind_param("sii", $name, $parent_id, $id);
-        return $query->execute();
+        $query->bind_param("sii", $name, $parent_id, $this->id);
+        $query->execute();
     }
 
-    public static function delete($id) {
+    public function delete() {
         $db = Database::getInstance();
         $query = $db->prepare("DELETE FROM Address WHERE id = ?");
-        $query->bind_param("i", $id);
-        return $query->execute();
+        $query->bind_param("i", $this->id);
+        $query->execute();
     }
 }
 
@@ -112,14 +119,15 @@ class Donor extends Person {
         $query = $db->prepare("INSERT INTO Donor (person_id) VALUES (?)");
         $query->bind_param("i", $person_id);
         $query->execute();
-        return $query->insert_id;
+        return new Donor($person_id);
     }
 
-    public static function delete($id) {
+    public function delete() {
         $db = Database::getInstance();
         $query = $db->prepare("DELETE FROM Donor WHERE id = ?");
-        $query->bind_param("i", $id);
-        return $query->execute();
+        $query->bind_param("i", $this->id);
+        $query->execute();
+        parent::delete();
     }
 }
 
@@ -147,18 +155,17 @@ class Donation {
         $query = $db->prepare("INSERT INTO Donation (donor_id, type) VALUES (?, ?)");
         $query->bind_param("is", $donor_id, $type);
         $query->execute();
-        return $query->insert_id;
+        return new Donation($db->insert_id);
     }
 
-    public static function delete($id) {
+    public function delete() {
         $db = Database::getInstance();
         $query = $db->prepare("DELETE FROM Donation WHERE id = ?");
-        $query->bind_param("i", $id);
-        return $query->execute();
+        $query->bind_param("i", $this->id);
+        $query->execute();
     }
-}
 
-// BloodStock Singleton Model
+    // BloodStock Singleton Model
 class BloodStock {
     private static $instance = null;
     public $id;
@@ -178,6 +185,7 @@ class BloodStock {
         }
     }
 
+    // Singleton instance
     public static function getInstance($id = 1) {
         if (self::$instance === null) {
             self::$instance = new BloodStock($id);
@@ -185,12 +193,34 @@ class BloodStock {
         return self::$instance;
     }
 
-    public static function updateStock($id, $new_amount) {
+    // Create a new blood stock record
+    public static function create($blood_type, $amount) {
+        $db = Database::getInstance();
+        $query = $db->prepare("INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)");
+        $query->bind_param("sd", $blood_type, $amount);
+        $query->execute();
+        return new BloodStock($db->insert_id);
+    }
+
+    // Update the blood stock amount
+    public function update($new_amount) {
         $db = Database::getInstance();
         $query = $db->prepare("UPDATE BloodStock SET amount = ? WHERE id = ?");
-        $query->bind_param("di", $new_amount, $id);
-        return $query->execute();
+        $query->bind_param("di", $new_amount, $this->id);
+        $query->execute();
+        $this->amount = $new_amount; // Update the current instance's value
     }
+
+    // Delete the blood stock record
+    public function delete() {
+        $db = Database::getInstance();
+        $query = $db->prepare("DELETE FROM BloodStock WHERE id = ?");
+        $query->bind_param("i", $this->id);
+        $query->execute();
+        self::$instance = null; // Reset the Singleton instance
+    }
+}
+
 }
 ?>
 
