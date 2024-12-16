@@ -12,7 +12,7 @@ if [ ! -f "$SQL_FILE_PATH" ]; then
 fi
 
 COMMAND="$MYSQL_PATH --user=\"$DB_USER\" --host=\"$DB_HOST\" --port=\"$DB_PORT\" < \"$SQL_FILE_PATH\""
-echo "Executing: $COMMAND"
+# echo "Executing: $COMMAND"
 
 eval $COMMAND
 

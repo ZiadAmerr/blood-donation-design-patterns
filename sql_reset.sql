@@ -1,6 +1,5 @@
 USE sdp;
 
-
 -- Drop all tables in reverse order of dependencies
 DROP TABLE IF EXISTS Skills;
 DROP TABLE IF EXISTS Volunteer;
@@ -20,7 +19,8 @@ DROP TABLE IF EXISTS Address;
 CREATE TABLE Address (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    parent_id INT DEFAULT NULL
+    parent_id INT DEFAULT NULL,
+    FOREIGN KEY (parent_id) REFERENCES Address(id) ON DELETE SET NULL
 );
 
 -- Table: Person
@@ -48,21 +48,21 @@ CREATE TABLE Donation (
     FOREIGN KEY (donor_id) REFERENCES Donor(id)
 );
 
--- Table: BloodDonation
-CREATE TABLE BloodDonation (
+-- Table: MoneyDonationDetails (Extends Donation)
+CREATE TABLE MoneyDonationDetails (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    donation_id INT NOT NULL,
-    number_of_liters FLOAT NOT NULL,
-    blood_type ENUM('A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-') NOT NULL,
+    donation_id INT NOT NULL UNIQUE,
+    datetime DATETIME NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
     FOREIGN KEY (donation_id) REFERENCES Donation(id)
 );
 
--- Table: MoneyDonationDetails
-CREATE TABLE MoneyDonationDetails (
+-- Table: BloodDonation
+CREATE TABLE BloodDonation (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    donation_id INT NOT NULL,
-    datetime DATETIME NOT NULL,
-    amount DECIMAL(10, 2) NOT NULL,
+    donation_id INT NOT NULL UNIQUE,
+    number_of_liters FLOAT NOT NULL,
+    blood_type ENUM('A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-') NOT NULL,
     FOREIGN KEY (donation_id) REFERENCES Donation(id)
 );
 
@@ -101,7 +101,8 @@ CREATE TABLE Event (
     FOREIGN KEY (address_id) REFERENCES Address(id)
 );
 
--- Table: BloodStock
+-- Interface/Concept Note: IBloodStock
+-- Table: BloodStock (Singleton + Concrete Subject for Observer Pattern)
 CREATE TABLE BloodStock (
     id INT AUTO_INCREMENT PRIMARY KEY,
     blood_type ENUM('A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-') NOT NULL,
