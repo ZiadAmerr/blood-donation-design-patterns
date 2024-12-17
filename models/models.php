@@ -1,74 +1,5 @@
 <?php
-// Database Singleton
-class Database {
-    private static $instance = null;
-    private $conn;
-
-    private $host = "localhost";
-    private $username = "root";
-    private $password = "";
-    private $database = "sdp";
-
-    private function __construct() {
-        $this->conn = new mysqli($this->host, $this->username, $this->password, $this->database);
-        if ($this->conn->connect_error) {
-            die("Database connection failed: " . $this->conn->connect_error);
-        }
-    }
-
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new Database();
-        }
-        return self::$instance->conn;
-    }
-}
-
-// Abstract Person Model
-abstract class Person {
-    protected $id;
-    protected $name;
-    protected $date_of_birth;
-    protected $national_id;
-    protected $address;
-
-    public function __construct($id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("SELECT * FROM Person WHERE id = ?");
-        $query->bind_param("i", $id);
-        $query->execute();
-        $result = $query->get_result();
-        if ($row = $result->fetch_assoc()) {
-            $this->id = $row['id'];
-            $this->name = $row['name'];
-            $this->date_of_birth = $row['date_of_birth'];
-            $this->national_id = $row['national_id'];
-            $this->address = new Address($row['address_id']);
-        }
-    }
-
-    public static function create($name, $date_of_birth, $national_id, $address_id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("INSERT INTO Person (name, date_of_birth, national_id, address_id) VALUES (?, ?, ?, ?)");
-        $query->bind_param("sssi", $name, $date_of_birth, $national_id, $address_id);
-        $query->execute();
-        return new static($db->insert_id); // Return new object
-    }
-
-    public function update($name, $date_of_birth, $national_id, $address_id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ? WHERE id = ?");
-        $query->bind_param("sssii", $name, $date_of_birth, $national_id, $address_id, $this->id);
-        $query->execute();
-    }
-
-    public function delete() {
-        $db = Database::getInstance();
-        $query = $db->prepare("DELETE FROM Person WHERE id = ?");
-        $query->bind_param("i", $this->id);
-        $query->execute();
-    }
-}
+require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
 // Address Model
 class Address {
@@ -155,6 +86,52 @@ class Address {
     }
 }
 
+// Abstract Person Model
+abstract class Person {
+    protected $id;
+    protected $name;
+    protected $date_of_birth;
+    protected $national_id;
+    protected $address;
+
+    public function __construct($id) {
+        $db = Database::getInstance();
+        $query = $db->prepare("SELECT * FROM Person WHERE id = ?");
+        $query->bind_param("i", $id);
+        $query->execute();
+        $result = $query->get_result();
+        if ($row = $result->fetch_assoc()) {
+            $this->id = $row['id'];
+            $this->name = $row['name'];
+            $this->date_of_birth = $row['date_of_birth'];
+            $this->national_id = $row['national_id'];
+            $this->address = new Address($row['address_id']);
+        }
+    }
+
+    public static function create($name, $date_of_birth, $national_id, $address_id) {
+        $db = Database::getInstance();
+        $query = $db->prepare("INSERT INTO Person (name, date_of_birth, national_id, address_id) VALUES (?, ?, ?, ?)");
+        $query->bind_param("sssi", $name, $date_of_birth, $national_id, $address_id);
+        $query->execute();
+        return new static($db->insert_id); // Return new object
+    }
+
+    public function update($name, $date_of_birth, $national_id, $address_id) {
+        $db = Database::getInstance();
+        $query = $db->prepare("UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ? WHERE id = ?");
+        $query->bind_param("sssii", $name, $date_of_birth, $national_id, $address_id, $this->id);
+        $query->execute();
+    }
+
+    public function delete() {
+        $db = Database::getInstance();
+        $query = $db->prepare("DELETE FROM Person WHERE id = ?");
+        $query->bind_param("i", $this->id);
+        $query->execute();
+    }
+}
+
 
 // Donor Model
 class Donor extends Person {
@@ -166,16 +143,22 @@ class Donor extends Person {
         $this->person_id = $person_id;
     }
 
-    // Create a new Donor record
-    public static function create(int $person_id): Donor {
+    // Override create method to match the parent signature
+    public static function create($name, $date_of_birth, $national_id, $address_id): Donor {
+        // Create a Person first
+        $person = parent::create($name, $date_of_birth, $national_id, $address_id);
+
+        // Insert into Donor table using the new Person ID
         $db = Database::getInstance();
         $query = $db->prepare("INSERT INTO Donor (person_id) VALUES (?)");
-        $query->bind_param("i", $person_id);
+        $query->bind_param("i", $person->id);
 
         if (!$query->execute()) {
             throw new Exception("Failed to create Donor: " . $query->error);
         }
-        return new Donor($person_id);
+
+        // Return the Donor object
+        return new Donor($person->id);
     }
 
     // Delete the Donor record
@@ -188,9 +171,11 @@ class Donor extends Person {
             throw new Exception("Failed to delete Donor: " . $query->error);
         }
 
+        // Delete the Person record as well
         parent::delete();
     }
 }
+
 
 
 // Donation Model
