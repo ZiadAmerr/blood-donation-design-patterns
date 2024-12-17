@@ -32,7 +32,8 @@ CREATE TABLE Person (
     date_of_birth DATE NOT NULL,
     national_id VARCHAR(20) UNIQUE NOT NULL,
     address_id INT,
-    FOREIGN KEY (address_id) REFERENCES Address(id) ON DELETE SET NULL
+    FOREIGN KEY (address_id) REFERENCES Address(id) ON DELETE SET NULL,
+    CONSTRAINT chk_national_id_length CHECK (CHAR_LENGTH(national_id) = 12)
 );
 
 -- Table: Donor
