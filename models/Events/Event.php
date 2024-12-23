@@ -3,11 +3,11 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
 
 abstract class Event{
-    protected $title;
-    protected $address;
-    protected $dateTime;
+    protected string $title;
+    protected Address $address;
+    protected DateTime $dateTime;
     
-    abstract protected function getDetails();    
+    abstract protected function getDetails(): string;    
     
 }
 

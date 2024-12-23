@@ -3,9 +3,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once "Event.php";
 
 class WorkShopEvent extends Event {
-    private $instructor;
-    private $maxAttendees;
-    private $materials;
+    private $instructor; // create instructor class (preferably) or just treat it as string
+    private int $maxAttendees;
+    private array $materials;
 
     public function __construct($title, $address, $dateTime, $instructor, $maxAttendees, $materials) {
         parent::__construct($title, $address, $dateTime);
@@ -26,9 +26,10 @@ class WorkShopEvent extends Event {
         // add material objects/strings ???
     }
 
-    public function getDetails() 
+    public function getDetails(): string 
     {
         // get details of the event
+        return "";
     }
 }
 ?>

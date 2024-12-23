@@ -5,10 +5,11 @@ require_once "Event.php";
 class OutreachEventFactory extends EventFactory{
     
     // returns an object of outreach event 
-    public function eventFactory($args)
+    public function eventFactory($args): ?Event
     {
         // extract arguments from the list args
-        // return new OutreachEvent($title, $address, $dateTime, $activities, $listOfOrganizations);  
+        // return new OutreachEvent($title, $address, $dateTime, $activities, $listOfOrganizations); 
+        return null; 
     } 
 
 }

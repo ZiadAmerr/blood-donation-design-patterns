@@ -5,10 +5,11 @@ require_once "Event.php";
 class WorkShopEventFactory extends EventFactory{
 
     // returns an object of workshop event
-    public function eventFactory($args)
+    public function eventFactory($args): ?Event
     {
         // extract arguments from the list args
-        // return new WorkShopEvent($title, $address, $dateTime, $instructor, $maxAttendees, $materials);  
+        // return new WorkShopEvent($title, $address, $dateTime, $instructor, $maxAttendees, $materials);
+        return null;
     } 
 
 }

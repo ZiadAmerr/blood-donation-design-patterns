@@ -3,9 +3,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once "Event.php";
 
 class OutreachEvent extends Event {  
-    private $audience;
-    private $activities;
-    private $listOfOrganizations;
+    private int $audience; 
+    private array $activities; // create a class (preferably) or just treat it as string
+    private array $listOfOrganizations; // create a class (preferably) or just treat it as string
 
     public function __construct($title, $address, $dateTime, $audience, $activites, $listOfOrganizations) {
         parent::__construct($title, $address, $dateTime);
@@ -26,9 +26,10 @@ class OutreachEvent extends Event {
         // add organization objects
     }
 
-    public function getDetails() 
+    public function getDetails(): string 
     {
         // get details of the event
+        return "";
     }
 }
 ?>

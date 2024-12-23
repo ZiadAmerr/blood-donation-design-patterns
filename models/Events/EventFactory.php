@@ -7,12 +7,13 @@ require_once "Event.php";
 abstract class EventFactory {
     
     // create an event and return it
-    public function createEvent()
+    public function createEvent(): ?Event
     {
         // this should call event factory and store the returned object in a memory then return it.
+        return null;
     }
     // will be overridden in children factories and return a concrete event according to the caller
-    abstract public function eventFactory($args); 
+    abstract public function eventFactory($args): ?Event; 
 
 }
 
