@@ -7,9 +7,7 @@ abstract class Event{
     protected $address;
     protected $dateTime;
     
-    protected function getDetails()
-    {}
-    
+    abstract protected function getDetails();    
     
 }
 
