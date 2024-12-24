@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
-class WaitingPatients implements Beneficiaries {
+class WaitingPatients implements IBeneficiaries {
     public function __construct() 
     {
         $blood_bank = BloodStock::getInstance();

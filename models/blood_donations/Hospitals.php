@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
-class Hospitals implements Beneficiaries {
+class Hospitals implements IBeneficiaries {
     
     
     public function __construct() 

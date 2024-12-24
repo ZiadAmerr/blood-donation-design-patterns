@@ -12,7 +12,7 @@ function handleError($message) {
 function getCount($table) {
     try {
         $db = Database::getInstance();
-        $query = $db->prepare("SELECT COUNT(*) AS total FROM $table");
+        $query = $db->prepare("SELECT COUNT(*) AS total FROM `$table`");
         
         if (!$query) {
             throw new Exception("Failed to prepare query for table '$table': " . $db->error);
@@ -37,10 +37,12 @@ function getCount($table) {
 
 // Fetch summary data with error handling
 try {
-    $totalPersons = getCount("Person");
-    $totalAddresses = getCount("Address");
-    $totalDonors = getCount("Donor");
-    $totalDonations = getCount("Donation");
+    $summary = [
+        'totalPersons' => getCount("Person"),
+        'totalAddresses' => getCount("Address"),
+        'totalDonors' => getCount("Donor"),
+        'totalDonations' => getCount("Donation"),
+    ];
 } catch (Exception $e) {
     handleError($e->getMessage());
 }
@@ -152,10 +154,10 @@ try {
     <h2>System Overview</h2>
     <p>This is an overview of the current data in the system:</p>
     <ul>
-        <li><strong>Total Persons:</strong> <?php echo $totalPersons; ?></li>
-        <li><strong>Total Addresses:</strong> <?php echo $totalAddresses; ?></li>
-        <li><strong>Total Donors:</strong> <?php echo $totalDonors; ?></li>
-        <li><strong>Total Donations:</strong> <?php echo $totalDonations; ?></li>
+        <li><strong>Total Persons:</strong> <?php echo $summary['totalPersons']; ?></li>
+        <li><strong>Total Addresses:</strong> <?php echo $summary['totalAddresses']; ?></li>
+        <li><strong>Total Donors:</strong> <?php echo $summary['totalDonors']; ?></li>
+        <li><strong>Total Donations:</strong> <?php echo $summary['totalDonations']; ?></li>
     </ul>
 
     <h2>Blood Stock Summary</h2>

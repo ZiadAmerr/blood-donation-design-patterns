@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 
-class Online implements MoneyDonationMethod {
+class Online implements IMoneyDonationMethod {
     private PaymentMethod $paymentMethod;
 
     public function __construct($paymentMethod) {
