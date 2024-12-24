@@ -235,11 +235,13 @@ class Donation {
 
 
 // BloodStock Singleton Model
-class BloodStock {
+class BloodStock implements IBloodStock{
     private static ?BloodStock $instance = null;
-    public int $id;
-    public string $blood_type;
-    public float $amount;
+    private int $id;
+    private string $blood_type;
+    private float $amount;
+    private array $listOfBeneficiaries = []; // array of Beneficiary objects
+    
 
     // Private constructor to enforce Singleton
     private function __construct(int $id) {
@@ -303,6 +305,26 @@ class BloodStock {
         }
 
         self::$instance = null; // Reset Singleton instance
+        
+    }
+    public function addBeneficiary(Beneficiaries $beneficiary): void
+    {
+        // add a beneficiary to the list
+        array_push($this->listOfBeneficiaries, $beneficiary);
+    }
+    public function removeBeneficiary(Beneficiaries $beneficiary): void
+    {
+        // remove a beneficiary from the list
+        unset($this->listOfBeneficiaries[$beneficiary]);
+        
+    }
+    public function updateBloodStock(): void
+    {
+        // this function is called as soon as any change in the blood stock occur to notify other beneficiaries of this change
+        foreach ($this->listOfBeneficiaries as $beneficiary) 
+        {
+            $beneficiary->update();
+        }
     }
 }
 
