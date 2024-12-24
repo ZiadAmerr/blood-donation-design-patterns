@@ -143,6 +143,24 @@ abstract class Model
         return $result->fetch_assoc() ?: null;
     }
 
+    // Fetch multiple records as an array of associative arrays
+    protected static function fetchAll(string $sql, string $types = "", ...$params): array
+    {
+        $db = Database::getInstance();
+        $stmt = $db->prepare($sql);
+        if (!$stmt) {
+            throw new Exception("Failed to prepare statement: " . $db->error);
+        }
+
+        if ($types && $params) {
+            $stmt->bind_param($types, ...$params);
+        }
+
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
     // Run an update, insert, or delete query and return affected rows
     protected static function executeUpdate(string $sql, string $types = "", ...$params): int
     {

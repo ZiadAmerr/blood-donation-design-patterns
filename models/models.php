@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
-// Address Model
+// Address (extends Model for DB operations)
 class Address extends Model
 {
     public int $id;
@@ -89,8 +89,8 @@ class Address extends Model
     }
 }
 
-// Abstract Person Model
-abstract class Person {
+// Abstract Person (extends Model for DB operations)
+abstract class Person extends Model {
     protected $id;
     protected $name;
     protected $date_of_birth;
@@ -98,12 +98,8 @@ abstract class Person {
     protected $address;
 
     public function __construct($id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("SELECT * FROM Person WHERE id = ?");
-        $query->bind_param("i", $id);
-        $query->execute();
-        $result = $query->get_result();
-        if ($row = $result->fetch_assoc()) {
+        $row = $this->fetchSingle("SELECT * FROM Person WHERE id = ?", "i", $id);
+        if ($row) {
             $this->id = $row['id'];
             $this->name = $row['name'];
             $this->date_of_birth = $row['date_of_birth'];
@@ -113,89 +109,69 @@ abstract class Person {
     }
 
     public static function create($name, $date_of_birth, $national_id, $address_id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("INSERT INTO Person (name, date_of_birth, national_id, address_id) VALUES (?, ?, ?, ?)");
-        $query->bind_param("sssi", $name, $date_of_birth, $national_id, $address_id);
-        $query->execute();
-        return new static($db->insert_id); // Return new object
+        $id = static::executeUpdate(
+            "INSERT INTO Person (name, date_of_birth, national_id, address_id) VALUES (?, ?, ?, ?)",
+            "sssi",
+            $name, $date_of_birth, $national_id, $address_id
+        );
+        return new static($id);
     }
 
     public function update($name, $date_of_birth, $national_id, $address_id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ? WHERE id = ?");
-        $query->bind_param("sssii", $name, $date_of_birth, $national_id, $address_id, $this->id);
-        $query->execute();
+        static::executeUpdate(
+            "UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ? WHERE id = ?",
+            "sssii",
+            $name, $date_of_birth, $national_id, $address_id, $this->id
+        );
     }
 
     public function delete() {
-        $db = Database::getInstance();
-        $query = $db->prepare("DELETE FROM Person WHERE id = ?");
-        $query->bind_param("i", $this->id);
-        $query->execute();
+        static::executeUpdate("DELETE FROM Person WHERE id = ?", "i", $this->id);
     }
 }
 
 
-// Donor Model
+// Donor Model (extends Person)
 class Donor extends Person {
     public int $person_id;
 
-    // Constructor to initialize Donor
     public function __construct(int $person_id) {
         parent::__construct($person_id);
         $this->person_id = $person_id;
     }
 
-    // Override create method to match the parent signature
     public static function create($name, $date_of_birth, $national_id, $address_id): Donor {
-        // Create a Person first
         $person = parent::create($name, $date_of_birth, $national_id, $address_id);
 
-        // Insert into Donor table using the new Person ID
-        $db = Database::getInstance();
-        $query = $db->prepare("INSERT INTO Donor (person_id) VALUES (?)");
-        $query->bind_param("i", $person->id);
+        static::executeUpdate(
+            "INSERT INTO Donor (person_id) VALUES (?)",
+            "i",
+            $person->id
+        );
 
-        if (!$query->execute()) {
-            throw new Exception("Failed to create Donor: " . $query->error);
-        }
-
-        // Return the Donor object
         return new Donor($person->id);
     }
 
-    // Delete the Donor record
     public function delete(): void {
-        $db = Database::getInstance();
-        $query = $db->prepare("DELETE FROM Donor WHERE person_id = ?");
-        $query->bind_param("i", $this->person_id);
+        static::executeUpdate(
+            "DELETE FROM Donor WHERE person_id = ?",
+            "i",
+            $this->person_id
+        );
 
-        if (!$query->execute()) {
-            throw new Exception("Failed to delete Donor: " . $query->error);
-        }
-
-        // Delete the Person record as well
         parent::delete();
     }
 }
 
-
-
-// Donation Model
-class Donation {
+// Donation (extends Model for DB operations)
+class Donation extends Model {
     public int $id;
     public Donor $donor;
     public string $type;
 
-    // Constructor to initialize Donation
     public function __construct(int $id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("SELECT * FROM Donation WHERE id = ?");
-        $query->bind_param("i", $id);
-        $query->execute();
-        $result = $query->get_result();
-
-        if ($row = $result->fetch_assoc()) {
+        $row = $this->fetchSingle("SELECT * FROM Donation WHERE id = ?", "i", $id);
+        if ($row) {
             $this->id = (int)$row['id'];
             $this->type = $row['type'];
             $this->donor = new Donor((int)$row['donor_id']);
@@ -204,54 +180,36 @@ class Donation {
         }
     }
 
-    // Create a new Donation
     public static function create(int $donor_id, string $type): Donation {
-        $db = Database::getInstance();
-        $query = $db->prepare("INSERT INTO Donation (donor_id, type) VALUES (?, ?)");
-        $query->bind_param("is", $donor_id, $type);
-
-        if (!$query->execute()) {
-            throw new Exception("Failed to create Donation: " . $query->error);
-        }
-
-        return new Donation($db->insert_id);
+        $id = static::executeUpdate(
+            "INSERT INTO Donation (donor_id, type) VALUES (?, ?)",
+            "is",
+            $donor_id,
+            $type
+        );
+        return new Donation($id);
     }
 
-    // Delete the Donation record
     public function delete(): void {
-        $db = Database::getInstance();
-        $query = $db->prepare("DELETE FROM Donation WHERE id = ?");
-        if (!$query) {
-            throw new Exception("Failed to prepare query: " . $db->error);
-        }
-
-        $query->bind_param("i", $this->id);
-
-        if (!$query->execute()) {
-            throw new Exception("Failed to delete Donation: " . $query->error);
-        }
+        static::executeUpdate(
+            "DELETE FROM Donation WHERE id = ?",
+            "i",
+            $this->id
+        );
     }
 }
 
-
-// BloodStock Singleton Model
-class BloodStock implements IBloodStock{
+// BloodStock, Singleton
+class BloodStock extends Model {
     private static ?BloodStock $instance = null;
     private int $id;
     private string $blood_type;
     private float $amount;
-    private array $listOfBeneficiaries = []; // array of Beneficiary objects
-    
+    private array $listOfBeneficiaries = [];
 
-    // Private constructor to enforce Singleton
     private function __construct(int $id) {
-        $db = Database::getInstance();
-        $query = $db->prepare("SELECT * FROM BloodStock WHERE id = ?");
-        $query->bind_param("i", $id);
-        $query->execute();
-        $result = $query->get_result();
-
-        if ($row = $result->fetch_assoc()) {
+        $row = $this->fetchSingle("SELECT * FROM BloodStock WHERE id = ?", "i", $id);
+        if ($row) {
             $this->id = (int)$row['id'];
             $this->blood_type = $row['blood_type'];
             $this->amount = (float)$row['amount'];
@@ -260,7 +218,6 @@ class BloodStock implements IBloodStock{
         }
     }
 
-    // Singleton instance getter
     public static function getInstance(int $id = 1): BloodStock {
         if (self::$instance === null) {
             self::$instance = new BloodStock($id);
@@ -268,65 +225,53 @@ class BloodStock implements IBloodStock{
         return self::$instance;
     }
 
-    // Create a new BloodStock record
     public static function create(string $blood_type, float $amount): BloodStock {
-        $db = Database::getInstance();
-        $query = $db->prepare("INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)");
-        $query->bind_param("sd", $blood_type, $amount);
-
-        if (!$query->execute()) {
-            throw new Exception("Failed to create BloodStock: " . $query->error);
-        }
-
-        return new BloodStock($db->insert_id);
+        $id = static::executeUpdate(
+            "INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)",
+            "sd",
+            $blood_type,
+            $amount
+        );
+        return new BloodStock($id);
     }
 
-    // Update the blood stock amount
     public function update(float $new_amount): void {
-        $db = Database::getInstance();
-        $query = $db->prepare("UPDATE BloodStock SET amount = ? WHERE id = ?");
-        $query->bind_param("di", $new_amount, $this->id);
-
-        if (!$query->execute()) {
-            throw new Exception("Failed to update BloodStock: " . $query->error);
-        }
-
-        $this->amount = $new_amount; // Update instance property
+        static::executeUpdate(
+            "UPDATE BloodStock SET amount = ? WHERE id = ?",
+            "di",
+            $new_amount,
+            $this->id
+        );
+        $this->amount = $new_amount;
     }
 
-    // Delete the blood stock record and reset the Singleton instance
     public function delete(): void {
-        $db = Database::getInstance();
-        $query = $db->prepare("DELETE FROM BloodStock WHERE id = ?");
-        $query->bind_param("i", $this->id);
+        static::executeUpdate(
+            "DELETE FROM BloodStock WHERE id = ?",
+            "i",
+            $this->id
+        );
+        self::$instance = null;
+    }
 
-        if (!$query->execute()) {
-            throw new Exception("Failed to delete BloodStock: " . $query->error);
-        }
+    public function addBeneficiary(Beneficiaries $beneficiary): void {
+        $this->listOfBeneficiaries[] = $beneficiary;
+    }
 
-        self::$instance = null; // Reset Singleton instance
-        
+    public function removeBeneficiary(Beneficiaries $beneficiary): void {
+        $this->listOfBeneficiaries = array_filter(
+            $this->listOfBeneficiaries,
+            fn($b) => $b !== $beneficiary
+        );
     }
-    public function addBeneficiary(Beneficiaries $beneficiary): void
-    {
-        // add a beneficiary to the list
-        array_push($this->listOfBeneficiaries, $beneficiary);
-    }
-    public function removeBeneficiary(Beneficiaries $beneficiary): void
-    {
-        // remove a beneficiary from the list
-        unset($this->listOfBeneficiaries[$beneficiary]);
-        
-    }
-    public function updateBloodStock(): void
-    {
-        // this function is called as soon as any change in the blood stock occur to notify other beneficiaries of this change
-        foreach ($this->listOfBeneficiaries as $beneficiary) 
-        {
+
+    public function updateBloodStock(): void {
+        foreach ($this->listOfBeneficiaries as $beneficiary) {
             $beneficiary->update();
         }
     }
 }
+
 
 ?>
 
