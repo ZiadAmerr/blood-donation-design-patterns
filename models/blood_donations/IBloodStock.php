@@ -5,7 +5,6 @@ interface IBloodStock {
     public function addBeneficiary(Beneficiaries $beneficiary): void;
     public function removeBeneficiary(Beneficiaries $beneficiary): void;
     public function updateBloodStock(): void;
-    
 }
 
 ?>

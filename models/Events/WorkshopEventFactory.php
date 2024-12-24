@@ -1,6 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "Event.php";
+require_once "event.php";
 
 class WorkShopEventFactory extends EventFactory{
 
@@ -10,7 +10,7 @@ class WorkShopEventFactory extends EventFactory{
         // extract arguments from the list args
         // return new WorkShopEvent($title, $address, $dateTime, $instructor, $maxAttendees, $materials);
         return null;
-    } 
+    }
 
 }
 

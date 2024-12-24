@@ -1,6 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "Event.php";
+require_once "event.php";
 
 class WorkShopEvent extends Event {
     private $instructor; // create instructor class (preferably) or just treat it as string

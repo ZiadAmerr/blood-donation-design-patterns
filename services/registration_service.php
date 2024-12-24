@@ -1,6 +1,6 @@
 <?php
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/services/address_service.php';
+require_once 'address_service.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/people/Donor.php";
 
 class RegistrationService {
     public static function registerDonor($postData): array {

@@ -1,6 +1,6 @@
 <?php
 // Include the necessary database connection
-require_once $_SERVER['DOCUMENT_ROOT'] . "/models/models.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
 // Error handling setup
 function handleError($message) {

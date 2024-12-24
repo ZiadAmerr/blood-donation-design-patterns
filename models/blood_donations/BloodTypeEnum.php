@@ -10,7 +10,6 @@ enum BloodType {
     const B_NEGATIVE = 'B-';
     const O_POSITIVE = 'O+';
     const O_NEGATIVE = 'O-';
-
-    
 }
+
 ?>
