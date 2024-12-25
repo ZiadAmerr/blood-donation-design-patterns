@@ -55,11 +55,11 @@ class BloodStock extends Model implements IBloodStock {
         self::$instance = null;
     }
 
-    public function addBeneficiary(Beneficiaries $beneficiary): void {
+    public function addBeneficiary(IBeneficiaries $beneficiary): void {
         $this->listOfBeneficiaries[] = $beneficiary;
     }
 
-    public function removeBeneficiary(Beneficiaries $beneficiary): void {
+    public function removeBeneficiary(IBeneficiaries $beneficiary): void {
         $this->listOfBeneficiaries = array_filter(
             $this->listOfBeneficiaries,
             fn($b) => $b !== $beneficiary
