@@ -1,11 +1,17 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
+// File: IBeneficiaries.php
 
-interface IBeneficiaries {
-    public function update();
+interface IBeneficiaries
+{
+    /**
+     * requestBlood()
+     * Requests a certain amount of a specific BloodType from the stock.
+     */
     public function requestBlood(int $amount, BloodType $bloodType);
-    
+
+    /**
+     * update()
+     * Called automatically when BloodStock notifies its observers.
+     */
+    public function update();
 }
-
-?>
-
