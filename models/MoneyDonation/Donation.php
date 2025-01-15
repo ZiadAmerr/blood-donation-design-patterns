@@ -1,33 +1,38 @@
 <?php
+// File: Donation.php
+require_once __DIR__ . '/../services/database_service.php';
 
-// Donation (extends Model for DB operations)
-class Donation extends Model {
+abstract class Donation extends Model
+{
     public int $id;
-    public Donor $donor;
-    public string $type;
+    public int $donor_id;
+    public string $type; // e.g. "blood", "money"
 
-    public function __construct(int $id) {
-        $row = $this->fetchSingle("SELECT * FROM Donation WHERE id = ?", "i", $id);
-        if ($row) {
-            $this->id = (int)$row['id'];
-            $this->type = $row['type'];
-            $this->donor = new Donor((int)$row['donor_id']);
-        } else {
-            throw new Exception("Donation with ID $id not found.");
+    public function __construct(int $id = 0)
+    {
+        if ($id) {
+            $row = $this->fetchSingle("SELECT * FROM Donation WHERE id = ?", "i", $id);
+            if ($row) {
+                $this->id       = (int) $row['id'];
+                $this->type     = $row['type'];
+                $this->donor_id = (int) $row['donor_id'];
+            }
         }
     }
 
-    public static function create(int $donor_id, string $type): Donation {
+    public static function create(int $donor_id, string $type): Donation
+    {
         $id = static::executeUpdate(
             "INSERT INTO Donation (donor_id, type) VALUES (?, ?)",
             "is",
             $donor_id,
             $type
         );
-        return new Donation($id);
+        return new static($id);
     }
 
-    public function delete(): void {
+    public function delete(): void
+    {
         static::executeUpdate(
             "DELETE FROM Donation WHERE id = ?",
             "i",
@@ -35,5 +40,3 @@ class Donation extends Model {
         );
     }
 }
-
-?>
