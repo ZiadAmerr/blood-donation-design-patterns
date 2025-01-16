@@ -19,12 +19,12 @@ class BloodBank implements IBeneficiaries
     }
 
     /**
-     * requestBlood(int $amount, BloodType $bloodType)
+     * requestBlood(int $amount, BloodTypeEnum $bloodType)
      * 
-     * Check if the requested amount of a specific BloodType is available in BloodStock.
+     * Check if the requested amount of a specific BloodTypeEnum is available in BloodStock.
      * If enough is available, remove from stock. Otherwise, inform the user there's insufficient stock.
      */
-    public function requestBlood(int $amount, BloodType $bloodType)
+    public function requestBlood(int $amount, BloodTypeEnum $bloodType)
     {
         try {
             $bloodStock = BloodStock::getInstance();

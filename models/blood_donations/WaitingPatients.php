@@ -8,9 +8,11 @@ class WaitingPatients implements IBeneficiaries
 {
     public function __construct()
     {
-        // Get the singleton BloodStock instance and register as an Observer
-        $bloodStock = BloodStock::getInstance();
-        $bloodStock->addBeneficiary($this);
+        // Get the singleton instance of BloodStock
+        $blood_bank = BloodStock::getInstance();
+
+        // Register this WaitingPatients object as a beneficiary of the BloodStock instance
+        $blood_bank->addBeneficiary($this);
     }
 
     /**
@@ -19,7 +21,7 @@ class WaitingPatients implements IBeneficiaries
      * Checks if the requested amount of a specific BloodType is available.
      * If enough is available, remove from stock. Otherwise, notify there's not enough.
      */
-    public function requestBlood(int $amount, BloodType $bloodType)
+    public function requestBlood(int $amount, BloodTypeEnum $bloodType)
     {
         try {
             $bloodStock = BloodStock::getInstance();
@@ -64,3 +66,4 @@ class WaitingPatients implements IBeneficiaries
             . $bloodStock->getBloodType() . ".<br>";
     }
 }
+?>

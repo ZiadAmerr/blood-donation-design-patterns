@@ -2,16 +2,14 @@
 // File: BloodStock.php
 require_once __DIR__ . '/IBloodStock.php';
 require_once __DIR__ . '/Ibeneficiaries.php';
-require_once __DIR__ . '/database_service.php'; // for Model
-// Adjust the path if needed
+require_once __DIR__ . '/database_service.php';
 
 class BloodStock extends Model implements IBloodStock
 {
     private static ?BloodStock $instance = null;
 
-    private int $id;
-    private string $blood_type;  // e.g. "O+", "A-", etc.
-    private float $amount;       // amount in liters
+    private BloodTypeEnum $blood_type;
+    private float $amount;
 
     // Observers
     private array $listOfBeneficiaries = [];
@@ -23,20 +21,22 @@ class BloodStock extends Model implements IBloodStock
     {
         $row = $this->fetchSingle("SELECT * FROM BloodStock WHERE id = ?", "i", $id);
         if ($row) {
+            // Initialize properties with fetched values
             $this->id         = (int) $row['id'];
             $this->blood_type = $row['blood_type'];
             $this->amount     = (float) $row['amount'];
         } else {
-            throw new \Exception("BloodStock with ID $id not found.");
+            // Throw exception if no record is found for the given ID
+            throw new Exception("BloodStock with ID $id not found.");
         }
     }
 
     /**
      * Singleton accessor
      */
-    public static function getInstance(int $id = 1): BloodStock
-    {
+    public static function getInstance(int $id = 1): BloodStock {
         if (self::$instance === null) {
+            // Create a new instance if one does not already exist
             self::$instance = new BloodStock($id);
         }
         return self::$instance;
@@ -45,7 +45,7 @@ class BloodStock extends Model implements IBloodStock
     /**
      * Create a new BloodStock record
      */
-    public static function create(string $blood_type, float $amount): BloodStock
+    public static function create(BloodTypeEnum $blood_type, float $amount): BloodStock
     {
         $id = static::executeUpdate(
             "INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)",
@@ -53,6 +53,7 @@ class BloodStock extends Model implements IBloodStock
             $blood_type,
             $amount
         );
+        // Return a new BloodStock instance with the generated ID
         return new BloodStock($id);
     }
 
@@ -68,6 +69,7 @@ class BloodStock extends Model implements IBloodStock
             $this->id
         );
 
+        // Update the local property
         $this->amount = $new_amount;
         $this->updateBloodStock(); // notify observers
     }
@@ -77,34 +79,36 @@ class BloodStock extends Model implements IBloodStock
      */
     public function delete(): void
     {
-        static::executeUpdate("DELETE FROM BloodStock WHERE id = ?", "i", $this->id);
+        static::executeUpdate(
+            "DELETE FROM BloodStock WHERE id = ?",
+            "i",
+            $this->id
+        );
+        
         self::$instance = null;
     }
 
     // -- Observer pattern methods --
-
-    public function addBeneficiary(IBeneficiaries $beneficiary): void
-    {
+    public function addBeneficiary(IBeneficiaries $beneficiary): void {
         $this->listOfBeneficiaries[] = $beneficiary;
     }
 
-    public function removeBeneficiary(IBeneficiaries $beneficiary): void
-    {
+    // Remove a beneficiary from the list of observers
+    public function removeBeneficiary(IBeneficiaries $beneficiary): void {
         $this->listOfBeneficiaries = array_filter(
             $this->listOfBeneficiaries,
             fn($b) => $b !== $beneficiary
         );
     }
 
-    public function updateBloodStock(): void
-    {
+    // Notify all beneficiaries about changes to the BloodStock
+    public function updateBloodStock(): void {
         foreach ($this->listOfBeneficiaries as $beneficiary) {
             $beneficiary->update();
         }
     }
 
     // -- Convenience methods --
-
     public function addToStock(float $amountToAdd): void
     {
         $this->update($this->amount + $amountToAdd);
@@ -120,7 +124,6 @@ class BloodStock extends Model implements IBloodStock
     }
 
     // -- Getters --
-
     public function getId(): int
     {
         return $this->id;

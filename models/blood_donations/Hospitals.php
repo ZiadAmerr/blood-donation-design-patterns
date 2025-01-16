@@ -12,11 +12,11 @@ class Hospitals implements IBeneficiaries
         $bloodStock = BloodStock::getInstance();
         $bloodStock->addBeneficiary($this);
     }
-
+    
     /**
-     * Requests a certain amount of a specific BloodType from the stock.
+     * Requests a certain amount of a specific BloodTypeEnum from the stock.
      */
-    public function requestBlood(int $amount, BloodType $bloodType)
+    public function requestBlood(int $amount, BloodTypeEnum $bloodType)
     {
         try {
             // Retrieve the singleton instance of BloodStock

@@ -12,7 +12,7 @@ class MakeBloodDonation implements Command {
     }
 
     public function execute(DonationFacade $receiver, Donor $donor): bool {
-        $bloodDonation = new BloodDonation($donor, 1, new BloodType()); // Example: 1 liter, new BloodType instance
+        $bloodDonation = new BloodDonation($donor, 1, new BloodTypeEnum()); // Example: 1 liter, new BloodTypeEnum instance
         return $receiver->donateBlood($bloodDonation);
     }
 }

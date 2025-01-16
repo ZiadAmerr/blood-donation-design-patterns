@@ -8,11 +8,12 @@ require_once __DIR__ . "/DonorValidationTemplate.php";
 
 class BloodDonation extends Donation
 {
+    // donation id should be removed imo (or should be db generated..not entered by a user)
     private int $Number_of_liters;
-    private string $BloodTypeEnum;
+    private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
 
-    public function __construct(int $Donation_ID, Donor $donor, DateTime $datetime, int $Number_of_liters, string $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
+    public function __construct(int $Donation_ID, Donor $donor, DateTime $datetime, int $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
     {
         parent::__construct($Donation_ID, $donor, $datetime);
         $this->Number_of_liters = $Number_of_liters;
