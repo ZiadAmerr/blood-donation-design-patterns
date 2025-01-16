@@ -1,33 +1,46 @@
 <?php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
-abstract class Event extends Model { 
-    protected int $id;
+abstract class Event extends Model {
+    protected float $eventID;
     protected string $title;
-    protected Address $address;
+    protected int $maxAttendees;
     protected DateTime $dateTime;
+    protected Address $address;
+    protected array $attendees = [];
+    protected array $volunteers = [];
+    protected array $tickets = [];
 
-    public function __construct(int $id, string $title, Address $address, DateTime $dateTime) {
-        $this->id = $id;
+    public function __construct(
+        float $eventID,
+        string $title,
+        int $maxAttendees,
+        DateTime $dateTime,
+        Address $address
+    ) {
+        $this->eventID = $eventID;
         $this->title = $title;
-        $this->address = $address;
+        $this->maxAttendees = $maxAttendees;
         $this->dateTime = $dateTime;
+        $this->address = $address;
     }
 
-    abstract public static function create(array $data): Event;
-    abstract public function update(array $data): void;
-    abstract public function delete(): void;
-    abstract public function load(): void;
-    abstract protected function getDetails(): string;
+    abstract public function getDetails(): string;
 
-    protected function fetchEventById(int $id): ?array {
-        $sql = "SELECT * FROM Event WHERE id = ?";
-        return $this->fetchSingle($sql, "i", $id);
+    public function addVolunteer(Volunteer $volunteer): void {
+        $this->volunteers[] = $volunteer;
     }
 
-    protected function updateEventData(string $title, int $addressId, DateTime $dateTime): void {
-        $sql = "UPDATE Event SET title = ?, address_id = ?, date_time = ? WHERE id = ?";
-        $this->executeUpdate($sql, "sisdi", $title, $addressId, $dateTime->format('Y-m-d H:i:s'), $this->id);
+    public function issueTicket(float $attendeeID): Ticket {
+        $ticket = new Ticket(uniqid(), $attendeeID, $this->eventID);
+        $this->tickets[] = $ticket;
+        return $ticket;
+    }
+
+    public function getAttendees(): array {
+        return $this->attendees;
     }
 }
+
 ?>
