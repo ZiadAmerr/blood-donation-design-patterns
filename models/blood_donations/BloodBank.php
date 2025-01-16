@@ -8,7 +8,7 @@ class BloodBank implements IBeneficiaries {
         $blood_bank = BloodStock::getInstance();
         $blood_bank->addBeneficiary($this); 
     }
-    public function requestBlood(int $amount, BloodType $bloodType)
+    public function requestBlood(int $amount, BloodTypeEnum $bloodType)
     {
         // check if blood is available from the bloodstock instance
     }

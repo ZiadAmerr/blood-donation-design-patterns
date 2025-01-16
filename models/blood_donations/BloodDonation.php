@@ -5,7 +5,7 @@ class BloodDonation extends Donation{
     // donation id should be removed imo (or should be db generated..not entered by a user)
     private Donor $donor;
     private int $numberOfLiters;
-    private BloodType $bloodType;
+    private BloodTypeEnum $bloodType;
 
     public function __construct($donor, $numberOfLiters, $bloodType)
     {
