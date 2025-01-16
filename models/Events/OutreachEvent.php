@@ -1,37 +1,47 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "event.php";
+require_once "Event.php";
+require_once "Address.php";
 
 class OutreachEvent extends Event {  
     private int $audience; 
-    private array $activities; // TODO: create classes for activites
-    private array $listOfOrganizations; // TODO: create classes for organizations
+    private array $activities;
+    private array $listOfOrganizations;
 
     public function __construct(int $id, string $title, Address $address, DateTime $dateTime, int $audience, array $activities = [], array $listOfOrganizations = []) {
         parent::__construct($id, $title, $address, $dateTime);
-        
         $this->audience = $audience;
         $this->activities = $activities;
         $this->listOfOrganizations = $listOfOrganizations;
     }
 
     public static function create(array $data): OutreachEvent {
-        // Create OutreachEvent instance
-        $outreachEvent = new self(0, $data['title'], new Address($data['address_id']), new DateTime($data['dateTime']), $data['audience'], $data['activities'], $data['listOfOrganizations']);
-        
-        // Insert into the database
+        $outreachEvent = new self(
+            0,
+            $data['title'],
+            new Address($data['address_id']),
+            new DateTime($data['dateTime']),
+            $data['audience']
+        );
+
         $sql = "INSERT INTO OutreachEvent (title, address_id, date_time, audience) VALUES (?, ?, ?, ?)";
-        $outreachEventId = $outreachEvent->executeUpdate($sql, "sisdi", $data['title'], $data['address_id'], $data['dateTime']->format('Y-m-d H:i:s'), $data['audience']);
+        $outreachEventId = $outreachEvent->executeUpdate(
+            $sql,
+            "sisdi",
+            $data['title'],
+            $data['address_id'],
+            $data['dateTime']->format('Y-m-d H:i:s'),
+            $data['audience']
+        );
         $outreachEvent->id = $outreachEventId;
 
         return $outreachEvent;
     }
 
-    public function addActivity($activity) {
+    public function addActivity(string $activity): void {
         $this->activities[] = $activity;
     }
 
-    public function inviteOrganizations($organization) {
+    public function inviteOrganization(string $organization): void {
         $this->listOfOrganizations[] = $organization;
     }
 
@@ -40,11 +50,17 @@ class OutreachEvent extends Event {
         $this->address = new Address($data['address_id']);
         $this->dateTime = new DateTime($data['dateTime']);
         $this->audience = $data['audience'];
-        $this->activities = $data['activities'];
-        $this->listOfOrganizations = $data['listOfOrganizations'];
 
         $sql = "UPDATE OutreachEvent SET title = ?, address_id = ?, date_time = ?, audience = ? WHERE id = ?";
-        $this->executeUpdate($sql, "sisdi", $data['title'], $data['address_id'], $data['dateTime']->format('Y-m-d H:i:s'), $data['audience'], $this->id);
+        $this->executeUpdate(
+            $sql,
+            "sisdi",
+            $data['title'],
+            $data['address_id'],
+            $data['dateTime']->format('Y-m-d H:i:s'),
+            $data['audience'],
+            $this->id
+        );
     }
 
     public function delete(): void {
@@ -61,11 +77,12 @@ class OutreachEvent extends Event {
             $this->address = new Address($row['address_id']);
             $this->dateTime = new DateTime($row['date_time']);
             $this->audience = (int)$row['audience'];
+            $this->activities = $row['activities'] ?? [];
+            $this->listOfOrganizations = $row['organizations'] ?? [];
         }
     }
 
-    public function getDetails(): string {
-        // Generate details for this event
+    protected function getDetails(): string {
         return "Outreach Event: {$this->title}, Audience: {$this->audience}, Activities: " . implode(", ", $this->activities);
     }
 }

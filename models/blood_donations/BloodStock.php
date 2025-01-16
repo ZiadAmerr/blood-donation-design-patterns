@@ -1,37 +1,39 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/IBloodStock.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodTypeEnum.php";
+// File: BloodStock.php
+require_once __DIR__ . '/IBloodStock.php';
+require_once __DIR__ . '/Ibeneficiaries.php';
+require_once __DIR__ . '/database_service.php';
 
-// BloodStock, Singleton
-class BloodStock extends Model implements IBloodStock {
-    // Static instance to hold the singleton object
+class BloodStock extends Model implements IBloodStock
+{
     private static ?BloodStock $instance = null;
 
-    // Attributes representing BloodStock details
-    private int $id;
     private BloodTypeEnum $blood_type;
     private float $amount;
 
-    // List of beneficiaries observing changes in BloodStock
+    // Observers
     private array $listOfBeneficiaries = [];
 
-    // Private constructor to enforce singleton pattern
-    private function __construct(int $id) {
-        // Fetch BloodStock details from the database using the provided ID
+    /**
+     * Private constructor ensures only one instance can be created.
+     */
+    private function __construct(int $id)
+    {
         $row = $this->fetchSingle("SELECT * FROM BloodStock WHERE id = ?", "i", $id);
         if ($row) {
             // Initialize properties with fetched values
-            $this->id = (int)$row['id'];
+            $this->id         = (int) $row['id'];
             $this->blood_type = $row['blood_type'];
-            $this->amount = (float)$row['amount'];
+            $this->amount     = (float) $row['amount'];
         } else {
             // Throw exception if no record is found for the given ID
             throw new Exception("BloodStock with ID $id not found.");
         }
     }
 
-    // Static method to get the singleton instance, optionally initializing it with an ID
+    /**
+     * Singleton accessor
+     */
     public static function getInstance(int $id = 1): BloodStock {
         if (self::$instance === null) {
             // Create a new instance if one does not already exist
@@ -40,9 +42,11 @@ class BloodStock extends Model implements IBloodStock {
         return self::$instance;
     }
 
-    // Static method to create a new BloodStock entry in the database
-    public static function create(string $blood_type, float $amount): BloodStock {
-        // Insert a new record and get its ID
+    /**
+     * Create a new BloodStock record
+     */
+    public static function create(BloodTypeEnum $blood_type, float $amount): BloodStock
+    {
         $id = static::executeUpdate(
             "INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)",
             "sd",
@@ -53,32 +57,38 @@ class BloodStock extends Model implements IBloodStock {
         return new BloodStock($id);
     }
 
-    // Update the blood stock amount in the database and locally
-    public function update(float $new_amount): void {
-        // Update the database with the new blood amount
+    /**
+     * Update the amount in DB and in this instance
+     */
+    public function update(float $new_amount): void
+    {
         static::executeUpdate(
             "UPDATE BloodStock SET amount = ? WHERE id = ?",
             "di",
             $new_amount,
             $this->id
         );
+
         // Update the local property
         $this->amount = $new_amount;
+        $this->updateBloodStock(); // notify observers
     }
 
-    // Delete the BloodStock entry from the database and reset the singleton instance
-    public function delete(): void {
-        // Remove the record from the database
+    /**
+     * Delete record from DB, reset instance
+     */
+    public function delete(): void
+    {
         static::executeUpdate(
             "DELETE FROM BloodStock WHERE id = ?",
             "i",
             $this->id
         );
-        // Reset the singleton instance to null
+        
         self::$instance = null;
     }
 
-    // Add a beneficiary to the list of observers
+    // -- Observer pattern methods --
     public function addBeneficiary(IBeneficiaries $beneficiary): void {
         $this->listOfBeneficiaries[] = $beneficiary;
     }
@@ -97,6 +107,35 @@ class BloodStock extends Model implements IBloodStock {
             $beneficiary->update();
         }
     }
-}
 
-?>
+    // -- Convenience methods --
+    public function addToStock(float $amountToAdd): void
+    {
+        $this->update($this->amount + $amountToAdd);
+    }
+
+    public function removeFromStock(float $amountToRemove): bool
+    {
+        if ($this->amount >= $amountToRemove) {
+            $this->update($this->amount - $amountToRemove);
+            return true;
+        }
+        return false; // insufficient stock
+    }
+
+    // -- Getters --
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getBloodType(): string
+    {
+        return $this->blood_type;
+    }
+
+    public function getAmount(): float
+    {
+        return $this->amount;
+    }
+}
