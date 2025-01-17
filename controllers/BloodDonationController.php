@@ -23,6 +23,10 @@ class BloodDonationController
         );
 
         $bloodType = BloodTypeEnum::fromString($data['blood_type']);
+        // Validate blood type to prevent passing NULL
+    if ($bloodType === null) {
+        throw new Exception("Invalid blood type provided: " . $data['blood_type']);
+    }
         $numberOfLiters = floatval($data['number_of_liters']);
 
         $bloodDonation = new BloodDonation(

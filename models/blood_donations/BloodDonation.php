@@ -16,47 +16,58 @@ class BloodDonation extends Donation
     private int $Number_of_liters;
     private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
-
-    public function __construct(Donor $donor, DateTime $datetime, int $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
+    public Donor $donor; 
+    public function __construct(Donor $donor, DateTime $datetime, float $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
     {
-        parent::__construct(null, $donor, $datetime); 
+        // Assign values directly (No parent constructor call)
+        $this->donor = $donor;
         $this->Number_of_liters = $Number_of_liters;
         $this->BloodTypeEnum = $BloodTypeEnum;
         $this->validationTemplate = $validationTemplate;
+        $this->date = $datetime;
     }
-
     public function validate(): bool
     {
-        try {
-            $xml_ret = $this->validationTemplate->validateDonor($this->$donor);
-            $donorStateContext = new DonorStateContext($this->$donor);
-            if ($donorStateContext->getChangedSinceLastCheck()) {
-                // NOTIFY
-                $smsAdapter = new SMSAdapter(new SmsService(), $this->$donor, $xml_ret);
-                $smsAdapter->sendNotification();
+        return true;
+        // try {
+        //     $xml_ret = $this->validationTemplate->validateDonor($this->$donor);
+        //     $donorStateContext = new DonorStateContext($this->$donor);
+        //     if ($donorStateContext->getChangedSinceLastCheck()) {
+                
+        //         $smsAdapter = new SMSAdapter(new SmsService(), $this->$donor, $xml_ret);
+        //         $smsAdapter->sendNotification();
 
-                $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->$donor, $xml_ret);
-                $whatsappAdapter->sendNotification();
-            }
-            return true;
-        } catch (Exception $e) {
-            return false;
-        }
+        //         $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->$donor, $xml_ret);
+        //         $whatsappAdapter->sendNotification();
+        //     }
+        //     return true;
+        // } catch (Exception $e) {
+        //     return false;
+        // }
     }
 
     public function increaseBloodStock(BloodStock $bloodStock): bool
     {
         try {
-            if ($bloodStock->getBloodType() === $this->BloodTypeEnum) {
-                $bloodStock->addToStock($this->Number_of_liters);
-                return true;
-            } else {
-                return false;
-            }
+            $bloodStock-> addToStock($this->BloodTypeEnum, $this->Number_of_liters);
+            return true;
         } catch (Exception $e) {
             return false;
         }
     }
+    private function saveDonationToDatabase(): void
+{
+    $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, date) VALUES (?, ?, ?, ?)";
+
+    self::executeUpdate(
+        $sql,
+        "idss",
+        $this->donor->person_id,  
+        $this->Number_of_liters,
+        $this->BloodTypeEnum->value,  
+        $this->date->format('Y-m-d H:i:s')
+    );
+}
 
     public function donate(): bool
     {
@@ -67,6 +78,7 @@ class BloodDonation extends Donation
         $bloodStock = BloodStock::getInstance();
 
         if ($this->increaseBloodStock($bloodStock)) {
+            $this->saveDonationToDatabase();
             return true;
         } else {
             return false;
