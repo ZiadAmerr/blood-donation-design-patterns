@@ -58,6 +58,7 @@ $donations = $controller->getDonations();
         <thead>
             <tr>
                 <th>Donor Name</th>
+                <th>Blood Donation Type</th>
                 <th>Blood Type</th>
                 <th>Amount (Liters)</th>
                 <th>Date</th>
@@ -75,6 +76,7 @@ $donations = $controller->getDonations();
                         $name = $controller->getDonorName($donation['donor_id'])
                         ?>
                         <td><?php echo htmlspecialchars($name); ?></td>
+                        <td><?php echo htmlspecialchars($donation['blooddonationtype']); ?></td>
                         <td><?php echo htmlspecialchars($donation['blood_type']); ?></td>
                         <td><?php echo number_format($donation['number_of_liters'], 2); ?></td>
                         <td><?php echo htmlspecialchars($donation['date']); ?></td>

@@ -35,7 +35,6 @@ enum DonationType: string
 
 class BloodDonation extends Donation
 {
-    // donation id should be removed imo (or should be db generated..not entered by a user)
     private int $Number_of_liters;
     private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
@@ -74,25 +73,32 @@ class BloodDonation extends Donation
     public function increaseBloodStock(): bool
     {
         try {
-            BloodStock::getInstance()->addToStock($this->BloodTypeEnum, $this->Number_of_liters);
+            // Update stock for either blood or plasma
+            if ($this->blooddonationtype === DonationType::BLOOD) {
+                BloodStock::getInstance()->addToBloodStock( $this->BloodTypeEnum,  $this->Number_of_liters);
+            } elseif ($this->blooddonationtype === DonationType::PLASMA) {
+                // Plasma stock update
+                BloodStock::getInstance()->addToPlasmaStock( $this->BloodTypeEnum, $this->Number_of_liters);
+            }
             return true;
         } catch (Exception $e) {
             return false;
         }
     }
-    public function saveDonationToDatabase(): void
-{
-    $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, date) VALUES (?, ?, ?, ?)";
 
-    self::executeUpdate(
-        $sql,
-        "idss",
-        $this->donor->person_id,  
-        $this->Number_of_liters,
-        $this->BloodTypeEnum->value,  
-        $this->date->format('Y-m-d H:i:s')
-    );
-}
+    public function saveDonationToDatabase(): void
+    {
+        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, blooddonationtype, date) VALUES (?, ?, ?, ?, ?)";
+        self::executeUpdate(
+            $sql,
+            "iisss",
+            $this->donor->person_id,  
+            $this->Number_of_liters,
+            $this->BloodTypeEnum->value, 
+            $this->blooddonationtype->getType(), 
+            $this->date->format('Y-m-d H:i:s')
+        );
+    }
 
     public function donate(): bool
     {
@@ -100,9 +106,9 @@ class BloodDonation extends Donation
             return false;
         }
 
-        $bloodStock = BloodStock::getInstance();
-
-        if ($this->increaseBloodStock($bloodStock)) {
+        // Increase blood stock based on blood type or plasma
+        if ($this->increaseBloodStock()) {
+            // Save donation to database after increasing stock
             $this->saveDonationToDatabase();
             return true;
         } else {
@@ -112,7 +118,7 @@ class BloodDonation extends Donation
 
     public static function fetchAllBloodDonations(): array
     {
-        // Adjusted the query to include all columns
+        // Fetch all blood donations from the database
         $sql = "SELECT * FROM BloodDonation";
         return self::fetchAll($sql);
     }

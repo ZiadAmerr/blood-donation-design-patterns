@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodDonation.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/plasma_donations/PlasmaStock.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/plasma_donations/DonorValidation/PlasmaDonationValidation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodStock.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/DonorValidation/PlasmaDonationValidation.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationRemote.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationFacade.php';

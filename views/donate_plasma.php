@@ -6,7 +6,7 @@ $response = ['success' => false, 'message' => ''];
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $controller = new PlasmaDonationController();
-    $response = $controller->processPlasmaDonation($_POST);
+    $response = $controller->processDonation($_POST);
 }
 ?>
 
