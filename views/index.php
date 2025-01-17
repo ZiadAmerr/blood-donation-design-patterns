@@ -34,6 +34,48 @@ function getCount($table) {
         handleError($e->getMessage());
     }
 }
+
+// Fetch summary data with error handling
+try {
+    $summary = [
+        // 'totalPersons' => getCount("Person"),
+        // 'totalAddresses' => getCount("Address"),
+        // 'totalDonors' => getCount("Donor"),
+        // 'totalDonations' => getCount("Donation"),
+        'totalPersons' => 0,
+        'totalAddresses' => 0,
+        'totalDonors' => 0,
+        'totalDonations' => 0,
+    ];
+} catch (Exception $e) {
+    handleError($e->getMessage());
+}
+
+// Fetch blood stock information with error handling
+try {
+    $db = Database::getInstance();
+    $query = $db->prepare("SELECT blood_type, SUM(amount) as total_amount FROM BloodStock GROUP BY blood_type");
+
+    if (!$query) {
+        throw new Exception("Failed to prepare blood stock query: " . $db->error);
+    }
+
+    if (!$query->execute()) {
+        throw new Exception("Failed to execute blood stock query: " . $query->error);
+    }
+
+    $result = $query->get_result();
+    if (!$result) {
+        throw new Exception("Failed to fetch blood stock data.");
+    }
+
+    $bloodStock = [];
+    while ($row = $result->fetch_assoc()) {
+        $bloodStock[] = $row;
+    }
+} catch (Exception $e) {
+    handleError($e->getMessage());
+}
 ?>
 
 <!DOCTYPE html>
