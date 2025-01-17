@@ -2,7 +2,7 @@
 
 DB_USER="root" # Replace with your MySQL username if different
 DB_HOST="localhost"
-DB_PORT="3307"
+DB_PORT="3306"
 SQL_FILE_PATH="/Applications/XAMPP/xamppfiles/htdocs/sql_reset.sql"
 MYSQL_PATH="/Applications/XAMPP/xamppfiles/bin/mysql"
 
