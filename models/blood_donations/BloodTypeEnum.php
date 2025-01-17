@@ -23,6 +23,18 @@ enum BloodTypeEnum {
             self::O_NEGATIVE,
         ];
     }
+    // Method to get an enum instance from a string
+    public static function fromString(string $value): ?BloodTypeEnum {
+        // Check if the value matches one of the enum cases
+        foreach (self::values() as $bloodType) {
+            if ($bloodType->value === $value) {
+                return $bloodType;
+            }
+        }
+
+        // Return null if no match is found
+        return null;
+    }
 }
 
 ?>

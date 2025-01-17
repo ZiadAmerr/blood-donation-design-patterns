@@ -1,10 +1,11 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once __DIR__ . "/Donation.php";
-require_once __DIR__ . "/BloodStock.php";
-require_once __DIR__ . "/BloodType.php";
-require_once __DIR__ . "/Donor.php";
-require_once __DIR__ . "/DonorValidationTemplate.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/MoneyDonation/Donation.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodDonation.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodStock.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodTypeEnum.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/people/Donor.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorValidation/DonorValidationTemplate.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibility/DonorStateContext.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
 
@@ -16,9 +17,9 @@ class BloodDonation extends Donation
     private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
 
-    public function __construct(int $Donation_ID, Donor $donor, DateTime $datetime, int $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
+    public function __construct(Donor $donor, DateTime $datetime, int $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
     {
-        parent::__construct($Donation_ID, $donor, $datetime);
+        parent::__construct(null, $donor, $datetime); 
         $this->Number_of_liters = $Number_of_liters;
         $this->BloodTypeEnum = $BloodTypeEnum;
         $this->validationTemplate = $validationTemplate;
@@ -71,6 +72,13 @@ class BloodDonation extends Donation
             return false;
         }
     }
+
+    public static function fetchAllBloodDonations(): array
+{
+    $sql = "SELECT donation_id, number_of_liters, blood_type FROM BloodDonation";
+    return self::fetchAll($sql);
+}
+
 }
 
 ?>

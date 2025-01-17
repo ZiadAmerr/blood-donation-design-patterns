@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__ . '/IBloodStock.php';
-require_once __DIR__ . '/IBeneficiaries.php';
-require_once __DIR__ . '/database_service.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/IBloodStock.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/IBeneficiary.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 
 class BloodStock extends Model implements IBloodStock
 {

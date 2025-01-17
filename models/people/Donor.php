@@ -37,11 +37,32 @@ class Donor extends Person {
         $this->loadDonations();
     }
 
-    public static function create(string $name, string $dob, string $nationalId, string $address, string $phone): int
-    {
-        $sql = "INSERT INTO Donor (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)";
-        return self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
+    public static function create(string $name, string $dob, string $nationalId, string $address, string $phone): Donor
+{
+    // Ensure database connection is initialized
+    self::$db = Database::getInstance();
+
+    if (!isset(self::$db) || self::$db === null) {
+        throw new Exception("Database connection is not initialized.");
     }
+
+    $sql = "INSERT INTO Donor (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)";
+
+    // Execute the update
+    self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
+
+    // Retrieve the last inserted ID
+    $donorId = self::$db->insert_id;
+
+    // Ensure donorId is valid
+    if ($donorId <= 0) {
+        throw new Exception("Failed to insert donor: " . self::$db->error);
+    }
+
+    return new Donor($donorId);
+}
+
+
   
     /**
      * Fetch donor diseases from the database
