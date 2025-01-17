@@ -14,11 +14,6 @@ class DonationFacade {
     }
 
     
-    // public function update_donations_list(Donation $donation, Donor $donor): void {
-    //     Donation::create($donor->person_id, $donation->type);
-    // }
-
-    
     public function get_donor_donations(Donor $donor): void {
         $result = Model::fetchAll(
             "SELECT * FROM Donation WHERE donor_id = ?",
@@ -30,42 +25,24 @@ class DonationFacade {
         }
     }
 
-    
-    // public function money_donation_setter(MoneyDonation $moneyDonation): void {
-    //     Donation::create(
-    //         $moneyDonation->donor->person_id,
-    //         "money"
-    //     );
-    // }
-
-    
-    // public function blood_donation_setter(BloodDonation $bloodDonation): void {
-    //     $bloodDonation->saveDonationToDatabase();
-    // }
 
     
     public function donateMoney(MoneyDonation $moneyDonation): bool {
-        try {
+        
             $this->money_donation_setter($moneyDonation);
             $moneyDonation->getReceipt();
             return true;
-        } catch (Exception $e) {
-            echo "Error processing money donation: " . $e->getMessage();
-            return false;
-        }
+        
     }
 
     
     public function donateBlood(BloodDonation $bloodDonation): bool {
-        try {
+    
+            $code = $bloodDonation->increaseBloodStock();
+            $bloodDonation->saveDonationToDatabase();
+            return $code;
 
-            return $bloodDonation->increaseBloodStock();
-            //return true;
-        } catch (Exception $e) {
-            // Handle exception
-            echo "Error processing blood donation: " . $e->getMessage();
-            return false;
-        }
+      
     }
 
     public function donatePlasma(BloodDonation $bloodDonation): bool {

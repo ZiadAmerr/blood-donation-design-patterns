@@ -10,6 +10,29 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibili
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
 
 
+
+enum DonationType: string
+{
+    case PLASMA = 'Plasma';
+    case BLOOD = 'Blood';
+
+    // Method to get a string value of the enum
+    public function getType(): string
+    {
+        return $this->value;
+    }
+
+    // Method to create an enum from a string value
+    public static function fromString(string $value): ?self
+    {
+        return match ($value) {
+            'Plasma' => self::PLASMA,
+            'Blood' => self::BLOOD,
+            default => null,
+        };
+    }
+}
+
 class BloodDonation extends Donation
 {
     // donation id should be removed imo (or should be db generated..not entered by a user)
@@ -17,7 +40,8 @@ class BloodDonation extends Donation
     private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
     public Donor $donor; 
-    public function __construct(Donor $donor, DateTime $datetime, float $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
+    public DonationType $blooddonationtype;
+    public function __construct(Donor $donor, DonationType $blooddonationtype, DateTime $datetime, float $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
     {
         // Assign values directly (No parent constructor call)
         $this->donor = $donor;
@@ -25,6 +49,7 @@ class BloodDonation extends Donation
         $this->BloodTypeEnum = $BloodTypeEnum;
         $this->validationTemplate = $validationTemplate;
         $this->date = $datetime;
+        $this->blooddonationtype = $blooddonationtype;
     }
     public function validate(): bool
     {
@@ -86,10 +111,12 @@ class BloodDonation extends Donation
     }
 
     public static function fetchAllBloodDonations(): array
-{
-    $sql = "SELECT donation_id, number_of_liters, blood_type FROM BloodDonation";
-    return self::fetchAll($sql);
-}
+    {
+        // Adjusted the query to include all columns
+        $sql = "SELECT * FROM BloodDonation";
+        return self::fetchAll($sql);
+    }
+    
 
 }
 

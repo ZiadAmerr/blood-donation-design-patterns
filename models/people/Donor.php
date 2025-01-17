@@ -15,8 +15,8 @@ class Donor extends Person {
         "HCV",
     ];
 
-    /** @var string[] List of donor's diseases */
-    public array $diseases = [];
+    // /** @var string[] List of donor's diseases */
+    // public array $diseases = [];
 
     /** @var Donation[] List of donations */
     public array $donations = [];
@@ -26,12 +26,12 @@ class Donor extends Person {
         $this->person_id = $person_id;
 
         // Fetch diseases if stored in DB (Modify based on DB structure)
-        $this->diseases = $this->fetchDiseasesFromDB();
+        // $this->diseases = $this->fetchDiseasesFromDB();
 
         // If no diseases stored, randomly assign diseases (10% chance)
-        if (empty($this->diseases) && rand(0, 9) === 0) {
-            $this->diseases = array_rand(array_flip(static::$permanently_ineligible_diseases), rand(1, count(static::$permanently_ineligible_diseases)));
-        }
+        // if (empty($this->diseases) && rand(0, 9) === 0) {
+        //     $this->diseases = array_rand(array_flip(static::$permanently_ineligible_diseases), rand(1, count(static::$permanently_ineligible_diseases)));
+        // }
 
         // Fetch all donations associated with this donor
         $this->loadDonations();
@@ -90,6 +90,22 @@ class Donor extends Person {
     public function getDiseases(): array {
         return $this->diseases;
     }
+    public static function getDonorNameById(int $id): ?string
+{
+    // Query to fetch the donor name by ID
+    $sql = "SELECT name FROM Donor WHERE id = ?";
+
+    // Fetch the donor name
+    $row = self::fetchSingle($sql, "i", $id);
+
+    // If no donor is found, return null
+    if (!$row) {
+        return null;
+    }
+
+    // Return the name
+    return $row['name'];
+}
 
     /**
      * Delete the donor

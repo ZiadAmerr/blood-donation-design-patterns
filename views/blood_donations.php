@@ -51,6 +51,7 @@ $donations = $controller->getDonations();
 <div class="container">
     <h2>Blood Donations</h2>
     <button onclick="window.location.href='donate_blood.php'">Donate Blood</button>
+    <button onclick="window.location.href='donate_plasma.php'">Donate Plasma</button>
 
     <h3>Past Donations</h3>
     <table>
@@ -70,7 +71,10 @@ $donations = $controller->getDonations();
             <?php else: ?>
                 <?php foreach ($donations as $donation): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($donation['donor_name']); ?></td>
+                        <?php
+                        $name = $controller->getDonorName($donation['donor_id'])
+                        ?>
+                        <td><?php echo htmlspecialchars($name); ?></td>
                         <td><?php echo htmlspecialchars($donation['blood_type']); ?></td>
                         <td><?php echo number_format($donation['number_of_liters'], 2); ?></td>
                         <td><?php echo htmlspecialchars($donation['date']); ?></td>

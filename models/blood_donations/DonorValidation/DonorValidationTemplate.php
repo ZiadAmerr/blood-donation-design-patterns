@@ -63,6 +63,6 @@ abstract class DonorValidationTemplate {
     }
 
     // Abstract method to be implemented by subclasses.
-    abstract protected function validateDonationSpecificCriteria(array $donor): bool;
+    abstract protected function validateDonationSpecificCriteria(Donor $donor): bool;
 }
 ?>
