@@ -5,11 +5,11 @@ require_once 'Donor.php';
 require_once 'Certificate.php';
 require_once 'Task.php';
 
-class Volunteer extends Donor implements IVolunteer {
-    public bool $isAvailable = true; // Added to align with the diagram
+class Volunteer extends Donor {
+    public bool $isAvailable = true;
     public array $skills = [];
+    public int $totalHours = 0;
     public array $tasks = [];
-    public int $totalHours = 0; // Track total hours from completed tasks
 
     public function __construct(int $person_id) {
         parent::__construct($person_id);
@@ -30,17 +30,9 @@ class Volunteer extends Donor implements IVolunteer {
         );
     }
 
-    // Load skills from the database
-    private function loadSkills(): void {
-        $rows = $this->fetchAll(
-            "SELECT skill FROM VolunteerSkills WHERE person_id = ?",
-            "i",
-            $this->person_id
-        );
-
-        foreach ($rows as $row) {
-            $this->skills[] = $row['skill'];
-        }
+    // Increase total hours by a specific amount
+    public function increaseHours(int $hours): void {
+        $this->totalHours += $hours;
     }
 
     // Add a task to the volunteer
@@ -53,28 +45,28 @@ class Volunteer extends Donor implements IVolunteer {
         foreach ($this->tasks as $task) {
             if ($task->taskID === $taskID) {
                 $task->markAsCompleted();
-                $this->totalHours += $task->hoursRequired;
+                $this->increaseHours($task->hoursRequired);
             }
         }
     }
 
     // Generate a certificate for the volunteer
-    public function generateCertificate(string $eventName): Certificate {
+    public function generateCertificates(string $eventName): Certificate {
         $issueDate = date("Y-m-d");
-        return new Certificate(0, $this->name, $eventName, $this->totalHours, $issueDate);
+        return new Certificate($this->name, $eventName, $this->totalHours, $issueDate);
     }
 
-    // Remove a skill from the database
-    public function removeSkill(string $skill): void {
-        $this->skills = array_filter($this->skills, fn($s) => $s !== $skill);
-
-        // Remove skill from the database
-        static::executeUpdate(
-            "DELETE FROM VolunteerSkills WHERE person_id = ? AND skill = ?",
-            "is",
-            $this->person_id,
-            $skill
+    // Load skills from the database
+    private function loadSkills(): void {
+        $rows = $this->fetchAll(
+            "SELECT skill FROM VolunteerSkills WHERE person_id = ?",
+            "i",
+            $this->person_id
         );
+
+        foreach ($rows as $row) {
+            $this->skills[] = $row['skill'];
+        }
     }
 
     // Load tasks assigned to the volunteer
