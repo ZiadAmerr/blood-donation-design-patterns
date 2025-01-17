@@ -7,10 +7,16 @@ class Address extends Model
     public int $id;
     public string $name;
     public ?int $parent_id;
+    public const table_name = "addresses";
 
     // Constructor
     public function __construct(int $id) {
-        $data = self::fetchSingle("SELECT * FROM Address WHERE id = ?", "i", $id);
+
+        $data = self::fetchSingle(
+            "SELECT * FROM " . self::table_name . " WHERE id = ?",
+            "i",
+            $id
+        );
 
         if (!$data) {
             throw new Exception("Address with ID $id not found.");
@@ -23,20 +29,21 @@ class Address extends Model
     }
 
     // Static method to create a new Address
-    public static function create(string $name, ?int $parent_id = null): Address
+    public static function create(string $name, ?int $parent_id = null): int
     {
+
         if ($parent_id !== null) {
             self::validateParentId($parent_id);
         }
 
         $id = self::executeUpdate(
-            "INSERT INTO Address (name, parent_id) VALUES (?, ?)",
+            "INSERT INTO " . self::table_name . " (name, parent_id) VALUES (?, ?)",
             "si",
             $name,
             $parent_id
         );
 
-        return new Address($id);
+        return $id;
     }
 
     // Method to update an existing Address
@@ -47,7 +54,7 @@ class Address extends Model
         }
 
         self::executeUpdate(
-            "UPDATE Address SET name = ?, parent_id = ? WHERE id = ?",
+            "UPDATE " . self::table_name . " SET name = ?, parent_id = ? WHERE id = ?",
             "sii",
             $name,
             $parent_id,
@@ -62,7 +69,7 @@ class Address extends Model
     public function delete(): void
     {
         self::executeUpdate(
-            "DELETE FROM Address WHERE id = ?",
+            "DELETE FROM " . self::table_name . " WHERE id = ?",
             "i",
             $this->id
         );
@@ -72,7 +79,7 @@ class Address extends Model
     private static function validateParentId(int $parent_id): void
     {
         $exists = self::fetchSingle(
-            "SELECT id FROM Address WHERE id = ?",
+            "SELECT id FROM " . self::table_name . " WHERE id = ?",
             "i",
             $parent_id
         );

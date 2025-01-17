@@ -1,7 +1,8 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "event.php";
-require_once "OutreachEvent.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/OutreachEvent.php";
+
 
 class OutreachEventFactory extends EventFactory{
     
