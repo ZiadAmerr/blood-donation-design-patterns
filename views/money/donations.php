@@ -3,7 +3,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/MoneyDonationController.p
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyStock.php';
 
 $controller = new MoneyDonationController();
-$donations = $controller->fetchAll();
+$donations = $controller->getDonations();
 $moneyStock = MoneyStock::getInstance();
 $totalCash = $moneyStock->getTotalCash();
 ?>
@@ -86,7 +86,7 @@ $totalCash = $moneyStock->getTotalCash();
 <div class="container">
     <button onclick="window.location.href='index.php'">Home</button>
     <h2>Money Donations</h2>
-    <button onclick="window.location.href='donate_money.php'">Donate Money</button>
+    <button onclick="window.location.href='donate.php'">Donate Money</button>
     <button onclick="checkVault()">Check Vault</button>
 
     <div class="search-container">
