@@ -68,5 +68,10 @@ class DonationFacade {
             return false;
         }
     }
+
+    public function donatePlasma(BloodDonation $bloodDonation): bool {
+        ///TODO: TO BE IMPLEMENTED...
+        return true;
+    }
 }
 ?>

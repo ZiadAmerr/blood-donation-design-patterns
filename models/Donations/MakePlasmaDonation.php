@@ -17,7 +17,7 @@ class MakeBloodDonation implements Command {
         }
         if ($donation instanceof BloodDonation) {
             /** @var BloodDonation $donation */
-            return $receiver->donateBlood($donation);
+            return $receiver->donatePlasma($donation);
         }
         //$bloodDonation = new BloodDonation($donor, 1, new BloodTypeEnum()); // Example: 1 liter, new BloodTypeEnum instance
         return false;
