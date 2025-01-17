@@ -46,10 +46,10 @@ class BloodDonation extends Donation
         // }
     }
 
-    public function increaseBloodStock(BloodStock $bloodStock): bool
+    public function increaseBloodStock(): bool
     {
         try {
-            $bloodStock-> addToStock($this->BloodTypeEnum, $this->Number_of_liters);
+            BloodStock::getInstance()->addToStock($this->BloodTypeEnum, $this->Number_of_liters);
             return true;
         } catch (Exception $e) {
             return false;
