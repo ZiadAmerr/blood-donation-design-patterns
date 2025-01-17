@@ -1,7 +1,5 @@
 <?php
 
-require 'IIterator.php';
-
 class AttendeeIterator implements IIterator
 {
     private $attendees;
@@ -20,20 +18,20 @@ class AttendeeIterator implements IIterator
     public function next(): ?Attendee
     {
         if ($this->hasNext()) {
-            return $this->attendees[$this->position++];
+            return $this->attendees[$this->position++]; 
         }
         return null;
     }
 
+    // Implement the remove method
     public function remove(): bool
     {
         if ($this->position > 0 && $this->position <= count($this->attendees)) {
             array_splice($this->attendees, $this->position - 1, 1);
-            $this->position--;
+            $this->position--; 
             return true;
         }
         return false;
     }
 }
-
 ?>
