@@ -109,16 +109,15 @@ trait DatabaseTrait
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Run an update, insert, or delete query and return affected rows
-    public function executeUpdate(string $sql, string $types = "", ...$params): int
-    {
-        $stmt = $this->executeQuery($sql, $types, ...$params);
-        if ($stmt === null) {
-            return 0;
-        }
-
-        return $stmt->affected_rows;
-    }
+    // // Run an update, insert, or delete query and return affected rows
+    // protected function executeUpdate(string $sql, string $types = "", ...$params): int
+    // {
+    //     $stmt = $this->executeQuery($sql, $types, ...$params);
+    //     if ($stmt === null) {
+    //         return 0;
+    //     }
+    //     return $stmt->affected_rows;
+    // }
 }
 
 abstract class Model

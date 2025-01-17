@@ -37,6 +37,12 @@ class Donor extends Person {
         $this->loadDonations();
     }
 
+    public static function create(string $name, string $dob, string $nationalId, string $address, string $phone): int
+    {
+        $sql = "INSERT INTO Donor (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)";
+        return self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
+    }
+  
     /**
      * Fetch donor diseases from the database
      * @return string[]
@@ -65,31 +71,15 @@ class Donor extends Person {
     }
 
     /**
-     * Create a new donor
-     * @return Donor
-     */
-    public static function create($name, $date_of_birth, $national_id, $address_id): Donor {
-        $person = parent::create($name, $date_of_birth, $national_id, $address_id);
-
-        static::executeUpdate(
-            "INSERT INTO Donor (person_id) VALUES (?)",
-            "i",
-            $person->id
-        );
-
-        return new Donor($person->id);
-    }
-
-    /**
      * Delete the donor
      */
-    public function delete(): void {
-        static::executeUpdate(
-            "DELETE FROM Donor WHERE person_id = ?",
-            "i",
-            $this->person_id
-        );
-
-        parent::delete();
-    }
+    // public function delete(): void {
+    //     static::executeUpdate(
+    //         "DELETE FROM Donor WHERE person_id = ?",
+    //         "i",
+    //         $this->person_id
+    //     );
+    // 
+    //     parent::delete();
+    // }
 }

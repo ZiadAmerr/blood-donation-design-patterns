@@ -22,26 +22,26 @@ abstract class Person extends Model {
         }
     }
 
-    public static function create($name, $date_of_birth, $national_id, $address_id, $phone_number) {
-        $id = static::executeUpdate(
-            "INSERT INTO Person (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)",
-            "sssis",
-            $name, $date_of_birth, $national_id, $address_id, $phone_number
-        );
-        return new static($id);
-    }
+    // public static function create($name, $date_of_birth, $national_id, $address_id, $phone_number) {
+    //     $id = static::executeUpdate(
+    //         "INSERT INTO Person (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)",
+    //         "sssis",
+    //         $name, $date_of_birth, $national_id, $address_id, $phone_number
+    //     );
+    //     return new static($id);
+    // }
 
-    public function update($name, $date_of_birth, $national_id, $address_id, $phone_number) {
-        static::executeUpdate(
-            "UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ?, phone_number = ? WHERE id = ?",
-            "sssisi",
-            $name, $date_of_birth, $national_id, $address_id, $this->id, $phone_number
-        );
-    }
+    // public function update($name, $date_of_birth, $national_id, $address_id, $phone_number) {
+    //     static::executeUpdate(
+    //         "UPDATE Person SET name = ?, date_of_birth = ?, national_id = ?, address_id = ?, phone_number = ? WHERE id = ?",
+    //         "sssisi",
+    //         $name, $date_of_birth, $national_id, $address_id, $this->id, $phone_number
+    //     );
+    // }
 
-    public function delete() {
-        static::executeUpdate("DELETE FROM Person WHERE id = ?", "i", $this->id);
-    }
+    // public function delete() {
+    //     static::executeUpdate("DELETE FROM Person WHERE id = ?", "i", $this->id);
+    // }
 
     public function getId() {
         return $this->id;
