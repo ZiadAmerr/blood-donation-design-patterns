@@ -3,7 +3,7 @@
 require_once 'DonationFacade.php';
 require_once 'BloodDonation.php';
 
-class MakeBloodDonation implements Command {
+class MakePlasmaDonation implements Command {
 
     protected $receiver;
 

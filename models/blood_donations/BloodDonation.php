@@ -55,7 +55,7 @@ class BloodDonation extends Donation
             return false;
         }
     }
-    private function saveDonationToDatabase(): void
+    public function saveDonationToDatabase(): void
 {
     $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, date) VALUES (?, ?, ?, ?)";
 

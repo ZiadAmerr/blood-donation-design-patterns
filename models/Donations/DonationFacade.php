@@ -1,9 +1,9 @@
 <?php
 
-require_once 'Donor.php';
-require_once 'Donation.php';
-require_once 'MoneyDonation.php';
-require_once 'BloodDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodDonation.php';
 
 class DonationFacade {
     private Donor $donor;
@@ -38,10 +38,7 @@ class DonationFacade {
 
     
     public function blood_donation_setter(BloodDonation $bloodDonation): void {
-        Donation::create(
-            $bloodDonation->donor->person_id,
-            "blood"
-        );
+        $bloodDonation->saveDonationToDatabase();
     }
 
     
@@ -60,8 +57,8 @@ class DonationFacade {
     public function donateBlood(BloodDonation $bloodDonation): bool {
         try {
             $this->blood_donation_setter($bloodDonation);
-            $bloodDonation->increaseBloodStock("SingletonBloodStockInstance");
-            return true;
+            return $bloodDonation->increaseBloodStock("SingletonBloodStockInstance");
+            //return true;
         } catch (Exception $e) {
             // Handle exception
             echo "Error processing blood donation: " . $e->getMessage();

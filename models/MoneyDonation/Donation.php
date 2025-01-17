@@ -22,6 +22,7 @@ abstract class Donation extends Model
         }
     }
 
+
     // public static function create(int $donor_id, string $type): Donation
     // {
     //     $id = static::executeUpdate(
