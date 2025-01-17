@@ -28,9 +28,10 @@ class BloodBank implements IBeneficiary
     /**
      * Called by the BloodStock instance when stock is updated.
      */
-    public function update(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): bool
+    public function update( array $ownedBloodAmounts, array $ownedPlasmaAmounts): bool
     {
-        // Hospital is notified about the stock update (without echoing)
+        $this->ownedBloodAmounts = $ownedBloodAmounts; 
+        $this->ownedPlasmaAmounts = $ownedPlasmaAmounts;
         return true;
     }
 
@@ -40,7 +41,19 @@ class BloodBank implements IBeneficiary
     public function requestBlood(BloodTypeEnum $bloodType, float $amount): bool
     {
         // Attempt to remove the requested blood from BloodStock
-        if ($this->bloodStock->removeFromStock($bloodType, $amount)) {
+        if ($this->bloodStock->removeFromBloodStock($bloodType, $amount)) {
+            // If successful, add the requested amount to ownedBloodAmounts
+            $this->ownedBloodAmounts[$bloodType] += $amount;
+            return true;
+        }
+
+        // If removal failed, return false
+        return false;
+    }
+    public function requestPlasma(BloodTypeEnum $bloodType, float $amount): bool
+    {
+        // Attempt to remove the requested blood from BloodStock
+        if ($this->bloodStock->removeFromPlasmaStock($bloodType, $amount)) {
             // If successful, add the requested amount to ownedBloodAmounts
             $this->ownedBloodAmounts[$bloodType] += $amount;
             return true;
