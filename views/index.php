@@ -35,6 +35,7 @@ function getCount($table) {
     }
 }
 
+/*
 // Fetch summary data with error handling
 try {
     $summary = [
@@ -76,6 +77,7 @@ try {
 } catch (Exception $e) {
     handleError($e->getMessage());
 }
+*/
 ?>
 
 <!DOCTYPE html>
@@ -152,7 +154,7 @@ try {
     <a href="money_donations.php">Money Donations</a>
     <a href="blood_donations.php">Blood Donations</a>
     <a href="beneficiary.php">Beneficiary</a>
-    <a href="events.php">Events</a>
+    <a href="events/">Events</a>
     <a href="volunteers.php">Volunteers</a>
     <a href="other.php">Other</a>
 </nav>

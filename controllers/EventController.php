@@ -92,7 +92,7 @@ class EventController
         }
 
         // Link event to the campaign and save
-        $campaign->addEvent($event);
+        $campaign->addDonationComponent($event);
         $event->save();
 
         return ['success' => true, 'message' => "Event '{$event->getTitle()}' created successfully in campaign '{$campaign->getTitle()}'!"];

@@ -1,7 +1,7 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once 'Donor.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
 require_once 'Certificate.php';
 require_once 'Task.php';
 

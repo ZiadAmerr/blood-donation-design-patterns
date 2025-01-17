@@ -1,5 +1,5 @@
 <?php
-// File: donation_campaigns_view.php
+// File: donationcampaigns_view.php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/EventController.php';
 
 $controller = new EventController();

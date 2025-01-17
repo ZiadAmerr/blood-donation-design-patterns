@@ -2,7 +2,8 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Iterators/AttendeeIterator.php";
 
-abstract class Event extends Model {
+abstract class Event extends Model implements IDonationComponent
+{
     protected int $eventID;
     protected string $title;
     protected int $maxAttendees;
@@ -80,11 +81,11 @@ abstract class Event extends Model {
     }
 
     // Fetch all tickets for this event from the database
-    public function loadAllTickets(): array {
-        $sql = "SELECT * FROM Ticket WHERE event_id = ?";
-        $ticketsData = self::fetchAll($sql, "i", $this->eventID);
-        return $ticketsData; 
-    }
+    // public function loadAllTickets(): array {
+    //     $sql = "SELECT * FROM Ticket WHERE event_id = ?";
+    //     $ticketsData = self::fetchAll($sql, "i", $this->eventID);
+    //     return $ticketsData; 
+    // }
 
     // Show attendee details using AttendeeIterator
     public function showAttendeeDetails(): string

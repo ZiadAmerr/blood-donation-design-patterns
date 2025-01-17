@@ -27,7 +27,7 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
     public function save(): bool {
         if ($this->id === null) {
             // Insert new campaign
-            $query = "INSERT INTO donation_campaigns (name, description) VALUES (:name, :description)";
+            $query = "INSERT INTO donationcampaigns (name, description) VALUES (:name, :description)";
             $stmt = $this->db->prepare($query);
             return $stmt->execute([
                 ':name' => $this->name,
@@ -35,7 +35,7 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
             ]);
         } else {
             // Update existing campaign
-            $query = "UPDATE donation_campaigns SET name = :name, description = :description WHERE id = :id";
+            $query = "UPDATE donationcampaigns SET name = :name, description = :description WHERE id = :id";
             $stmt = $this->db->prepare($query);
             return $stmt->execute([
                 ':name' => $this->name,
@@ -48,7 +48,7 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
     // Static method to load a donation campaign from the database by ID
     public static function loadById($id): ?DonationCampaign {
         $db = Database::getInstance();
-        $query = "SELECT * FROM donation_campaigns WHERE id = :id";
+        $query = "SELECT * FROM donationcampaigns WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $id]);
 
@@ -63,13 +63,13 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
 
     // Delete a donation campaign from the database
     public function deleteCampaign($id): bool {
-        $query = "DELETE FROM donation_campaigns WHERE id = :id";
+        $query = "DELETE FROM donationcampaigns WHERE id = :id";
         $stmt = $this->db->prepare($query);
         return $stmt->execute([':id' => $id]);
     }
 
     public static function fetchAllCampaigns($db): array {
-        $query = "SELECT * FROM donation_campaigns";
+        $query = "SELECT * FROM donationcampaigns";
         $stmt = $db->prepare($query);
         $stmt->execute();
 
