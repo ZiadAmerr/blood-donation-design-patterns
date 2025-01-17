@@ -1,7 +1,7 @@
 <?php
 
 require_once 'NotificationSender.php';
-require_once 'SmsService.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/services/sms_service.php";
 
 class SMSAdapter implements NotificationSender {
     private SmsService $smsService;

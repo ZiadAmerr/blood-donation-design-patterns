@@ -1,7 +1,7 @@
 <?php
 
 require_once 'NotificationSender.php';
-require_once 'WhatsAppService.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/services/whatsapp_service.php";
 
 class WhatsAppAdapter implements NotificationSender {
     private WhatsAppService $whatsappService;
