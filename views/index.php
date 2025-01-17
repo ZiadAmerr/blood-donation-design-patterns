@@ -1,38 +1,48 @@
+d
+
 
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-
-// Error handling setup
-function handleError($message) {
-    echo "<div style='color: red; font-weight: bold; text-align: center; margin: 10px;'>Error: $message</div>";
-    exit();
+// Fetch summary data with error handling
+try {
+    $summary = [
+        // 'totalPersons' => getCount("Person"),
+        // 'totalAddresses' => getCount("Address"),
+        // 'totalDonors' => getCount("Donor"),
+        // 'totalDonations' => getCount("Donation"),
+        'totalPersons' => 0,
+        'totalAddresses' => 0,
+        'totalDonors' => 0,
+        'totalDonations' => 0,
+    ];
+} catch (Exception $e) {
+    handleError($e->getMessage());
 }
 
-// Helper function to count records in a table with error handling
-function getCount($table) {
-    try {
-        $db = Database::getInstance();
-        $query = $db->prepare("SELECT COUNT(*) AS total FROM `$table`");
-        
-        if (!$query) {
-            throw new Exception("Failed to prepare query for table '$table': " . $db->error);
-        }
+// Fetch blood stock information with error handling
+try {
+    $db = Database::getInstance();
+    $query = $db->prepare("SELECT blood_type, SUM(amount) as total_amount FROM BloodStock GROUP BY blood_type");
 
-        if (!$query->execute()) {
-            throw new Exception("Failed to execute query for table '$table': " . $query->error);
-        }
-
-        $result = $query->get_result();
-        if (!$result) {
-            throw new Exception("Failed to fetch result for table '$table'.");
-        }
-
-        $row = $result->fetch_assoc();
-        return $row['total'] ?? 0;
-
-    } catch (Exception $e) {
-        handleError($e->getMessage());
+    if (!$query) {
+        throw new Exception("Failed to prepare blood stock query: " . $db->error);
     }
+
+    if (!$query->execute()) {
+        throw new Exception("Failed to execute blood stock query: " . $query->error);
+    }
+
+    $result = $query->get_result();
+    if (!$result) {
+        throw new Exception("Failed to fetch blood stock data.");
+    }
+
+    $bloodStock = [];
+    while ($row = $result->fetch_assoc()) {
+        $bloodStock[] = $row;
+    }
+} catch (Exception $e) {
+    handleError($e->getMessage());
 }
 ?>
 
