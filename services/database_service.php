@@ -144,7 +144,7 @@ abstract class Model
     }
 
     // Fetch multiple records as an array of associative arrays
-    protected static function fetchAll(string $sql, string $types = "", ...$params): array
+    public static function fetchAll(string $sql, string $types = "", ...$params): array
     {
         $db = Database::getInstance();
         $stmt = $db->prepare($sql);
