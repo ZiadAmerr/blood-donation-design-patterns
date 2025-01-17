@@ -113,7 +113,7 @@ try {
 
 <nav>
     <a href="index.php">Home</a>
-    <a href="money_donations.php">Money Donations</a>
+    <a href="money/donations.php">Money Donations</a>
     <a href="blood_donations.php">Blood Donations</a>
     <a href="beneficiary.php">Beneficiary</a>
     <a href="events.php">Events</a>

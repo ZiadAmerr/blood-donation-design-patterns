@@ -1,58 +1,42 @@
 <?php
-// File: MoneyDonation.php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/IMoneyDonationMethod.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
-// If you have a "MoneyDonationDetails" class, require it here
 
-class MoneyDonation extends Donation
-{
-    public Donor $donor;
-    private IMoneyDonationMethod $moneyDonationMethod;
+class MoneyDonation {
+    private $db;
 
-    // How much money is being donated
-    private float $amount;
-
-    // Optionally: private $moneyDonationDetails;  // if you have extra detail
-
-    /**
-     * @param Donor                  $donor
-     * @param IMoneyDonationMethod   $moneyDonationMethod
-     * @param float                  $amount
-     * @param mixed                  $moneyDonationDetails   // optional
-     */
-    public function __construct(
-        Donor $donor,
-        IMoneyDonationMethod $moneyDonationMethod,
-        float $amount,
-        $moneyDonationDetails = null
-    ) {
-        // If the parent Donation constructor needs something, handle that:
-        // e.g., parent::__construct($someDonationId) or so
-
-        $this->donor                = $donor;
-        $this->moneyDonationMethod  = $moneyDonationMethod;
-        $this->amount               = $amount;
-        // $this->moneyDonationDetails = $moneyDonationDetails;
+    public function __construct() {
+        $this->db = Database::getInstance();
     }
 
-    public static function create(float $amount, string $date, string $national_id): bool
-    {
-        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `national_id`) VALUES (?,?,?)";
-    
-        // Ensure $date is in 'YYYY-MM-DD' format
-        $formattedDate = date('Y-m-d', strtotime($date));
-    
-        // Execute the query with proper data types: double (d), string (s), integer (i)
-        return self::executeUpdate($sql, 'dsi', $amount, $formattedDate, $national_id) > 0;
+    public function create(float $amount, string $date, int $donorId): bool {
+        try {
+            $sql = "INSERT INTO moneydonation (amount, date, donor_id, type) VALUES (?, ?, ?, 'money')";
+            $stmt = $this->db->prepare($sql);
+            
+            if (!$stmt) {
+                throw new Exception("Failed to prepare statement");
+            }
+
+            $stmt->bind_param('dsi', $amount, $date, $donorId);
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Error creating money donation: " . $e->getMessage());
+            return false;
+        }
     }
-    
-    public static function fetchAllMoneyDonations(): array
-    {
-        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date 
-                FROM MoneyDonation md 
-                JOIN Donor d ON md.national_id = d.national_id";
-        return self::fetchAll($sql);
+
+    public function fetchAll(): array {
+        try {
+            $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date, md.type 
+                    FROM moneydonation md 
+                    JOIN donor d ON md.donor_id = d.person_id 
+                    ORDER BY md.date DESC";
+            $result = $this->db->query($sql);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } catch (Exception $e) {
+            error_log("Error fetching donations: " . $e->getMessage());
+            return [];
+        }
     }
 }

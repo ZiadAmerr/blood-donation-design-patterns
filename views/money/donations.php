@@ -3,7 +3,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/MoneyDonationController.p
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyStock.php';
 
 $controller = new MoneyDonationController();
-$donations = $controller->getDonations();
+$donations = $controller->fetchAll();
 $moneyStock = MoneyStock::getInstance();
 $totalCash = $moneyStock->getTotalCash();
 ?>
