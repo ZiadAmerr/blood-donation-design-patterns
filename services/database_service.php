@@ -179,6 +179,11 @@ abstract class Model
 
         return $stmt->insert_id ?: $stmt->affected_rows;
     }
+
+    public static function getLastInsertId(): int {
+        $db = Database::getInstance(); // Get the correct database connection
+        return $db->insert_id;
+    }
 }
 
 
