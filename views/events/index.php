@@ -19,8 +19,10 @@ $errorMessage = '';
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Determine which form was submitted
+    echo 'test 0';
     if (isset($_POST['create_campaign'])) {
         // Handle creation of a new donation campaign
+        echo 'test 1';
         $data = [
             'name' => $_POST['campaign_name'],
             'description' => $_POST['campaign_description'],
@@ -28,12 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'end_date' => $_POST['campaign_end_date'],
             'target_amount' => $_POST['campaign_target_amount']
         ];
+        echo 'test 2';
+
         $result = $eventController->createDonationCampaign($data);
         if ($result['success']) {
             $successMessage = $result['message'];
         } else {
             $errorMessage = $result['message'];
         }
+        echo 'test 3';
+
     } elseif (isset($_POST['create_event'])) {
         // Handle creation of a new event
         $data = [
@@ -225,7 +231,7 @@ $campaigns = $eventController->getDonationCampaigns();
 
         <!-- Form to Create a New Donation Campaign -->
         <h2>Create New Donation Campaign</h2>
-        <form method="POST" action="">
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>"> 
             <label for="campaign_name">Campaign Name:</label>
             <input type="text" id="campaign_name" name="campaign_name" required>
 

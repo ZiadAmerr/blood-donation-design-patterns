@@ -31,7 +31,15 @@ abstract class Event extends Model implements IDonationComponent
     public function getTitle(): string {
         return $this->title;
     }
-
+    public function getId(): int {
+        return $this->eventID;
+    }
+    public function getGoalAmount(): float {
+        return 0; 
+    }
+    public function getRaisedAmount(): float {
+        return 0; 
+    }
     public function showEventDetails(): string {
         return sprintf(
             "Event ID: %s\nTitle: %s\nMax Attendees: %d\nDate and Time: %s\nAddress ID: %d\n", 

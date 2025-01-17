@@ -3,84 +3,105 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Iterators/IterableEvent.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/IDonationComponent.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php";
-require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/DonationCampaign.php";  // Import the DonationCampaign class
 
 class DonationCampaign implements IDonationComponent, IIterableEvent {
     private array $components = [];  // Holds both Event and DonationCampaign instances
     private string $name;
     private string $description;
-    private mysqli $db;
-    private int $id;
+    private ?int $id;  // Allow null for optional ID
 
-    public function __construct($db, $name, $description, $id = null) {
-        $this->db = Database::getInstance();
+    public function __construct(string $name, string $description, ?int $id = null) {
         $this->name = $name;
         $this->description = $description;
         $this->id = $id;
     }
 
+    public function save(): bool {
+        $db = Database::getInstance();
+
+        if ($this->id === null) {
+            $query = "INSERT INTO donationcampaigns (name, description) VALUES (?, ?)";
+            $stmt = $db->prepare($query);
+            if (!$stmt) {
+                throw new Exception("Failed to prepare statement: " . $db->error);
+            }
+            $stmt->bind_param("ss", $this->name, $this->description);
+            $success = $stmt->execute();
+            if ($success) {
+                $this->id = $db->insert_id;
+            }
+            return $success;
+        } else {
+            $query = "UPDATE donationcampaigns SET name = ?, description = ? WHERE id = ?";
+            $stmt = $db->prepare($query);
+            if (!$stmt) {
+                throw new Exception("Failed to prepare statement: " . $db->error);
+            }
+            $stmt->bind_param("ssi", $this->name, $this->description, $this->id);
+            return $stmt->execute();
+        }
+    }
+
+    public static function loadById(int $id): ?DonationCampaign {
+        $db = Database::getInstance();
+        $query = "SELECT * FROM donationcampaigns WHERE id = ?";
+        $stmt = $db->prepare($query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $campaign = $result->fetch_assoc();
+
+        if ($campaign) {
+            return new DonationCampaign($campaign['name'], $campaign['description'], $campaign['id']);
+        }
+        return null;
+    }
+
+    public function deleteCampaign(): bool {
+        if ($this->id !== null) {
+            $db = Database::getInstance();
+            $query = "DELETE FROM donationcampaigns WHERE id = ?";
+            $stmt = $db->prepare($query);
+            $stmt->bind_param("i", $this->id);
+            return $stmt->execute();
+        }
+        return false;
+    }
     public function getTitle(): string {
         return $this->name;
     }
 
-    // Create a new donation campaign in the database or update if ID exists
-    public function save(): bool {
-        if ($this->id === null) {
-            // Insert new campaign
-            $query = "INSERT INTO donationcampaigns (name, description) VALUES (:name, :description)";
-            $stmt = $this->db->prepare($query);
-            return $stmt->execute([
-                ':name' => $this->name,
-                ':description' => $this->description
-            ]);
-        } else {
-            // Update existing campaign
-            $query = "UPDATE donationcampaigns SET name = :name, description = :description WHERE id = :id";
-            $stmt = $this->db->prepare($query);
-            return $stmt->execute([
-                ':name' => $this->name,
-                ':description' => $this->description,
-                ':id' => $this->id
-            ]);
-        }
-    }
+    
 
-    // Static method to load a donation campaign from the database by ID
-    public static function loadById($id): ?DonationCampaign {
+    public static function fetchAllCampaigns(): array {
         $db = Database::getInstance();
-        $query = "SELECT * FROM donationcampaigns WHERE id = :id";
-        $stmt = $db->prepare($query);
-        $stmt->execute([':id' => $id]);
-
-        // Fetch campaign data and return a new instance if found
-        $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($campaign) {
-            $donationCampaign = new DonationCampaign($db, $campaign['name'], $campaign['description'], $campaign['id']);
-            return $donationCampaign;
-        }
-        return null;  // Return null if campaign not found
-    }
-
-    // Delete a donation campaign from the database
-    public function deleteCampaign($id): bool {
-        $query = "DELETE FROM donationcampaigns WHERE id = :id";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute([':id' => $id]);
-    }
-
-    public static function fetchAllCampaigns($db): array {
         $query = "SELECT * FROM donationcampaigns";
         $stmt = $db->prepare($query);
+
+        if (!$stmt) {
+            throw new Exception("Failed to prepare statement: " . $db->error);
+        }
+
         $stmt->execute();
+        $result = $stmt->get_result(); // Fetch the result set
 
-        // Get the result set
-        $result = $stmt->get_result();
+        if (!$result) {
+            throw new Exception("Failed to execute query: " . $stmt->error);
+        }
 
-        // Fetch all rows as an associative array
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $campaigns = [];
+        while ($row = $result->fetch_assoc()) {
+            $campaigns[] = new DonationCampaign(
+                $row['name'],
+                $row['description'],
+                (int)$row['id'] // Explicitly cast to integer
+            );
+        }
+        return $campaigns;
     }
 
-    // Show event details
+    
+
     public function showEventDetails(): string {
         $details = '';
         $iterator = $this->createEventIterator();
@@ -91,23 +112,10 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
         return $details;
     }
 
-    // Show attendee details for all events in the campaign
-    public function showAttendeeDetails(): string {
-        $details = '';
-        $iterator = $this->createEventIterator();
-        while ($iterator->hasNext()) {
-            $component = $iterator->next();
-            $details .= $component->showAttendeeDetails() . "\n";
-        }
-        return $details;
-    }
-
-    // Add a donation component (either Event or DonationCampaign)
     public function addDonationComponent(IDonationComponent $component): void {
         $this->components[] = $component;
     }
 
-    // Create event iterator for the components (both Event and DonationCampaign)
     public function createEventIterator(): EventIterator {
         return new EventIterator($this->components);
     }
