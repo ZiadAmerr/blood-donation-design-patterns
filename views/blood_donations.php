@@ -1,18 +1,11 @@
 <?php
-
-// print_r(get_declared_classes());
+// Start the session
+session_start();
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/BloodDonationController.php';
 
-// print_r(get_declared_classes());
-
 $controller = new BloodDonationController();
-
-// print_r(get_declared_classes());
-
 $donations = $controller->getDonations();
-
-// print_r(get_declared_classes());
 
 ?>
 

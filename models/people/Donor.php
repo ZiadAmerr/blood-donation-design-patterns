@@ -177,6 +177,35 @@ class Donor extends Person {
     public static function findByUsername(string $username): int {
         return Person::findByUsername($username);
     }
+
+    /**
+     * Get as JSON, as all string or numeric values
+     */
+    public function getAsJson(): array {
+        return [
+            'person_id' => $this->person_id,
+            'name' => $this->name,
+            'date_of_birth' => $this->date_of_birth,
+            'phone_number' => $this->phone_number,
+            'national_id' => $this->national_id,
+            'username' => $this->username,
+            'blood_type' => $this->blood_type->getAsValue(),
+            'weight' => $this->weight,
+            'diseases' => $this->diseases,
+            'donations' => array_map(fn($donation) => $donation->jsonSerialize(), $this->donations)
+        ];
+    }
+
+    /**
+     * Get the blood type of the donor
+     */
+    public function getBloodType(): BloodTypeEnum {
+        return $this->blood_type;
+    }
+
+    public function getBloodTypeString(): string {
+        return $this->blood_type->getAsValue();
+    }
 }
 
 ?>
