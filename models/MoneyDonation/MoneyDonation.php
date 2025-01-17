@@ -37,29 +37,7 @@ class MoneyDonation extends Donation
         // $this->moneyDonationDetails = $moneyDonationDetails;
     }
 
-    
-
-    // /**
-    //  * Actually process the money donation, calling the method's donate() function.
-    //  * Returns true on success, false otherwise.
-    //  */
-    // public function processDonation(): bool
-    // {
-    //     // e.g., record the donation in DB if needed:
-    //     // Donation::create($this->donor->person_id, 'money');
-
-    //     $success = $this->moneyDonationMethod->donate($this->amount);
-
-    //     if ($success) {
-    //         echo "MoneyDonation: Payment method processed {$this->amount} successfully.<br>";
-    //     } else {
-    //         echo "MoneyDonation: Payment method failed to process donation.<br>";
-    //     }
-
-    //     return $success;
-    // }
-
-    public static function create(float $amount, string $date, string $donor_id): bool
+    public static function create(float $amount, string $date, string $national_id): bool
     {
         $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `national_id`) VALUES (?,?,?)";
     
@@ -67,28 +45,14 @@ class MoneyDonation extends Donation
         $formattedDate = date('Y-m-d', strtotime($date));
     
         // Execute the query with proper data types: double (d), string (s), integer (i)
-        return self::executeUpdate($sql, 'dsi', $amount, $formattedDate, $donor_id) > 0;
+        return self::executeUpdate($sql, 'dsi', $amount, $formattedDate, $national_id) > 0;
     }
     
-    
-
     public static function fetchAllMoneyDonations(): array
     {
-        $sql = "SELECT d.name as donor_name, md.amount, md.date 
+        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date 
                 FROM MoneyDonation md 
                 JOIN Donor d ON md.national_id = d.national_id";
         return self::fetchAll($sql);
     }
-
-    // /**
-    //  * getReceipt()
-    //  * 
-    //  * Here you might generate or display a receipt, store it in DB, etc.
-    //  */
-    // public function getReceipt(): bool
-    // {
-    //     // Minimal example: just echo a message or return true
-    //     echo "MoneyDonation: Generating receipt for {$this->amount}.<br>";
-    //     return true;
-    // }
 }

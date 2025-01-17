@@ -10,9 +10,7 @@ class MoneyDonationController
 {
     public function getDonations(): array
     {
-        // Fetch past money donations from the database
-        // This is a placeholder, replace with actual database fetching logic
-        return MoneyDonation::fetchAllMoneyDonations("SELECT * FROM MoneyDonation");
+        return MoneyDonation::fetchAllMoneyDonations();
     }
 
     public function processDonation(array $data): array
@@ -40,16 +38,16 @@ class MoneyDonationController
         }
 
         if ($success) {
-            $donor = Donor::create(
-                $data['donor_name'],
-                $data['dob'],
-                $data['national_id'],
-                $data['address'],
-                $data['phone']
-            );
+            // $donor = Donor::create(
+            //     $data['donor_name'],
+            //     $data['dob'],
+            //     $data['national_id'],
+            //     $data['address'],
+            //     $data['phone']
+            // );
 
             // Add donation to the database
-            MoneyDonation::create($amount, $data['dob'], $data['national_id']);
+            MoneyDonation::create($amount, date('Y-m-d'), $data['national_id']);
             return ['success' => true, 'message' => "Donation of $amount was successful!"];
         } else {
             return ['success' => false, 'message' => "Donation failed."];

@@ -1,12 +1,20 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/MoneyDonationController.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
 
 $response = ['success' => false, 'message' => ''];
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $controller = new MoneyDonationController();
-    $response = $controller->processDonation($_POST);
+    $nationalId = $_POST['national_id'];
+    $donor = Donor::findByNationalId($nationalId);
+
+    if ($donor) {
+        $controller = new MoneyDonationController();
+        $response = $controller->processDonation(array_merge($_POST, ['donor_id' => $donor->getId()]));
+    } else {
+        $response = ['success' => false, 'message' => 'National ID does not exist.'];
+    }
 }
 ?>
 
@@ -40,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border: 1px solid #ccc;
         }
         button {
-            background-color: #5cb85c;
+            background-color: #d9534f;
             color: white;
             border: none;
             cursor: pointer;
@@ -75,20 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php endif; ?>
 
     <form method="POST" action="">
-        <label for="donor_name">Name:</label>
-        <input type="text" name="donor_name" id="donor_name" required>
-
-        <label for="dob">Date of Birth:</label>
-        <input type="date" name="dob" id="dob" required>
-
         <label for="national_id">National ID:</label>
         <input type="text" name="national_id" id="national_id" required>
-
-        <label for="address">Address:</label>
-        <input type="text" name="address" id="address" required>
-
-        <label for="phone">Phone Number:</label>
-        <input type="text" name="phone" id="phone" required>
 
         <label for="payment_method">Select Payment Method:</label>
         <select name="payment_method" id="payment_method" onchange="togglePaymentFields()" required>

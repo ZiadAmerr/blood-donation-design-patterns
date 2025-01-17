@@ -18,15 +18,15 @@ class Donor extends Person {
         return self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
     }
 
-    // public function delete(): void {
-    //     static::executeUpdate(
-    //         "DELETE FROM Donor WHERE person_id = ?",
-    //         "i",
-    //         $this->person_id
-    //     );
+    public static function findByNationalId(string $nationalId): ?Donor {
+        $row = self::fetchSingle("SELECT * FROM Donor WHERE national_id = ?", "s", $nationalId);
 
-    //     parent::delete();
-    // }
+        if ($row) {
+            $donor = new Donor($row['national_id']);
+            return $donor;
+        }
+        return null;
+    }
 }
 
 ?>
