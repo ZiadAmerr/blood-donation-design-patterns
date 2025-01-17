@@ -94,6 +94,24 @@ abstract class Person extends Model {
     public function getAddress(): Address {
         return $this->address;
     }
+
+    public function getPassword(): string {
+        return $this->hashed_password;
+    }
+
+    public static function findByUsername(string $username): int {
+        $row = static::fetchSingle(
+            "SELECT id FROM " . self::table_name . " WHERE username = ?",
+            "s",
+            $username
+        );
+        
+        if ($row) {
+            return $row['id'];
+        } else {
+            return -1;
+        }
+    }
 }
 
 ?>

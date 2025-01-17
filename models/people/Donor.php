@@ -33,6 +33,22 @@ class Donor extends Person {
     }
 
     /**
+     * Load all donations associated with this donor
+     */
+    private function loadDonations(): void {
+        // ToDo: Implement this method
+        // $rows = $this->fetchAll(
+        //     "SELECT id FROM donations WHERE donor_id = ?",
+        //     "i",
+        //     $this->person_id
+        // );
+
+        // foreach ($rows as $row) {
+        //     $this->donations[] = new Donation((int) $row['id']);
+        // }
+    }
+
+    /**
      * Create a new donor if not exists, otherwise return existing one.
      * Also assigns diseases to the donor.
      */
@@ -102,7 +118,7 @@ class Donor extends Person {
     private function fetchDonorInfoFromDB(): void {
         $row = $this->fetchSingle("SELECT blood_type, weight FROM donors WHERE person_id = ?", "i", $this->person_id);
         if ($row) {
-            $this->blood_type = BloodTypeEnum::from($row['blood_type']);
+            $this->blood_type = BloodTypeEnum::fromString((string)$row['blood_type']);
             $this->weight = (float) $row['weight'];
         } else {
             throw new Exception("Blood type & weight not found for donor ID: {$this->person_id}");
@@ -137,6 +153,13 @@ class Donor extends Person {
         );
 
         parent::delete();
+    }
+
+    /**
+     * Get user by username
+     */
+    public static function findByUsername(string $username): int {
+        return Person::findByUsername($username);
     }
 }
 

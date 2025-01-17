@@ -200,8 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <!-- Buttons -->
         <div class="button-group">
             <button type="submit">Register</button>
-            <a href="finances.php">
-                <button type="button" style="background-color: #5bc0de;">Finances</button>
+            <a href="../login/">
+                <button type="button" style="background-color: #5bc0de;">Login</button>
             </a>
         </div>
 
