@@ -9,7 +9,9 @@ class Online implements IMoneyDonationMethod {
     }
 
     public function donate($amount): bool {
-        $this->paymentMethod->processPayment($amount);
+        if ($this->paymentMethod->processPayment($amount)){
+            MoneyStock::getInstance()->addCash($amount);
+        }
         return true;
     }
 }
