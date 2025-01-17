@@ -9,10 +9,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
 class MoneyDonation extends Donation
 {
     public Donor $donor;
-    private IMoneyDonationMethod $moneyDonationMethod;
+    public IMoneyDonationMethod $moneyDonationMethod;
 
     // How much money is being donated
-    private float $amount;
+    public float $amount;
 
     // Optionally: private $moneyDonationDetails;  // if you have extra detail
 
@@ -37,15 +37,15 @@ class MoneyDonation extends Donation
         // $this->moneyDonationDetails = $moneyDonationDetails;
     }
 
-    public static function create(float $amount, string $date, string $national_id): bool
+    public static function create(float $amount, string $date, string $type, string $id): bool
     {
-        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `donor_id`) VALUES (?,?,?)";
+        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `type`, `donor_id`) VALUES (?,?,?,?)";
     
         // Ensure $date is in 'YYYY-MM-DD' format
         $formattedDate = date('Y-m-d', strtotime($date));
     
         // Execute the query with proper data types: double (d), string (s), integer (i)
-        return self::executeUpdate($sql, 'dss', $amount, $formattedDate, $national_id) > 0;
+        return self::executeUpdate($sql, 'dsss', $amount, $formattedDate, $type, $id) > 0;
     }
     
     public static function fetchAllMoneyDonations(): array

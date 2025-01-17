@@ -1,61 +1,51 @@
 <?php
 // File: Hospitals.php
-require_once __DIR__ . '/Ibeneficiaries.php';
+
+require_once __DIR__ . '/IBeneficiary.php';
+require_once __DIR__ . '/BloodTypeEnum.php';
 require_once __DIR__ . '/BloodStock.php';
-require_once __DIR__ . '/BloodType.php';
 
-class Hospitals implements IBeneficiaries
+class Hospitals implements IBeneficiary
 {
-    public function __construct()
+    private string $name;
+    private string $address;
+    private array $ownedBloodAmounts; // Blood amounts owned by the hospital
+    private BloodStock $bloodStock; // Shared instance of BloodStock
+
+    public function __construct(string $name, string $address, BloodStock $bloodStock)
     {
-        // Attach this object to the singleton BloodStock as an observer
-        $bloodStock = BloodStock::getInstance();
-        $bloodStock->addBeneficiary($this);
+        $this->name = $name;
+        $this->address = $address;
+        $this->ownedBloodAmounts = array_fill_keys(BloodTypeEnum::values(), 0.0); // Initialize owned amounts
+        $this->bloodStock = $bloodStock;
+
+        // Register this hospital as an observer
+        $this->bloodStock->addBeneficiary($this);
     }
-    
+
     /**
-     * Requests a certain amount of a specific BloodTypeEnum from the stock.
+     * Called by the BloodStock instance when stock is updated.
      */
-    public function requestBlood(int $amount, BloodTypeEnum $bloodType)
+    public function update(BloodTypeEnum $bloodType, float $amount): bool
     {
-        try {
-            // Retrieve the singleton instance of BloodStock
-            $bloodStock = BloodStock::getInstance();
+        // Hospital is notified about the stock update (without echoing)
+        return true;
+    }
 
-            // Compare the requested type with the stock's type
-            if ($bloodStock->getBloodType() === $bloodType) {
-                // Check if enough is available
-                if ($bloodStock->getAmount() >= $amount) {
-                    // Remove from stock (which also triggers observer updates)
-                    $success = $bloodStock->removeFromStock($amount);
-
-                    if ($success) {
-                        echo "Hospital requested {$amount} liters of {$bloodType}.<br>";
-                    } else {
-                        echo "Error removing from stock.<br>";
-                    }
-                } else {
-                    echo "Not enough {$bloodType} in stock. Available: "
-                        . $bloodStock->getAmount() . " liters<br>";
-                }
-            } else {
-                echo "This stock is for {$bloodStock->getBloodType()}, not for {$bloodType}.<br>";
-            }
-        } catch (Exception $e) {
-            echo "Error requesting blood: " . $e->getMessage();
+    /**
+     * Request blood from the centralized BloodStock.
+     */
+    public function requestBlood(BloodTypeEnum $bloodType, float $amount): bool
+    {
+        // Attempt to remove the requested blood from BloodStock
+        if ($this->bloodStock->removeFromStock($bloodType, $amount)) {
+            // If successful, add the requested amount to ownedBloodAmounts
+            $this->ownedBloodAmounts[$bloodType] += $amount;
+            return true;
         }
-    }
 
-    /**
-     * Called automatically when BloodStock->updateBloodStock() is invoked.
-     */
-    public function update()
-    {
-        echo "Hospital notified: BloodStock changed.<br>";
-
-        // Optional: you might want to retrieve the updated amount
-        $bloodStock = BloodStock::getInstance();
-        echo "Current stock: " . $bloodStock->getAmount()
-            . " liters of " . $bloodStock->getBloodType() . "<br>";
+        // If removal failed, return false
+        return false;
     }
 }
+?>

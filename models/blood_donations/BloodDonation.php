@@ -1,48 +1,99 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once __DIR__ . "/Donation.php";
-require_once __DIR__ . "/BloodStock.php";
-require_once __DIR__ . "/BloodType.php";
-require_once __DIR__ . "/Donor.php";
-require_once __DIR__ . "/DonorValidationTemplate.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/MoneyDonation/Donation.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodDonation.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodStock.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/BloodTypeEnum.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/people/Donor.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorValidation/DonorValidationTemplate.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibility/DonorStateContext.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
+
+
+
+class DonationType
+{
+    const PLASMA = 'Plasma';
+    const BLOOD = 'Blood';
+
+    // Method to get a string value of the type
+    public static function getType(string $value): string
+    {
+        return $value;
+    }
+
+    // Method to create a type from a string value
+    public static function fromString(string $value): ?string
+    {
+        return in_array($value, [self::PLASMA, self::BLOOD]) ? $value : null;
+    }
+}
 
 class BloodDonation extends Donation
 {
-    // donation id should be removed imo (or should be db generated..not entered by a user)
     private int $Number_of_liters;
     private BloodTypeEnum $BloodTypeEnum;
     private DonorValidationTemplate $validationTemplate;
-
-    public function __construct(int $Donation_ID, Donor $donor, DateTime $datetime, int $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
+    public Donor $donor; 
+    public DonationType $blooddonationtype;
+    public function __construct(Donor $donor, DonationType $blooddonationtype, DateTime $datetime, float $Number_of_liters, BloodTypeEnum $BloodTypeEnum, DonorValidationTemplate $validationTemplate)
     {
-        parent::__construct($Donation_ID, $donor, $datetime);
+        // Assign values directly (No parent constructor call)
+        $this->donor = $donor;
         $this->Number_of_liters = $Number_of_liters;
         $this->BloodTypeEnum = $BloodTypeEnum;
         $this->validationTemplate = $validationTemplate;
+        $this->date = $datetime;
+        $this->blooddonationtype = $blooddonationtype;
     }
-
     public function validate(): bool
     {
+        return true;
+        // try {
+        //     $xml_ret = $this->validationTemplate->validateDonor($this->$donor);
+        //     $donorStateContext = new DonorStateContext($this->$donor);
+        //     if ($donorStateContext->getChangedSinceLastCheck()) {
+                
+        //         $smsAdapter = new SMSAdapter(new SmsService(), $this->$donor, $xml_ret);
+        //         $smsAdapter->sendNotification();
+
+        //         $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->$donor, $xml_ret);
+        //         $whatsappAdapter->sendNotification();
+        //     }
+        //     return true;
+        // } catch (Exception $e) {
+        //     return false;
+        // }
+    }
+
+    public function increaseBloodStock(): bool
+    {
         try {
-            $this->validationTemplate->templateMethod($this->$donor);
+            // Update stock for either blood or plasma
+            if ($this->blooddonationtype === DonationType::BLOOD) {
+                BloodStock::getInstance()->addToBloodStock( $this->BloodTypeEnum,  $this->Number_of_liters);
+            } elseif ($this->blooddonationtype === DonationType::PLASMA) {
+                // Plasma stock update
+                BloodStock::getInstance()->addToPlasmaStock( $this->BloodTypeEnum, $this->Number_of_liters);
+            }
             return true;
         } catch (Exception $e) {
             return false;
         }
     }
 
-    public function increaseBloodStock(BloodStock $bloodStock): bool
+    public function saveDonationToDatabase(): void
     {
-        try {
-            if ($bloodStock->getBloodType() === $this->BloodTypeEnum) {
-                $bloodStock->addToStock($this->Number_of_liters);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception $e) {
-            return false;
-        }
+        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, blooddonationtype, date) VALUES (?, ?, ?, ?, ?)";
+        self::executeUpdate(
+            $sql,
+            "iisss",
+            $this->donor->person_id,  
+            $this->Number_of_liters,
+            $this->BloodTypeEnum->value, 
+            $this->blooddonationtype->getType(), 
+            $this->date->format('Y-m-d H:i:s')
+        );
     }
 
     public function donate(): bool
@@ -51,14 +102,24 @@ class BloodDonation extends Donation
             return false;
         }
 
-        $bloodStock = BloodStock::getInstance();
-
-        if ($this->increaseBloodStock($bloodStock)) {
+        // Increase blood stock based on blood type or plasma
+        if ($this->increaseBloodStock()) {
+            // Save donation to database after increasing stock
+            $this->saveDonationToDatabase();
             return true;
         } else {
             return false;
         }
     }
+
+    public static function fetchAllBloodDonations(): array
+    {
+        // Fetch all blood donations from the database
+        $sql = "SELECT * FROM BloodDonation";
+        return self::fetchAll($sql);
+    }
+    
+
 }
 
 ?>
