@@ -1,5 +1,10 @@
-
 <?php
+
+require_once __DIR__ . '/controllers/VolunteerController.php';
+
+$controller = new VolunteerController();
+$controller->handleRequest();
+
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 // Fetch summary data with error handling
 try {
@@ -46,6 +51,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,16 +64,19 @@ try {
             background-color: #f4f4f9;
             color: #333;
         }
+
         header {
             background-color: #d9534f;
             color: white;
             padding: 10px 0;
             text-align: center;
         }
+
         nav {
             background-color: #d9534f;
             overflow: hidden;
         }
+
         nav a {
             float: left;
             display: block;
@@ -76,24 +85,33 @@ try {
             padding: 14px 16px;
             text-decoration: none;
         }
+
         nav a:hover {
             background-color: #c9302c;
         }
+
         section {
             padding: 20px;
         }
+
         table {
             width: 100%;
             margin-top: 15px;
             border-collapse: collapse;
         }
-        table, th, td {
+
+        table,
+        th,
+        td {
             border: 1px solid #ccc;
         }
-        th, td {
+
+        th,
+        td {
             padding: 10px;
             text-align: center;
         }
+
         footer {
             text-align: center;
             padding: 10px 0;
@@ -105,59 +123,61 @@ try {
         }
     </style>
 </head>
+
 <body>
 
-<header>
-    <h1>Blood Donation System</h1>
-</header>
+    <header>
+        <h1>Blood Donation System</h1>
+    </header>
 
-<nav>
-    <a href="index.php">Home</a>
-    <a href="money_donations.php">Money Donations</a>
-    <a href="blood_donations.php">Blood Donations</a>
-    <a href="beneficiary.php">Beneficiary</a>
-    <a href="events.php">Events</a>
-    <a href="volunteers.php">Volunteers</a>
-    <a href="other.php">Other</a>
-</nav>
+    <nav>
+        <a href="index.php">Home</a>
+        <a href="money_donations.php">Money Donations</a>
+        <a href="blood_donations.php">Blood Donations</a>
+        <a href="beneficiary.php">Beneficiary</a>
+        <a href="events.php">Events</a>
+        <a href="volunteers.php">Volunteers</a>
+        <a href="other.php">Other</a>
+    </nav>
 
-<section>
-    <h2>System Overview</h2>
-    <p>This is an overview of the current data in the system:</p>
-    <ul>
-        <li><strong>Total Persons:</strong> <?php echo $summary['totalPersons']; ?></li>
-        <li><strong>Total Addresses:</strong> <?php echo $summary['totalAddresses']; ?></li>
-        <li><strong>Total Donors:</strong> <?php echo $summary['totalDonors']; ?></li>
-        <li><strong>Total Donations:</strong> <?php echo $summary['totalDonations']; ?></li>
-    </ul>
+    <section>
+        <h2>System Overview</h2>
+        <p>This is an overview of the current data in the system:</p>
+        <ul>
+            <li><strong>Total Persons:</strong> <?php echo $summary['totalPersons']; ?></li>
+            <li><strong>Total Addresses:</strong> <?php echo $summary['totalAddresses']; ?></li>
+            <li><strong>Total Donors:</strong> <?php echo $summary['totalDonors']; ?></li>
+            <li><strong>Total Donations:</strong> <?php echo $summary['totalDonations']; ?></li>
+        </ul>
 
-    <h2>Blood Stock Summary</h2>
-    <table>
-        <thead>
-            <tr>
-                <th>Blood Type</th>
-                <th>Total Amount (Liters)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($bloodStock as $stock): ?>
+        <h2>Blood Stock Summary</h2>
+        <table>
+            <thead>
                 <tr>
-                    <td><?php echo htmlspecialchars($stock['blood_type']); ?></td>
-                    <td><?php echo number_format($stock['total_amount'], 2); ?></td>
+                    <th>Blood Type</th>
+                    <th>Total Amount (Liters)</th>
                 </tr>
-            <?php endforeach; ?>
-            <?php if (empty($bloodStock)): ?>
-                <tr>
-                    <td colspan="2">No blood stock data available.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
-</section>
+            </thead>
+            <tbody>
+                <?php foreach ($bloodStock as $stock): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($stock['blood_type']); ?></td>
+                        <td><?php echo number_format($stock['total_amount'], 2); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (empty($bloodStock)): ?>
+                    <tr>
+                        <td colspan="2">No blood stock data available.</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+        </table>
+    </section>
 
-<footer>
-    &copy; <?php echo date("Y"); ?> Blood Donation Management System. All rights reserved.
-</footer>
+    <footer>
+        &copy; <?php echo date("Y"); ?> Blood Donation Management System. All rights reserved.
+    </footer>
 
 </body>
+
 </html>

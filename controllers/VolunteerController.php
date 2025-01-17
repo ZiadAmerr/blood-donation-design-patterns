@@ -1,64 +1,59 @@
 <?php
+// File: /controllers/VolunteerController.php
+
 require_once __DIR__ . '/../models/people/Volunteer.php';
-require_once __DIR__ . '/../models/skills/Driving.php';
-require_once __DIR__ . '/../models/skills/Nursing.php';
-// ... any other skill classes if you have them
 
 class VolunteerController
 {
     public function handleRequest(): void
     {
+        // action is decided from URL: e.g. ?action=list
         $action = $_GET['action'] ?? 'list';
 
         switch ($action) {
             case 'create':
-                $this->createVolunteer();
+                $this->create();
                 break;
-
             case 'store':
-                $this->storeVolunteer();
+                $this->store();
                 break;
-
             case 'edit':
-                $this->editVolunteer();
+                $this->edit();
                 break;
-
             case 'update':
-                $this->updateVolunteer();
+                $this->update();
                 break;
-
             case 'delete':
-                $this->deleteVolunteer();
+                $this->delete();
                 break;
-
             case 'add_skill':
                 $this->addSkill();
                 break;
-
             case 'remove_skill':
                 $this->removeSkill();
                 break;
-
             default:
-                $this->listVolunteers();
+                $this->index();
                 break;
         }
     }
 
-    /**
-     * Show form to create a new volunteer
-     */
-    private function createVolunteer(): void
+    // 1) List all volunteers
+    private function index(): void
     {
-        include __DIR__ . '/../views/volunteers/create.php';
+        $volunteers = Volunteer::allVolunteers();
+        require __DIR__ . '/../views/volunteers/index.php';
     }
 
-    /**
-     * Store new volunteer in DB
-     */
-    private function storeVolunteer(): void
+    // 2) Show create form
+    private function create(): void
     {
-        // Typically from $_POST
+        require __DIR__ . '/../views/volunteers/create.php';
+    }
+
+    // 3) Process create form (store)
+    private function store(): void
+    {
         $name       = $_POST['name'] ?? '';
         $dob        = $_POST['dob'] ?? '';
         $nationalId = $_POST['national_id'] ?? '';
@@ -66,103 +61,70 @@ class VolunteerController
         $phone      = $_POST['phone_number'] ?? '';
 
         $volunteer = Volunteer::createVolunteer($name, $dob, $nationalId, $addressId, $phone);
-
         if ($volunteer) {
-            // redirect or show success
-            header('Location: ?action=list');
+            // redirect to volunteer list
+            header("Location: ?action=list");
             exit;
         } else {
             echo "Error creating volunteer.";
         }
     }
 
-    /**
-     * List all volunteers
-     */
-    private function listVolunteers(): void
-    {
-        // Here, you'd fetch all volunteers from DB. Because we don’t have a direct "Volunteer::all()" yet,
-        // we might do something like fetch all Donors with a flag that are volunteers, or just fetch from Person table, etc.
-        // Example:
-        $rows = Model::fetchAll("SELECT person_id FROM Donor");
-        $volunteers = [];
-        foreach ($rows as $row) {
-            try {
-                $volunteers[] = new Volunteer($row['person_id']);
-            } catch (Exception $e) {
-                // handle error
-            }
-        }
-
-        include __DIR__ . '/../views/volunteers/index.php';
-    }
-
-    /**
-     * Show form to edit an existing volunteer
-     */
-    private function editVolunteer(): void
+    // 4) Show edit form
+    private function edit(): void
     {
         $volunteerId = (int)($_GET['volunteer_id'] ?? 0);
         $volunteer = new Volunteer($volunteerId);
-        include __DIR__ . '/../views/volunteers/edit.php';
+        require __DIR__ . '/../views/volunteers/edit.php';
     }
 
-    /**
-     * Update volunteer in DB
-     */
-    private function updateVolunteer(): void
+    // 5) Process edit form (update)
+    private function update(): void
     {
         $volunteerId = (int)($_POST['volunteer_id'] ?? 0);
         $volunteer = new Volunteer($volunteerId);
 
         $name       = $_POST['name'] ?? $volunteer->getName();
         $phone      = $_POST['phone_number'] ?? $volunteer->getPhoneNumber();
-        $available  = isset($_POST['isAvailable']) ? true : false;
+        $isAvailable = isset($_POST['isAvailable']) ? true : false;
 
-        $volunteer->updateVolunteer($name, $phone, $available);
+        $volunteer->updateVolunteer($name, $phone, $isAvailable);
 
-        header('Location: ?action=list');
+        header("Location: ?action=list");
         exit;
     }
 
-    /**
-     * Delete volunteer from DB
-     */
-    private function deleteVolunteer(): void
+    // 6) Delete volunteer
+    private function delete(): void
     {
         $volunteerId = (int)($_GET['volunteer_id'] ?? 0);
         $volunteer = new Volunteer($volunteerId);
         $volunteer->deleteVolunteer();
-        header('Location: ?action=list');
+
+        header("Location: ?action=list");
         exit;
     }
 
-    /**
-     * Add skill to volunteer
-     */
+    // 7) Add skill
     private function addSkill(): void
     {
         $volunteerId = (int)($_GET['volunteer_id'] ?? 0);
         $skillName   = $_POST['skill_name'] ?? '';
-        $volunteer = new Volunteer($volunteerId);
-
         if ($skillName) {
+            $volunteer = new Volunteer($volunteerId);
             $volunteer->addSkill($skillName);
         }
         header("Location: ?action=edit&volunteer_id={$volunteerId}");
         exit;
     }
 
-    /**
-     * Remove a skill from a volunteer
-     */
+    // 8) Remove skill
     private function removeSkill(): void
     {
         $volunteerId = (int)($_GET['volunteer_id'] ?? 0);
         $skillName   = $_GET['skill_name'] ?? '';
-        $volunteer = new Volunteer($volunteerId);
-
         if ($skillName) {
+            $volunteer = new Volunteer($volunteerId);
             $volunteer->removeSkill($skillName);
         }
         header("Location: ?action=edit&volunteer_id={$volunteerId}");
