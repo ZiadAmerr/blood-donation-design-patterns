@@ -9,16 +9,10 @@ require_once 'Person.php';
 class Donor extends Person {
     public int $person_id;
     public BloodTypeEnum $blood_type;
+    public float $weight;
     public const table_name = "donors";
 
-    /** @var string[] List of diseases that make a donor permanently ineligible */
-    public static array $permanently_ineligible_diseases = [
-        "HIV",
-        "HBV",
-        "HCV",
-    ];
-
-    /** @var string[] List of donor's diseases */
+    /** @var int[] List of disease IDs that the donor has */
     public array $diseases = [];
 
     /** @var Donation[] List of donations */
@@ -28,26 +22,19 @@ class Donor extends Person {
         parent::__construct($person_id);
         $this->person_id = $person_id;
 
-        // Fetch donor's blood type
-        $this->blood_type = $this->fetchBloodTypeFromDB();
+        // Fetch donor's blood type & weight
+        $this->fetchDonorInfoFromDB();
 
         // Fetch diseases if stored in DB
         $this->diseases = $this->fetchDiseasesFromDB();
-
-        // If no diseases stored, randomly assign diseases (10% chance)
-        if (empty($this->diseases) && rand(0, 9) === 0) {
-            $this->diseases = (array) array_intersect_key(
-                static::$permanently_ineligible_diseases,
-                array_flip(array_rand(static::$permanently_ineligible_diseases, rand(1, count(static::$permanently_ineligible_diseases))))
-            );
-        }
 
         // Fetch all donations associated with this donor
         $this->loadDonations();
     }
 
     /**
-     * Create a new donor if not exists, otherwise return existing one
+     * Create a new donor if not exists, otherwise return existing one.
+     * Also assigns diseases to the donor.
      */
     public static function create(
         string $name, 
@@ -57,63 +44,83 @@ class Donor extends Person {
         string $username, 
         string $password, 
         int $address_id, 
-        string $blood_type = null,
+        string $blood_type = null, 
+        float $weight = null,
+        array $disease_ids = null
     ): int {
         // Ensure person exists
         $person_id = Person::create($name, $date_of_birth, $phone_number, $national_id, $username, $password, $address_id);
 
         // Check if donor already exists
         $existing = static::fetchSingle("SELECT person_id FROM donors WHERE person_id = ?", "i", $person_id);
-
         if ($existing) {
             return $existing['person_id']; // Return existing donor's ID
         }
 
         // Insert new donor
         static::executeUpdate(
-            "INSERT INTO " . self::table_name . " (person_id, blood_type) VALUES (?, ?)",
-            "is",
+            "INSERT INTO " . self::table_name . " (person_id, blood_type, weight) VALUES (?, ?, ?)",
+            "isd",
             $person_id, 
-            $blood_type
+            $blood_type,
+            $weight
         );
+
+        // Assign diseases to the donor
+        if (!empty($disease_ids)) {
+            static::assignDiseasesToDonor($person_id, $disease_ids);
+        }
 
         return $person_id; // Return new donor's ID
     }
 
+    /**
+     * Assign diseases to a donor.
+     */
+    private static function assignDiseasesToDonor(int $donor_id, array $disease_ids): void {
+        if (empty($disease_ids)) {
+            return;
+        }
+
+        $values = [];
+        $types = str_repeat("ii", count($disease_ids)); // "ii" for each (donor_id, disease_id) pair
+
+        foreach ($disease_ids as $disease_id) {
+            $values[] = $donor_id;
+            $values[] = $disease_id;
+        }
+
+        $placeholders = implode(", ", array_fill(0, count($disease_ids), "(?, ?)"));
+        $query = "INSERT IGNORE INTO donor_diseases (donor_id, disease_id) VALUES $placeholders";
+
+        static::executeUpdate($query, $types, ...$values);
+    }
 
     /**
-     * Fetch donor blood type from the database
+     * Fetch donor blood type & weight from the database.
      */
-    private function fetchBloodTypeFromDB(): BloodTypeEnum {
-        $row = $this->fetchSingle("SELECT blood_type FROM donors WHERE person_id = ?", "i", $this->person_id);
+    private function fetchDonorInfoFromDB(): void {
+        $row = $this->fetchSingle("SELECT blood_type, weight FROM donors WHERE person_id = ?", "i", $this->person_id);
         if ($row) {
-            return BloodTypeEnum::from($row['blood_type']);
+            $this->blood_type = BloodTypeEnum::from($row['blood_type']);
+            $this->weight = (float) $row['weight'];
+        } else {
+            throw new Exception("Blood type & weight not found for donor ID: {$this->person_id}");
         }
-        throw new Exception("Blood type not found for donor ID: {$this->person_id}");
     }
 
     /**
      * Fetch donor diseases from the database
-     * @return string[]
+     * @return int[] List of disease IDs
      */
     private function fetchDiseasesFromDB(): array {
-        $rows = $this->fetchAll("SELECT disease FROM DonorDiseases WHERE person_id = ?", "i", $this->person_id);
-        return $rows ? array_column($rows, 'disease') : [];
-    }
-
-    /**
-     * Load all donations associated with this donor
-     */
-    private function loadDonations(): void {
-        $rows = $this->fetchAll("SELECT id FROM Donation WHERE donor_id = ?", "i", $this->person_id);
-        foreach ($rows as $row) {
-            $this->donations[] = new Donation($row['id']);
-        }
+        $rows = $this->fetchAll("SELECT disease_id FROM donor_diseases WHERE donor_id = ?", "i", $this->person_id);
+        return $rows ? array_column($rows, 'disease_id') : [];
     }
 
     /**
      * Get diseases of the donor
-     * @return string[]
+     * @return int[]
      */
     public function getDiseases(): array {
         return $this->diseases;
@@ -132,4 +139,5 @@ class Donor extends Person {
         parent::delete();
     }
 }
+
 ?>

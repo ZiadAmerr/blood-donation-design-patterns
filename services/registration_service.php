@@ -9,7 +9,7 @@ class RegistrationService {
 
         try {
             // Validate required fields
-            $required_fields = ['name', 'date_of_birth', 'phone_number', 'national_id', 'username', 'password', 'blood_type'];
+            $required_fields = ['name', 'date_of_birth', 'phone_number', 'national_id', 'username', 'password', 'blood_type', 'weight'];
             foreach ($required_fields as $field) {
                 if (empty($postData[$field])) {
                     throw new Exception("Missing required field: $field");
@@ -24,6 +24,15 @@ class RegistrationService {
             $username = htmlspecialchars(trim($postData['username']));
             $password = htmlspecialchars(trim($postData['password']));
             $blood_type = htmlspecialchars(trim($postData['blood_type']));
+            $weight = floatval($postData['weight']); // Ensure weight is a float
+
+            // Extract selected diseases
+            $diseases = isset($postData['diseases']) ? array_map('intval', $postData['diseases']) : [];
+
+            // Print diseases
+            foreach ($diseases as $disease) {
+                echo $disease . "<br>";
+            }
 
             // Address Handling
             $new_address_name = $postData['new_address_name'] ?? null;
@@ -33,7 +42,7 @@ class RegistrationService {
             // Step 1: Handle Address (get existing or create new)
             $address_id = AddressService::getOrCreateAddress($new_address_name, $parent_address_id, $selected_address);
 
-            // Step 3: Register Donor
+            // Step 2: Register Donor with weight and diseases
             $donor_id = Donor::create(
                 $name,
                 $date_of_birth,
@@ -42,7 +51,9 @@ class RegistrationService {
                 $username,
                 $password, // Using MD5
                 $address_id,
-                $blood_type
+                $blood_type,
+                $weight,
+                $diseases // List of disease IDs
             );
 
             $response['success'] = true;
@@ -50,11 +61,9 @@ class RegistrationService {
             $response['donor_id'] = $donor_id;
         } catch (Exception $e) {
             $response['message'] = "Registration failed: " . $e->getMessage();
-            throw $e;
         }
 
         return $response;
     }
 }
-
 ?>
