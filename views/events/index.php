@@ -1,14 +1,11 @@
 <?php
 // File: event_view.php
 
+$response = ['success' => false, 'message' => ''];
+
 // Include necessary controller and model files
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/EventController.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Volunteer/Volunteer.php'; // Assuming Volunteer model exists
-
-// Start the session to handle messages
-session_name('events');
-session_start();
-
 
 $eventController = new EventController();
 
@@ -17,132 +14,84 @@ $successMessage = '';
 $errorMessage = '';
 
 // Handle form submissions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Determine which form was submitted
-    echo 'test 0';
-    if (isset($_POST['create_campaign'])) {
-        // Handle creation of a new donation campaign
-        echo 'test 1';
-        $data = [
-            'name' => $_POST['campaign_name'],
-            'description' => $_POST['campaign_description'],
-            'start_date' => $_POST['campaign_start_date'],
-            'end_date' => $_POST['campaign_end_date'],
-            'target_amount' => $_POST['campaign_target_amount']
-        ];
-        echo 'test 2';
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    try {
+        // Determine which form was submitted
+        if (isset($_POST['create_campaign'])) {
+            // Handle creation of a new donation campaign
+            $data = [
+                'name' => $_POST['campaign_name'],
+                'description' => $_POST['campaign_description'],
+                'start_date' => $_POST['campaign_start_date'],
+                'end_date' => $_POST['campaign_end_date'],
+                'target_amount' => $_POST['campaign_target_amount']
+            ];
 
-        $result = $eventController->createDonationCampaign($data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
+            $message = $eventController->createDonationCampaign($data);
+        } elseif (isset($_POST['create_event'])) {
+            // Handle creation of a new event
+            $data = [
+                'campaign_id' => $_POST['event_campaign_id'],
+                'event_type' => $_POST['event_type'],
+                'title' => $_POST['event_title'],
+                'max_attendees' => $_POST['event_max_attendees'],
+                'address_id' => $_POST['event_address_id'],
+                'date_time' => $_POST['event_date_time'],
+                // Additional fields based on event type
+                'goal_amount' => $_POST['event_goal_amount'] ?? null,
+                'raised_amount' => $_POST['event_raised_amount'] ?? null,
+                'instructor_id' => $_POST['event_instructor_id'] ?? null,
+                'description' => $_POST['workshop_description'] ?? null,
+                'volunteer_id' => $_POST['workshop_volunteer_id'] ?? null
+            ];
+            $message = $eventController->createEvent($data);
+        } elseif (isset($_POST['register_attendee'])) {
+            // Handle attendee registration
+            $data = [
+                'name' => $_POST['attendee_name'],
+                'date_of_birth' => $_POST['attendee_dob'],
+                'national_id' => $_POST['attendee_national_id'],
+                'address_id' => $_POST['attendee_address_id'],
+                'phone_number' => $_POST['attendee_phone_number']
+            ];
+            $message = $eventController->registerAttendee($data);
+        } elseif (isset($_POST['add_activity'])) {
+            // Handle adding activity to outreach event
+            $eventId = $_POST['activity_event_id'];
+            $data = [
+                'activity' => $_POST['activity_description']
+            ];
+            $message = $eventController->addActivityToEvent($eventId, $data);
+        } elseif (isset($_POST['add_organization'])) {
+            // Handle adding organization to outreach event
+            $eventId = $_POST['organization_event_id'];
+            $data = [
+                'organization' => $_POST['organization_name']
+            ];
+            $message = $eventController->addOrganizationToEvent($eventId, $data);
+        } elseif (isset($_POST['contribute_fundraiser'])) {
+            // Handle contribution to fundraiser event
+            $eventId = $_POST['fundraiser_event_id'];
+            $amount = floatval($_POST['contribution_amount']);
+            $message = $eventController->contributeToFundraiser($eventId, $amount);
+        } elseif (isset($_POST['add_workshop'])) {
+            // Handle adding workshop to workshop event
+            $eventId = $_POST['workshop_event_id'];
+            $data = [
+                'description' => $_POST['workshop_description'],
+                'volunteer' => $_POST['workshop_volunteer_id']
+            ];
+            $message = $eventController->addWorkshopToEvent($eventId, $data);
         } else {
-            $errorMessage = $result['message'];
+            throw new Exception('Invalid form submission');
         }
-        echo 'test 3';
 
-    } elseif (isset($_POST['create_event'])) {
-        // Handle creation of a new event
-        $data = [
-            'campaign_id' => $_POST['event_campaign_id'],
-            'event_type' => $_POST['event_type'],
-            'title' => $_POST['event_title'],
-            'max_attendees' => $_POST['event_max_attendees'],
-            'address_id' => $_POST['event_address_id'],
-            'date_time' => $_POST['event_date_time'],
-            // Additional fields based on event type
-            'goal_amount' => $_POST['event_goal_amount'] ?? null,
-            'raised_amount' => $_POST['event_raised_amount'] ?? null,
-            'instructor_id' => $_POST['event_instructor_id'] ?? null,
-            'description' => $_POST['workshop_description'] ?? null,
-            'volunteer_id' => $_POST['workshop_volunteer_id'] ?? null
-        ];
-        $result = $eventController->createEvent($data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
-    } elseif (isset($_POST['register_attendee'])) {
-        // Handle attendee registration
-        $data = [
-            'name' => $_POST['attendee_name'],
-            'date_of_birth' => $_POST['attendee_dob'],
-            'national_id' => $_POST['attendee_national_id'],
-            'address_id' => $_POST['attendee_address_id'],
-            'phone_number' => $_POST['attendee_phone_number']
-        ];
-        $result = $eventController->registerAttendee($data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
-    } elseif (isset($_POST['add_activity'])) {
-        // Handle adding activity to outreach event
-        $eventId = $_POST['activity_event_id'];
-        $data = [
-            'activity' => $_POST['activity_description']
-        ];
-        $result = $eventController->addActivityToEvent($eventId, $data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
-    } elseif (isset($_POST['add_organization'])) {
-        // Handle adding organization to outreach event
-        $eventId = $_POST['organization_event_id'];
-        $data = [
-            'organization' => $_POST['organization_name']
-        ];
-        $result = $eventController->addOrganizationToEvent($eventId, $data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
-    } elseif (isset($_POST['contribute_fundraiser'])) {
-        // Handle contribution to fundraiser event
-        $eventId = $_POST['fundraiser_event_id'];
-        $amount = floatval($_POST['contribution_amount']);
-        $result = $eventController->contributeToFundraiser($eventId, $amount);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
-    } elseif (isset($_POST['add_workshop'])) {
-        // Handle adding workshop to workshop event
-        $eventId = $_POST['workshop_event_id'];
-        $data = [
-            'description' => $_POST['workshop_description'],
-            'volunteer' => $_POST['workshop_volunteer_id']
-        ];
-        $result = $eventController->addWorkshopToEvent($eventId, $data);
-        if ($result['success']) {
-            $successMessage = $result['message'];
-        } else {
-            $errorMessage = $result['message'];
-        }
+        // Set success message if no exception was thrown
+        $response["success"] = true;
+        $response["message"] = $message;
+    } catch (Exception $e) {
+        $response["message"] = $e->getMessage();
     }
-    
-    // Store messages in session to display after redirect
-    $_SESSION['success'] = $successMessage;
-    $_SESSION['error'] = $errorMessage;
-    
-    // Redirect to avoid form resubmission
-    header("Location: " . $_SERVER['PHP_SELF']);
-    exit();
-}
-
-// Retrieve messages from session
-if (isset($_SESSION['success'])) {
-    $successMessage = $_SESSION['success'];
-    unset($_SESSION['success']);
-}
-if (isset($_SESSION['error'])) {
-    $errorMessage = $_SESSION['error'];
-    unset($_SESSION['error']);
 }
 
 // Fetch all donation campaigns
@@ -222,11 +171,10 @@ $campaigns = $eventController->getDonationCampaigns();
         <h1>Donation Campaigns and Events Management</h1>
 
         <!-- Display success or error messages -->
-        <?php if ($successMessage): ?>
-            <div class="message success"><?php echo htmlspecialchars($successMessage); ?></div>
-        <?php endif; ?>
-        <?php if ($errorMessage): ?>
-            <div class="message error"><?php echo htmlspecialchars($errorMessage); ?></div>
+        <?php if (isset($_POST) && !empty($response['message'])): ?>
+            <div class="message <?php echo $response['success'] ? 'success' : 'error'; ?>">
+                <?php echo htmlspecialchars($response['message']); ?>
+            </div>
         <?php endif; ?>
 
         <!-- Form to Create a New Donation Campaign -->

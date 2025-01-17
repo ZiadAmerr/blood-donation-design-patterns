@@ -18,7 +18,7 @@ class EventController
         return DonationCampaign::fetchAllCampaigns($db);
     }
 
-    public function createDonationCampaign(array $data): void {
+    public function createDonationCampaign(array $data): string {
         // Ensure the `id` is cast to an integer or set to null
         $campaign = new DonationCampaign(
             $data['name'],
@@ -27,9 +27,9 @@ class EventController
         );
 
         if ($campaign->save()) {
-            echo "Campaign created successfully!";
+            return "Campaign created successfully!";
         } else {
-            echo "Failed to create the campaign.";
+            return "Failed to create the campaign.";
         }
     }
 
