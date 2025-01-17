@@ -3,15 +3,15 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Iterators/IterableEvent.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/IDonationComponent.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/DonationCampaign.php";  // Import the DonationCampaign class
 
 class DonationCampaign implements IDonationComponent, IIterableEvent {
-    private $eventList = [];
-    private $name;
-    private $description;
+    private array $components = [];  // Holds both Event and DonationCampaign instances
+    private string $name;
+    private string $description;
     private mysqli $db;
-    private $id;  // Campaign ID for update or delete
+    private int $id;
 
-    // Constructor accepts db connection, name, description, and optional ID (for existing campaigns)
     public function __construct($db, $name, $description, $id = null) {
         $this->db = Database::getInstance();
         $this->name = $name;
@@ -51,7 +51,7 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
         $query = "SELECT * FROM donation_campaigns WHERE id = :id";
         $stmt = $db->prepare($query);
         $stmt->execute([':id' => $id]);
-        
+
         // Fetch campaign data and return a new instance if found
         $campaign = $stmt->fetch(PDO::FETCH_ASSOC);
         if ($campaign) {
@@ -72,22 +72,21 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
         $query = "SELECT * FROM donation_campaigns";
         $stmt = $db->prepare($query);
         $stmt->execute();
-        
+
         // Get the result set
         $result = $stmt->get_result();
-    
+
         // Fetch all rows as an associative array
         return $result->fetch_all(MYSQLI_ASSOC);
     }
-    
 
     // Show event details
     public function showEventDetails(): string {
         $details = '';
         $iterator = $this->createEventIterator();
         while ($iterator->hasNext()) {
-            $event = $iterator->next();
-            $details .= $event->showDetails() . "\n";
+            $component = $iterator->next();
+            $details .= $component->showDetails() . "\n";
         }
         return $details;
     }
@@ -97,28 +96,20 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
         $details = '';
         $iterator = $this->createEventIterator();
         while ($iterator->hasNext()) {
-            $event = $iterator->next();
-            $details .= $event->showAttendeeDetails() . "\n";
+            $component = $iterator->next();
+            $details .= $component->showAttendeeDetails() . "\n";
         }
         return $details;
     }
 
-    // Add an event to the campaign
-    public function addEvent(Event $event): void {
-        $this->eventList[] = $event;
+    // Add a donation component (either Event or DonationCampaign)
+    public function addDonationComponent(IDonationComponent $component): void {
+        $this->components[] = $component;
     }
 
-    // Remove an event from the campaign
-    public function removeEvent(Event $event): void {
-        $key = array_search($event, $this->eventList, true);
-        if ($key !== false) {
-            unset($this->eventList[$key]);
-        }
-    }
-
-    // Create event iterator
+    // Create event iterator for the components (both Event and DonationCampaign)
     public function createEventIterator(): EventIterator {
-        return new EventIterator($this->eventList);
+        return new EventIterator($this->components);
     }
 }
 ?>
