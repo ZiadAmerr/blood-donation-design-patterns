@@ -15,6 +15,13 @@ class WhatsAppAdapter implements NotificationSender {
     }
 
     public function sendNotification(): string {
+        $payload = json_encode([
+            'target' => $this->donor->getPhoneNumber(),
+            'contents' => $this->message,
+            'source' => 'BloodDonationSystem',
+            'token' => $this->whatsappService->api_token
+        ]);
+
         $ret = $this->whatsappService->notify(
             $this->donor->getPhoneNumber(),
             $this->message
@@ -24,12 +31,14 @@ class WhatsAppAdapter implements NotificationSender {
             'success' => $ret === "OK",
             'status' => match ($ret) {
                 "OK" => 'success',
+                0 => 'payload_error',
                 "Error!" => 'connectivity_error',
                 false => 'server_error',
                 default => 'UNKNOWN_RETURN_FROM_API',
             },
             'message' => match ($ret) {
                 "OK" => 'Notification sent successfully',
+                0 => 'Payload Error',
                 "Error!" => 'Curl Error',
                 false => 'Quota Exceeded or Unknown Error from WhatsApp API',
                 default => 'UNKNOWN_RETURN_FROM_API',
