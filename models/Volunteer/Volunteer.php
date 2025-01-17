@@ -88,6 +88,24 @@ class Volunteer extends Donor {
         }
     }
 
+    // Load a volunteer by ID (person_id)
+    public static function loadById(int $id): ?Volunteer {
+        // Fetch volunteer record
+        $sql = "SELECT * FROM Donors WHERE person_id = ?";
+        $row = static::fetchSingle($sql, "i", $id);
+
+        if ($row) {
+            // Create a new Volunteer object using the fetched data
+            $volunteer = new self($row['person_id']);
+            $volunteer->name = $row['name'];  // Assuming name is a field in the Donors table
+
+            // Optionally, you can load other details or perform additional setup if necessary
+            return $volunteer;
+        }
+
+        return null;  // Return null if no volunteer was found
+    }
+
     // Delete volunteer (skills, tasks, and donor record)
     public function delete(): void {
         // Delete all skills from the database
@@ -104,7 +122,6 @@ class Volunteer extends Donor {
             $this->person_id
         );
 
-        // Call parent delete to remove the Donor and Person records
-        parent::delete();
     }
 }
+?>
