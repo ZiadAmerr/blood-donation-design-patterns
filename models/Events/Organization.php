@@ -21,7 +21,6 @@ class Organization extends Model
         $this->website = $website;
     }
 
-    // Getters and Setters for each attribute
     public function getId()
     {
         return $this->id;
@@ -82,7 +81,6 @@ class Organization extends Model
         $this->website = $website;
     }
 
-    // CRUD Operations
     public static function create(string $name, string $address, string $contactNumber, string $email, ?string $website): Organization
     {
         $id = self::executeUpdate(
@@ -140,7 +138,6 @@ class Organization extends Model
         $this->website = $website;
     }
 
-    // Static method to load all Organizations
     public static function load(): array
     {
         $data = self::fetchAll(
@@ -151,7 +148,6 @@ class Organization extends Model
             throw new Exception("No organizations found.");
         }
 
-        // Create an array of Organization objects from the fetched data
         $organizations = [];
         foreach ($data as $organizationData) {
             $organizations[] = new Organization(

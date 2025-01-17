@@ -1,4 +1,5 @@
 <?php
+require "Volunteer.php";
 
 class Workshop {
     private int $id;

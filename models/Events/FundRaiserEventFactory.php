@@ -5,7 +5,6 @@ require_once "FundRaiserEvent.php";
 
 class FundRaiserEventFactory extends EventFactory{
     
-    // create an object of Fundraiser event and return it
     public function eventFactory($args): ?Event
     {
         // extract arguments from the list args
