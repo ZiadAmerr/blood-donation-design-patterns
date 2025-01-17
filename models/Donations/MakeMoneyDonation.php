@@ -1,7 +1,7 @@
 <?php
 
-require_once 'DonationFacade.php';
-require_once 'MoneyDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationFacade.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyDonation.php';
 
 class MakeMoneyDonation implements Command {
 

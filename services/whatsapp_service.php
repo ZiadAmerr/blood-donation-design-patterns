@@ -1,7 +1,6 @@
 <?php
 
-require_once 'NotificationService.php';
-
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationService.php";
 
 class WhatsAppService implements NotificationService {
     public $api_url = "https://api.fakewhatsapp.com/sendMessage";

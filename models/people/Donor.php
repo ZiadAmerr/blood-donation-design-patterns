@@ -31,7 +31,7 @@ class Donor extends Person {
         // Fetch all donations associated with this donor
         $this->loadDonations();
     }
-
+  
     /**
      * Load all donations associated with this donor
      */
@@ -47,7 +47,7 @@ class Donor extends Person {
         //     $this->donations[] = new Donation((int) $row['id']);
         // }
     }
-
+  
     /**
      * Create a new donor if not exists, otherwise return existing one.
      * Also assigns diseases to the donor.
@@ -141,6 +141,22 @@ class Donor extends Person {
     public function getDiseases(): array {
         return $this->diseases;
     }
+    public static function getDonorNameById(int $id): ?string
+{
+    // Query to fetch the donor name by ID
+    $sql = "SELECT name FROM Donor WHERE id = ?";
+
+    // Fetch the donor name
+    $row = self::fetchSingle($sql, "i", $id);
+
+    // If no donor is found, return null
+    if (!$row) {
+        return null;
+    }
+
+    // Return the name
+    return $row['name'];
+}
 
     /**
      * Delete the donor

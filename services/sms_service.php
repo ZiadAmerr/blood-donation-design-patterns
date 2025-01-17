@@ -1,6 +1,6 @@
 <?php
 
-require_once 'NotificationService.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationService.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/People/Donor.php";
 
 class SmsService implements NotificationService {

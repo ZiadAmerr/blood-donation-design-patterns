@@ -1,19 +1,16 @@
 <?php
 
-require_once 'Donor.php';
-require_once 'Donation.php';
-require_once 'MoneyDonation.php';
-require_once 'BloodDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodStock.php';
+
 
 class DonationFacade {
     private Donor $donor;
     public function __construct(Donor $donor) {
         $this->donor = $donor;
-    }
-
-    
-    public function update_donations_list(Donation $donation, Donor $donor): void {
-        Donation::create($donor->person_id, $donation->type);
     }
 
     
@@ -28,50 +25,50 @@ class DonationFacade {
         }
     }
 
-    
-    public function money_donation_setter(MoneyDonation $moneyDonation): void {
-        Donation::create(
-            $moneyDonation->donor->person_id,
-            "money"
-        );
-    }
-
-    
-    public function blood_donation_setter(BloodDonation $bloodDonation): void {
-        Donation::create(
-            $bloodDonation->donor->person_id,
-            "blood"
-        );
-    }
 
     
     public function donateMoney(MoneyDonation $moneyDonation): bool {
-        try {
+        
             $this->money_donation_setter($moneyDonation);
             $moneyDonation->getReceipt();
             return true;
-        } catch (Exception $e) {
-            echo "Error processing money donation: " . $e->getMessage();
-            return false;
-        }
+        
     }
 
     
-    public function donateBlood(BloodDonation $bloodDonation): bool {
-        try {
-            $this->blood_donation_setter($bloodDonation);
-            $bloodDonation->increaseBloodStock("SingletonBloodStockInstance");
-            return true;
-        } catch (Exception $e) {
-            // Handle exception
-            echo "Error processing blood donation: " . $e->getMessage();
-            return false;
-        }
+    public function donateBlood(BloodDonation $bloodDonation): bool
+{
+    // Ensure correct blood donation type
+    if ($bloodDonation->blooddonationtype !== DonationType::BLOOD) {
+        return false;
     }
 
-    public function donatePlasma(BloodDonation $bloodDonation): bool {
-        ///TODO: TO BE IMPLEMENTED...
+    // Add blood to stock
+    if ($bloodDonation->increaseBloodStock()) {
+        // Save donation to database
+        $bloodDonation->saveDonationToDatabase();
         return true;
     }
+
+    return false;
+}
+
+public function donatePlasma(BloodDonation $bloodDonation): bool
+{
+    // Ensure correct plasma donation type
+    if ($bloodDonation->blooddonationtype !== DonationType::PLASMA) {
+        return false;
+    }
+
+    // Add plasma to stock
+    if ($bloodDonation->increaseBloodStock()) {
+        // Save plasma donation to database
+        $bloodDonation->saveDonationToDatabase();
+        return true;
+    }
+
+    return false;
+}
+
 }
 ?>

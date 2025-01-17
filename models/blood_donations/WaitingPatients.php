@@ -24,7 +24,7 @@ class WaitingPatients implements IBeneficiary
     /**
      * Called by the BloodStock instance when stock is updated.
      */
-    public function update(BloodTypeEnum $bloodType, float $amount): bool
+    public function update(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): bool
     {
         // Patient is notified about the stock update (without echoing)
         return true;

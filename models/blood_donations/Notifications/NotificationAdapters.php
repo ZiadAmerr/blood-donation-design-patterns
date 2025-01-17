@@ -1,6 +1,6 @@
 <?php
 
-require_once 'NotificationSender.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotficationsSender.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/whatsapp_service.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/sms_service.php";
 

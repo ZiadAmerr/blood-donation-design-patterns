@@ -1,5 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
+ 
 
 enum BloodTypeEnum: string {
     case AB_POSITIVE = 'AB+';
@@ -15,10 +16,9 @@ enum BloodTypeEnum: string {
     public static function values(): array {
         return array_column(self::cases(), 'value');
     }
-
-    // Converts enum to string
-    public function toString(): string {
-        return $this->value;
+  
+    public static function getAllValues(): array {
+        return self::values(); // Simply return the existing values() function
     }
 
     // Converts string to enum

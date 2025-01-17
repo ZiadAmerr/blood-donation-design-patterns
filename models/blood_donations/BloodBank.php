@@ -9,14 +9,16 @@ class BloodBank implements IBeneficiary
 {
     private string $name;
     private string $address;
-    private array $ownedBloodAmounts; // Blood amounts owned by the hospital
-    private BloodStock $bloodStock; // Shared instance of BloodStock
+    private array $ownedBloodAmounts; 
+    private array $ownedPlasmaAmounts; 
+    private BloodStock $bloodStock; 
 
     public function __construct(string $name, string $address, BloodStock $bloodStock)
     {
         $this->name = $name;
         $this->address = $address;
-        $this->ownedBloodAmounts = array_fill_keys(BloodTypeEnum::values(), 0.0); // Initialize owned amounts
+        $this->ownedBloodAmounts = array_fill_keys(BloodTypeEnum::values(), 0.0); 
+        $this->ownedPlasmaAmounts = array_fill_keys(BloodTypeEnum::values(), 0.0);
         $this->bloodStock = $bloodStock;
 
         // Register this hospital as an observer
@@ -26,7 +28,7 @@ class BloodBank implements IBeneficiary
     /**
      * Called by the BloodStock instance when stock is updated.
      */
-    public function update(BloodTypeEnum $bloodType, float $amount): bool
+    public function update(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): bool
     {
         // Hospital is notified about the stock update (without echoing)
         return true;

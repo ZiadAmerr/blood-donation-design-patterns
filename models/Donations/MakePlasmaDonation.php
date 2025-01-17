@@ -1,9 +1,10 @@
 <?php
 
-require_once 'DonationFacade.php';
-require_once 'BloodDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationFacade.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/Command.php';
 
-class MakeBloodDonation implements Command {
+class MakePlasmaDonation implements Command {
 
     protected $receiver;
 
