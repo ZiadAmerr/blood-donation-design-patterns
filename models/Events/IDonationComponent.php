@@ -2,6 +2,6 @@
 
 interface IDonationComponent
 {
-    public function showEventDetails(): void;
+    public function showEventDetails(): string;
 }
 ?>

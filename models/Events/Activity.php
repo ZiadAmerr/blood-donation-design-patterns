@@ -1,7 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
-// Activity (extends Model for DB operations)
 class Activity extends Model
 {
     public int $id;
@@ -10,7 +9,6 @@ class Activity extends Model
     public string $description;
     public string $location;
 
-    // Constructor
     public function __construct(int $id)
     {
         $data = self::fetchSingle("SELECT * FROM Activities WHERE id = ?", "i", $id);
@@ -26,7 +24,6 @@ class Activity extends Model
         $this->location = $data['location'];
     }
 
-    // Static method to create a new Activity
     public static function create(int $eventId, string $name, string $description, string $location): Activity
     {
         self::validateEventId($eventId);
@@ -43,7 +40,6 @@ class Activity extends Model
         return new Activity($id);
     }
 
-    // Method to update an existing Activity
     public function update(string $name, string $description, string $location): void
     {
         self::executeUpdate(
@@ -73,7 +69,6 @@ class Activity extends Model
             throw new Exception("No activities found for event ID $eventId.");
         }
 
-        // Create an array of Activity objects from the fetched data
         $activities = [];
         foreach ($data as $activityData) {
             $activities[] = new Activity($activityData['id']);
@@ -83,7 +78,6 @@ class Activity extends Model
     }
 
 
-    // Method to delete an Activity
     public function delete(): void
     {
         self::executeUpdate(
@@ -93,7 +87,6 @@ class Activity extends Model
         );
     }
 
-    // Static method to validate if an event_id exists in the database
     private static function validateEventId(int $eventId): void
     {
         $exists = self::fetchSingle(

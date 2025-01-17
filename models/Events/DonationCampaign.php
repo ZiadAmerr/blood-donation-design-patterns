@@ -8,13 +8,16 @@ class DonationCampaign implements IDonationComponent, IIterableAttendee, IIterab
     private $eventList = [];
     private $attendeeList = [];
 
-    public function showEventDetails(): void {
+    public function showEventDetails(): string {
+        $details = '';
         $iterator = $this->createEventIterator();
         while ($iterator->hasNext()) {
             $event = $iterator->next();
-            echo $event->showDetails();
+            $details .= $event->showDetails() . "\n";
         }
+        return $details;
     }
+        
 
     public function showAttendeeDetails(): void {
         $iterator = $this->createAttendeeIterator();

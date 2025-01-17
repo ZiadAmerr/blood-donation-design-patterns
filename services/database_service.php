@@ -25,7 +25,7 @@ class Database {
 
 trait DatabaseTrait
 {
-    protected static $db;
+    public static $db;
 
     // Initialize the database connection
     public function initializeDatabase(): void
@@ -76,7 +76,7 @@ trait DatabaseTrait
     }
 
     // Fetch a single record as an associative array
-    protected function fetchSingle(string $sql, string $types = "", ...$params): ?array
+    public function fetchSingle(string $sql, string $types = "", ...$params): ?array
     {
         $stmt = $this->executeQuery($sql, $types, ...$params);
         if ($stmt === null) {
@@ -93,7 +93,7 @@ trait DatabaseTrait
     }
 
     // Fetch multiple records as an array of associative arrays
-    protected function fetchAll(string $sql, string $types = "", ...$params): array
+    public function fetchAll(string $sql, string $types = "", ...$params): array
     {
         $stmt = $this->executeQuery($sql, $types, ...$params);
         if ($stmt === null) {
@@ -116,7 +116,6 @@ trait DatabaseTrait
     //     if ($stmt === null) {
     //         return 0;
     //     }
-
     //     return $stmt->affected_rows;
     // }
 }
@@ -126,7 +125,7 @@ abstract class Model
     use DatabaseTrait;
 
     // Fetch a single record as an associative array
-    protected static function fetchSingle(string $sql, string $types = "", ...$params): ?array
+    public static function fetchSingle(string $sql, string $types = "", ...$params): ?array
     {
         $db = Database::getInstance();
         $stmt = $db->prepare($sql);
@@ -144,7 +143,7 @@ abstract class Model
     }
 
     // Fetch multiple records as an array of associative arrays
-    protected static function fetchAll(string $sql, string $types = "", ...$params): array
+    public static function fetchAll(string $sql, string $types = "", ...$params): array
     {
         $db = Database::getInstance();
         $stmt = $db->prepare($sql);
@@ -162,7 +161,7 @@ abstract class Model
     }
 
     // Run an update, insert, or delete query and return affected rows
-    protected static function executeUpdate(string $sql, string $types = "", ...$params): int
+    public static function executeUpdate(string $sql, string $types = "", ...$params): int
     {
         $db = Database::getInstance();
         $stmt = $db->prepare($sql);

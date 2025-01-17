@@ -102,7 +102,6 @@ class OutreachEvent extends Event {
     }
 
     private function loadActivities(): array {
-        // Use the fetchAll method from the DatabaseTrait to fetch activities
         $sql = "SELECT name FROM Activities WHERE event_id = ?";
         $activities = $this->fetchAll($sql, "i", $this->eventID);
     
@@ -116,7 +115,6 @@ class OutreachEvent extends Event {
     }
     
     private function loadOrganizations(): array {
-        // Use the fetchAll method from the DatabaseTrait to fetch organizations
         $sql = "SELECT name FROM Organizations WHERE event_id = ?";
         $organizations = $this->fetchAll($sql, "i", $this->eventID);
     

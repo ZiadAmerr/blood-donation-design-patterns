@@ -1,141 +1,125 @@
 <?php
-// File: BloodStock.php
 require_once __DIR__ . '/IBloodStock.php';
-require_once __DIR__ . '/Ibeneficiaries.php';
+require_once __DIR__ . '/IBeneficiaries.php';
 require_once __DIR__ . '/database_service.php';
 
 class BloodStock extends Model implements IBloodStock
 {
     private static ?BloodStock $instance = null;
-
-    private BloodTypeEnum $blood_type;
-    private float $amount;
-
-    // Observers
     private array $listOfBeneficiaries = [];
+    private array $bloodAmounts;
 
     /**
      * Private constructor ensures only one instance can be created.
      */
-    private function __construct(int $id)
+    private function __construct()
     {
-        $row = $this->fetchSingle("SELECT * FROM BloodStock WHERE id = ?", "i", $id);
-        if ($row) {
-            // Initialize properties with fetched values
-            $this->id         = (int) $row['id'];
-            $this->blood_type = $row['blood_type'];
-            $this->amount     = (float) $row['amount'];
-        } else {
-            // Throw exception if no record is found for the given ID
-            throw new Exception("BloodStock with ID $id not found.");
+        // Initialize the blood amounts map with 0 liters for each blood type
+        $this->bloodAmounts = array_fill_keys(BloodTypeEnum::getAllValues(), 0.0);
+
+        // Optionally fetch data from the database to populate initial stock
+        $rows = $this->fetchAll("SELECT blood_type, amount FROM BloodStock");
+        foreach ($rows as $row) {
+            $this->bloodAmounts[$row['blood_type']] = (float) $row['amount'];
         }
     }
 
     /**
      * Singleton accessor
      */
-    public static function getInstance(int $id = 1): BloodStock {
+    public static function getInstance(): BloodStock
+    {
         if (self::$instance === null) {
-            // Create a new instance if one does not already exist
-            self::$instance = new BloodStock($id);
+            self::$instance = new BloodStock();
         }
         return self::$instance;
     }
 
     /**
-     * Create a new BloodStock record
+     * Add blood to the stock for a specific blood type.
      */
-    public static function create(BloodTypeEnum $blood_type, float $amount): BloodStock
+    public function addToStock(BloodTypeEnum $bloodType, float $amountToAdd): void
     {
-        $id = static::executeUpdate(
-            "INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?)",
-            "sd",
-            $blood_type,
-            $amount
+        $this->bloodAmounts[$bloodType->value] += $amountToAdd;
+
+        // Update the database
+        static::executeUpdate(
+            "INSERT INTO BloodStock (blood_type, amount) VALUES (?, ?) 
+             ON DUPLICATE KEY UPDATE amount = amount + ?",
+            "sdd",
+            $bloodType->value,
+            $amountToAdd,
+            $amountToAdd
         );
-        // Return a new BloodStock instance with the generated ID
-        return new BloodStock($id);
+
+        $this->notifyBeneficiaries($bloodType, $this->bloodAmounts[$bloodType->value]);
     }
 
     /**
-     * Update the amount in DB and in this instance
+     * Remove blood from the stock for a specific blood type.
      */
-    public function update(float $new_amount): void
-    {
-        static::executeUpdate(
-            "UPDATE BloodStock SET amount = ? WHERE id = ?",
-            "di",
-            $new_amount,
-            $this->id
-        );
+    public function removeFromStock(BloodTypeEnum $bloodType, float $amountToRemove): ?bool
+{
+    // Check if the requested amount is more than the available stock
+    if ($this->bloodAmounts[$bloodType->value] < $amountToRemove) {
+        // Return null to indicate insufficient stock
+        return false;
+    }
 
-        // Update the local property
-        $this->amount = $new_amount;
-        $this->updateBloodStock(); // notify observers
+    // Proceed with removing the blood if sufficient stock exists
+    $this->bloodAmounts[$bloodType->value] -= $amountToRemove;
+
+    // Update the database with the new amount
+    static::executeUpdate(
+        "UPDATE BloodStock SET amount = ? WHERE blood_type = ?",
+        "ds",
+        $this->bloodAmounts[$bloodType->value],
+        $bloodType->value
+    );
+
+    // Notify beneficiaries about the update
+    $this->notifyBeneficiaries($bloodType, $this->bloodAmounts[$bloodType->value]);
+
+    // Return true to indicate successful operation
+    return true;
+}
+
+
+    /**
+     * Get the current stock for a specific blood type.
+     */
+    public function getStock(BloodTypeEnum $bloodType): float
+    {
+        return $this->bloodAmounts[$bloodType->value];
     }
 
     /**
-     * Delete record from DB, reset instance
+     * Get all blood stocks as a map.
      */
-    public function delete(): void
+    public function getAllStocks(): array
     {
-        static::executeUpdate(
-            "DELETE FROM BloodStock WHERE id = ?",
-            "i",
-            $this->id
-        );
-        
-        self::$instance = null;
+        return $this->bloodAmounts;
     }
 
-    // -- Observer pattern methods --
-    public function addBeneficiary(IBeneficiaries $beneficiary): void {
+    // Observer pattern methods
+    public function addBeneficiary(IBeneficiary $beneficiary): void
+    {
         $this->listOfBeneficiaries[] = $beneficiary;
     }
 
-    // Remove a beneficiary from the list of observers
-    public function removeBeneficiary(IBeneficiaries $beneficiary): void {
+    public function removeBeneficiary(IBeneficiary $beneficiary): void
+    {
         $this->listOfBeneficiaries = array_filter(
             $this->listOfBeneficiaries,
             fn($b) => $b !== $beneficiary
         );
     }
 
-    // Notify all beneficiaries about changes to the BloodStock
-    public function updateBloodStock(): void {
+    public function notifyBeneficiaries(BloodTypeEnum $bloodType, float $amount): void
+    {
         foreach ($this->listOfBeneficiaries as $beneficiary) {
-            $beneficiary->update();
+            $beneficiary->update($bloodType, $amount);
         }
-    }
-
-    // -- Convenience methods --
-    public function addToStock(float $amountToAdd): void
-    {
-        $this->update($this->amount + $amountToAdd);
-    }
-
-    public function removeFromStock(float $amountToRemove): bool
-    {
-        if ($this->amount >= $amountToRemove) {
-            $this->update($this->amount - $amountToRemove);
-            return true;
-        }
-        return false; // insufficient stock
-    }
-
-    // -- Getters --
-    public function getId(): int
-    {
-        return $this->id;
-    }
-
-    public function getBloodType(): string
-    {
-        return $this->blood_type;
-    }
-
-    public function getAmount(): float
-    {
-        return $this->amount;
     }
 }
+?>

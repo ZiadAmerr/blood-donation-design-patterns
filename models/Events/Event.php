@@ -3,7 +3,7 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
 abstract class Event extends Model {
-    protected float $eventID;
+    protected int $eventID;
     protected string $title;
     protected int $maxAttendees;
     protected DateTime $dateTime;
@@ -13,7 +13,7 @@ abstract class Event extends Model {
     protected array $tickets = [];
 
     public function __construct(
-        float $eventID,
+        int $eventID,
         string $title,
         int $maxAttendees,
         DateTime $dateTime,
