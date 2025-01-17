@@ -84,7 +84,7 @@ $totalCash = $moneyStock->getTotalCash();
 <body>
 
 <div class="container">
-    <button onclick="window.location.href='index.php'">Home</button>
+    <button onclick="window.location.href='../index.php'">Home</button>
     <h2>Money Donations</h2>
     <button onclick="window.location.href='donate.php'">Donate Money</button>
     <button onclick="checkVault()">Check Vault</button>

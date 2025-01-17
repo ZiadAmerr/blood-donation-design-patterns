@@ -39,7 +39,7 @@ class MoneyDonation extends Donation
 
     public static function create(float $amount, string $date, string $national_id): bool
     {
-        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `national_id`) VALUES (?,?,?)";
+        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `donor_id`) VALUES (?,?,?)";
     
         // Ensure $date is in 'YYYY-MM-DD' format
         $formattedDate = date('Y-m-d', strtotime($date));
@@ -50,7 +50,7 @@ class MoneyDonation extends Donation
     
     public static function fetchAllMoneyDonations(): array
     {
-        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date 
+        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date, md.type
                 FROM moneydonation md 
                 JOIN Donor d ON md.donor_id = d.national_id";
         return self::fetchAll($sql);

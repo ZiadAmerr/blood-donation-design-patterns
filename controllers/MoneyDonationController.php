@@ -40,10 +40,10 @@ class MoneyDonationController
         if ($success) {
             // $donor = Donor::create(
             //     $data['donor_name'],
-            //     $data['dob'],
+            //     $data['date_of_birth'],
             //     $data['national_id'],
-            //     $data['address'],
-            //     $data['phone']
+            //     $data['address_id'],
+            //     $data['phone_number']
             // );
 
             // Add donation to the database
