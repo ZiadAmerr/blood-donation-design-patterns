@@ -1,6 +1,6 @@
 <?php
 
 interface DonorState {
-    public function can_donate(): bool;
+    public function donate();
+    public function isValid(Donor $donor): bool;
 }
-?>

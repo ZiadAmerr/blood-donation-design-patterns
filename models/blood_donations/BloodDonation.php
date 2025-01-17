@@ -5,6 +5,9 @@ require_once __DIR__ . "/BloodStock.php";
 require_once __DIR__ . "/BloodType.php";
 require_once __DIR__ . "/Donor.php";
 require_once __DIR__ . "/DonorValidationTemplate.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibility/DonorStateContext.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
+
 
 class BloodDonation extends Donation
 {
@@ -24,7 +27,16 @@ class BloodDonation extends Donation
     public function validate(): bool
     {
         try {
-            $this->validationTemplate->templateMethod($this->$donor);
+            $xml_ret = $this->validationTemplate->validateDonor($this->$donor);
+            $donorStateContext = new DonorStateContext($this->$donor);
+            if ($donorStateContext->getChangedSinceLastCheck()) {
+                // NOTIFY
+                $smsAdapter = new SMSAdapter(new SmsService(), $this->$donor, $xml_ret);
+                $smsAdapter->sendNotification();
+
+                $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->$donor, $xml_ret);
+                $whatsappAdapter->sendNotification();
+            }
             return true;
         } catch (Exception $e) {
             return false;
