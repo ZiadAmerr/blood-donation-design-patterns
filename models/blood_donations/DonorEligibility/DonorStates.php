@@ -12,6 +12,10 @@ class PermanentlyIneligible implements DonorState {
                 return false;
         return true;
     }
+
+    public function getAsString(): string {
+        return "permanently ineligible";
+    }
 }
 
 class TemporarilyIneligible implements DonorState {
@@ -26,6 +30,10 @@ class TemporarilyIneligible implements DonorState {
         $days_since_last_donation = $time_since_last_donation / 60 / 60 / 24;
         return $days_since_last_donation >= 56; // 8 weeks
     }
+    
+    public function getAsString(): string {
+        return "temporarily ineligible";
+    }
 }
 
 class Eligible implements DonorState {
@@ -35,6 +43,10 @@ class Eligible implements DonorState {
 
     public function isValid(Donor $donor): bool {
         return true;
+    }
+
+    public function getAsString(): string {
+        return "eligible";
     }
 }
 
