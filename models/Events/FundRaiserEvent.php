@@ -11,6 +11,12 @@ class FundraiserEvent extends Event {
         $this->goalAmount = $goalAmount;
         $this->raisedAmount = $raisedAmount;
     }
+    public function updateRaisedAmount(float $amount): void {
+        $this->raisedAmount += $amount;
+
+        $sql = "UPDATE FundraiserEvent SET raised_amount = ? WHERE id = ?";
+        $this->executeUpdate($sql, "di", $this->raisedAmount, $this->eventID);
+    }
 
     public static function create(array $data): FundraiserEvent {
         $fundraiser = new self(
@@ -30,7 +36,7 @@ class FundraiserEvent extends Event {
             $data['dateTime']->format('Y-m-d H:i:s'),
             $data['goalAmount']
         );
-        $fundraiser->id = $fundraiserId;
+        $fundraiser->eventID = $fundraiserId;
 
         return $fundraiser;
     }
@@ -49,18 +55,18 @@ class FundraiserEvent extends Event {
             $data['address_id'],
             $data['dateTime']->format('Y-m-d H:i:s'),
             $data['goalAmount'],
-            $this->id
+            $this->eventID
         );
     }
 
     public function delete(): void {
         $sql = "DELETE FROM FundraiserEvent WHERE id = ?";
-        $this->executeUpdate($sql, "i", $this->id);
+        $this->executeUpdate($sql, "i", $this->eventID);
     }
 
     public function load(): void {
         $sql = "SELECT * FROM FundraiserEvent WHERE id = ?";
-        $row = $this->fetchSingle($sql, "i", $this->id);
+        $row = $this->fetchSingle($sql, "i", $this->eventID);
 
         if ($row) {
             $this->title = $row['title'];

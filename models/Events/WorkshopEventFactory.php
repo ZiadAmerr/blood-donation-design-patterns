@@ -11,12 +11,11 @@ class WorkShopEventFactory extends EventFactory{
         $title = $args['title'] ?? 'Untitled Workshop';
         $address = $args['address_id'] ?? null;
         $dateTime = $args['date_time'] ?? null;
-        $instructor = $args['instructor'] ?? 'Unknown Instructor';
         $maxAttendees = $args['max_attendees'] ?? 0;
-        $materials = $args['materials'] ?? [];
+        $workshops = $args['workshops'] ?? [];
 
         // Return the created WorkShopEvent object
-        return new WorkShopEvent($title, $address, $dateTime, $instructor, $maxAttendees, $materials);
+        return new WorkShopEvent($title,  $maxAttendees, $dateTime, $address, $workshops);
     }
 
 

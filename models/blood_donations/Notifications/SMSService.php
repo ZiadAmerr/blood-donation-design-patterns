@@ -10,7 +10,7 @@ class SmsService implements NotificationService {
         $api_url = "https://legacy-sms-gateway.com/send"; $post_data = http_build_query(['to' =>
             $number, 'message' => $message, 'api_key' => 'a2b7c4d9e6f1']);
 
-        $ch = curl_init($apiUrl); curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $ch = curl_init($api_url); curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true); curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
 
         $response = curl_exec($ch); if (curl_errno($ch)) return 0; curl_close($ch);

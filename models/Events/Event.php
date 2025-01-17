@@ -26,20 +26,45 @@ abstract class Event extends Model {
         $this->address = $address;
     }
 
-    abstract public function getDetails(): string;
+    public function showEventDetails(): string {
+        return sprintf(
+            "Event ID: %s\nTitle: %s\nMax Attendees: %d\nDate and Time: %s\nAddress: %s\n",
+            $this->eventID,
+            $this->title,
+            $this->maxAttendees,
+            $this->dateTime->format('Y-m-d H:i:s'),
+            $this->address->__toString()
+        );
+    }
 
     public function addVolunteer(Volunteer $volunteer): void {
         $this->volunteers[] = $volunteer;
     }
 
+    public function addTicket(Ticket $ticket): void {
+        $this->tickets[] = $ticket;
+    }
+    
+
     public function issueTicket(float $attendeeID): Ticket {
         $ticket = new Ticket(uniqid(), $attendeeID, $this->eventID);
-        $this->tickets[] = $ticket;
+        $this->addTicket($ticket);
         return $ticket;
+    }
+
+    public function createAttendeeIterator(): AttendeeIterator{
+        return new AttendeeIterator($this->attendees);
     }
 
     public function getAttendees(): array {
         return $this->attendees;
+    }
+
+    public function loadAllTickets(): array {
+        $sql = "SELECT * FROM Tickets WHERE event_id = ?";
+        $ticketsData = self::fetchAll($sql, "i", $this->eventID);
+
+        return $ticketsData; 
     }
 }
 

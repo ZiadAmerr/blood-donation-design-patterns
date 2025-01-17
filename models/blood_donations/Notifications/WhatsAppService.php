@@ -13,8 +13,8 @@ class WhatsAppService implements NotificationService {
         global $GLOBAL_API_URL, $GLOBAL_API_TOKEN;
 
         # SEND REQUEST HERE! #
-        $ch = curl_init(); curl_setopt($ch, CURLOPT_URL, $api_url); curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['phone' => $number,'message' => $message,'token' => $api_token]));
+        $ch = curl_init(); curl_setopt($ch, CURLOPT_URL, $this->api_url); curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode(['phone' => $number,'message' => $message,'token' => $this->api_token]));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
 
         $response = curl_exec($ch);

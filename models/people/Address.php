@@ -87,6 +87,11 @@ class Address extends Model
     {
         return $this->parent_id !== null ? new Address($this->parent_id) : null;
     }
+    // Method to convert Address object to string
+    public function __toString(): string
+    {
+        return "Address ID: $this->id, Name: $this->name" . ($this->parent_id !== null ? ", Parent ID: $this->parent_id" : "");
+    }
 }
 
 ?>

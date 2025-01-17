@@ -14,7 +14,7 @@ class WhatsAppAdapter implements NotificationSender {
         $this->message = $message;
     }
 
-    private function sendNotification(): string {
+    public function sendNotification(): string {
         $ret = $this->whatsappService->notify(
             $this->donor->getPhoneNumber(),
             $this->message

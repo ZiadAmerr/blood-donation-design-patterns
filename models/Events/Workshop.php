@@ -1,6 +1,7 @@
 <?php
 
 class Workshop {
+    private int $id;
     private Volunteer $instructor;
     private string $topic;
 
@@ -9,9 +10,7 @@ class Workshop {
         $this->topic = $topic;
     }
 
-    public function getDetails(): string {
-        return "Workshop: {$this->topic}, Instructor: {$this->instructor->getName()}";
-    }
+    
 }
 
 ?>

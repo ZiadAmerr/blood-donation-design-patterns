@@ -12,10 +12,11 @@ class FundRaiserEventFactory extends EventFactory{
         $title = $args['title'] ?? 'Untitled Event';
         $address = $args['address'] ?? null;
         $dateTime = $args['date_time'] ?? null;
+        $maxAttendees = $args['max_attendees'] ?? 0;
         $goalAmount = $args['goal_amount'] ?? 0;
         $raisedAmount = $args['goal_amount'] ?? 0;
 
-        return new FundraiserEvent($title, $address, $dateTime, $goalAmount, $raisedAmount); 
+        return new FundraiserEvent($title, $maxAttendees, $dateTime, $address, $goalAmount, $raisedAmount); 
          
     } 
 

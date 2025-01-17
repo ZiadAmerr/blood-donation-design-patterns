@@ -1,15 +1,23 @@
 <?php
+
 require_once "Event.php";
 require_once "Address.php";
 
-class OutreachEvent extends Event {  
-    private int $audience; 
-    private array $activities;
-    private array $listOfOrganizations;
+class OutreachEvent extends Event {
 
-    public function __construct(int $id, string $title, Address $address, DateTime $dateTime, int $audience, array $activities = [], array $listOfOrganizations = []) {
-        parent::__construct($id, $title, $address, $dateTime);
-        $this->audience = $audience;
+    private array $activities = [];
+    private array $listOfOrganizations = [];
+
+    public function __construct(
+        int $eventID,
+        string $title,
+        int $maxAttendees,
+        Address $address,
+        DateTime $dateTime,
+        array $activities = [],
+        array $listOfOrganizations = []
+    ) {
+        parent::__construct($eventID, $title, $maxAttendees, $dateTime, $address);
         $this->activities = $activities;
         $this->listOfOrganizations = $listOfOrganizations;
     }
@@ -18,21 +26,23 @@ class OutreachEvent extends Event {
         $outreachEvent = new self(
             0,
             $data['title'],
+            $data['maxAttendees'],
             new Address($data['address_id']),
             new DateTime($data['dateTime']),
-            $data['audience']
+            $data['activities'] ?? [],
+            $data['listOfOrganizations'] ?? []
         );
 
-        $sql = "INSERT INTO OutreachEvent (title, address_id, date_time, audience) VALUES (?, ?, ?, ?)";
+        $sql = "INSERT INTO OutreachEvent (title, address_id, date_time, max_attendees) VALUES (?, ?, ?, ?)";
         $outreachEventId = $outreachEvent->executeUpdate(
             $sql,
-            "sisdi",
+            "sisi",
             $data['title'],
             $data['address_id'],
             $data['dateTime']->format('Y-m-d H:i:s'),
-            $data['audience']
+            $data['maxAttendees']
         );
-        $outreachEvent->id = $outreachEventId;
+        $outreachEvent->eventID = $outreachEventId;
 
         return $outreachEvent;
     }
@@ -45,45 +55,80 @@ class OutreachEvent extends Event {
         $this->listOfOrganizations[] = $organization;
     }
 
+    public function getActivities(): array {
+        return $this->activities;
+    }
+
+    public function getOrganizations(): array {
+        return $this->listOfOrganizations;
+    }
+
     public function update(array $data): void {
         $this->title = $data['title'];
         $this->address = new Address($data['address_id']);
         $this->dateTime = new DateTime($data['dateTime']);
-        $this->audience = $data['audience'];
+        $this->activities = $data['activities'] ?? [];
+        $this->listOfOrganizations = $data['listOfOrganizations'] ?? [];
 
-        $sql = "UPDATE OutreachEvent SET title = ?, address_id = ?, date_time = ?, audience = ? WHERE id = ?";
+        $sql = "UPDATE OutreachEvent SET title = ?, address_id = ?, date_time = ?, max_attendees = ? WHERE id = ?";
         $this->executeUpdate(
             $sql,
-            "sisdi",
+            "sisii",
             $data['title'],
             $data['address_id'],
             $data['dateTime']->format('Y-m-d H:i:s'),
-            $data['audience'],
-            $this->id
+            $data['maxAttendees'],
+            $this->eventID
         );
     }
 
     public function delete(): void {
         $sql = "DELETE FROM OutreachEvent WHERE id = ?";
-        $this->executeUpdate($sql, "i", $this->id);
+        $this->executeUpdate($sql, "i", $this->eventID);
     }
 
     public function load(): void {
         $sql = "SELECT * FROM OutreachEvent WHERE id = ?";
-        $row = $this->fetchSingle($sql, "i", $this->id);
+        $row = $this->fetchSingle($sql, "i", $this->eventID);
 
         if ($row) {
             $this->title = $row['title'];
             $this->address = new Address($row['address_id']);
             $this->dateTime = new DateTime($row['date_time']);
-            $this->audience = (int)$row['audience'];
-            $this->activities = $row['activities'] ?? [];
-            $this->listOfOrganizations = $row['organizations'] ?? [];
+            $this->maxAttendees = (int)$row['max_attendees'];
+            $this->activities = $this->loadActivities();
+            $this->listOfOrganizations = $this->loadOrganizations();
         }
     }
 
-    protected function getDetails(): string {
-        return "Outreach Event: {$this->title}, Audience: {$this->audience}, Activities: " . implode(", ", $this->activities);
+    private function loadActivities(): array {
+        // Use the fetchAll method from the DatabaseTrait to fetch activities
+        $sql = "SELECT name FROM Activities WHERE event_id = ?";
+        $activities = $this->fetchAll($sql, "i", $this->eventID);
+    
+        // Extract the activity names into an array
+        $activityNames = [];
+        foreach ($activities as $activity) {
+            $activityNames[] = $activity['name'];
+        }
+    
+        return $activityNames;
     }
+    
+    private function loadOrganizations(): array {
+        // Use the fetchAll method from the DatabaseTrait to fetch organizations
+        $sql = "SELECT name FROM Organizations WHERE event_id = ?";
+        $organizations = $this->fetchAll($sql, "i", $this->eventID);
+    
+        // Extract the organization names into an array
+        $organizationNames = [];
+        foreach ($organizations as $organization) {
+            $organizationNames[] = $organization['name'];
+        }
+    
+        return $organizationNames;
+    }
+    
 }
+
 ?>

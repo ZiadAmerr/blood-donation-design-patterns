@@ -12,13 +12,14 @@ class OutreachEventFactory extends EventFactory{
         $title = $args['title'] ?? 'Untitled Event';
         $address = $args['address'] ?? null;
         $dateTime = $args['date_time'] ?? null;
-        $audience = $args['audience'] ?? null;
         $activities = $args['activities'] ?? [];
+        $maxAttendees = $args['max_attendees'] ?? 0;
         $listOfOrganizations = $args['list_of_organizations'] ?? [];
 
 
         // Return the created OutreachEvent object
-        return new OutreachEvent($title, $address, $dateTime, $audience, $activities, $listOfOrganizations);
+        return new OutreachEvent($title, $maxAttendees, $dateTime, $address, $activities, $listOfOrganizations);
+
     } 
 
 }
