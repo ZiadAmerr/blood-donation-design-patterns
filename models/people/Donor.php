@@ -12,27 +12,21 @@ class Donor extends Person {
         $this->person_id = $person_id;
     }
 
-    public static function create($name, $date_of_birth, $national_id, $address_id): Donor {
-        $person = parent::create($name, $date_of_birth, $national_id, $address_id);
-
-        static::executeUpdate(
-            "INSERT INTO Donor (person_id) VALUES (?)",
-            "i",
-            $person->id
-        );
-
-        return new Donor($person->id);
+    public static function create(string $name, string $dob, string $nationalId, string $address, string $phone): int
+    {
+        $sql = "INSERT INTO Donor (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)";
+        return self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
     }
 
-    public function delete(): void {
-        static::executeUpdate(
-            "DELETE FROM Donor WHERE person_id = ?",
-            "i",
-            $this->person_id
-        );
+    // public function delete(): void {
+    //     static::executeUpdate(
+    //         "DELETE FROM Donor WHERE person_id = ?",
+    //         "i",
+    //         $this->person_id
+    //     );
 
-        parent::delete();
-    }
+    //     parent::delete();
+    // }
 }
 
 ?>

@@ -48,7 +48,7 @@ trait DatabaseTrait
     }
 
     // Execute a query with parameters and return the result
-    protected function executeQuery(string $sql, string $types = "", ...$params): ?mysqli_stmt
+    public function executeQuery(string $sql, string $types = "", ...$params): ?mysqli_stmt
     {
         $this->initializeDatabase();
 
@@ -109,16 +109,16 @@ trait DatabaseTrait
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
-    // Run an update, insert, or delete query and return affected rows
-    protected function executeUpdate(string $sql, string $types = "", ...$params): int
-    {
-        $stmt = $this->executeQuery($sql, $types, ...$params);
-        if ($stmt === null) {
-            return 0;
-        }
+    // // Run an update, insert, or delete query and return affected rows
+    // protected function executeUpdate(string $sql, string $types = "", ...$params): int
+    // {
+    //     $stmt = $this->executeQuery($sql, $types, ...$params);
+    //     if ($stmt === null) {
+    //         return 0;
+    //     }
 
-        return $stmt->affected_rows;
-    }
+    //     return $stmt->affected_rows;
+    // }
 }
 
 abstract class Model

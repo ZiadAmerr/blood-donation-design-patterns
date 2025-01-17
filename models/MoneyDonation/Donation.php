@@ -1,6 +1,6 @@
 <?php
 // File: Donation.php
-require_once __DIR__ . '/../services/database_service.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 
 abstract class Donation extends Model
 {
@@ -20,23 +20,24 @@ abstract class Donation extends Model
         }
     }
 
-    public static function create(int $donor_id, string $type): Donation
-    {
-        $id = static::executeUpdate(
-            "INSERT INTO Donation (donor_id, type) VALUES (?, ?)",
-            "is",
-            $donor_id,
-            $type
-        );
-        return new static($id);
-    }
+    // public static function create(int $donor_id, string $type): Donation
+    // {
+    //     $id = static::executeUpdate(
+    //         "INSERT INTO Donation (donor_id, type) VALUES (?, ?)",
+    //         "is",
+    //         $donor_id,
+    //         $type
+    //     );
+    //     return new static($id);
+    // }
 
-    public function delete(): void
-    {
-        static::executeUpdate(
-            "DELETE FROM Donation WHERE id = ?",
-            "i",
-            $this->id
-        );
-    }
+    // public function delete(): void
+    // {
+    //     static::executeUpdate(
+    //         "DELETE FROM Donation WHERE id = ?",
+    //         "i",
+    //         $this->id
+    //     );
+    // }
+    
 }

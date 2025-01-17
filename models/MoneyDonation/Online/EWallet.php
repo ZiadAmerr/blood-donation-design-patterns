@@ -1,5 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/IPaymentMethod.php';
 
 class EWallet implements IPaymentMethod {
     protected string $email;

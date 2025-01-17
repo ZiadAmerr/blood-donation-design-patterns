@@ -57,10 +57,10 @@ class VolunteerController
         // Wrap volunteer with decorator
         switch ($skillType) {
             case 'driving':
-                $decoratedVolunteer = new Driving($volunteer);
+                // $decoratedVolunteer = new Driving($volunteer);
                 break;
             case 'nursing':
-                $decoratedVolunteer = new Nursing($volunteer);
+                // $decoratedVolunteer = new Nursing($volunteer);
                 break;
             default:
                 $decoratedVolunteer = $volunteer; // fallback
@@ -80,7 +80,7 @@ class VolunteerController
         $skillName = $_GET['skill_name'] ?? '';
 
         $volunteer = new Volunteer((int)$volunteerId);
-        $volunteer->removeSkill($skillName);
+        // $volunteer->removeSkill($skillName);
 
         echo "Skill removed!";
         header("Location: ?volunteer_id=$volunteerId");
