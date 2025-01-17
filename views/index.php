@@ -113,6 +113,8 @@ try {
 
 <nav>
     <a href="index.php">Home</a>
+    <a href="user/login">Login</a>
+    <a href="user/register">Register</a>
     <a href="money_donations.php">Money Donations</a>
     <a href="blood_donations.php">Blood Donations</a>
     <a href="beneficiary.php">Beneficiary</a>

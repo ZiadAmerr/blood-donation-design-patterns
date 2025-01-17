@@ -1,12 +1,15 @@
 <?php
 
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once 'Person.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodTypeEnum.php';
+require_once 'Person.php';
 
 // Donor Model (extends Person)
 class Donor extends Person {
     public int $person_id;
+    public BloodTypeEnum $blood_type;
+    public const table_name = "donors";
 
     /** @var string[] List of diseases that make a donor permanently ineligible */
     public static array $permanently_ineligible_diseases = [
@@ -25,24 +28,70 @@ class Donor extends Person {
         parent::__construct($person_id);
         $this->person_id = $person_id;
 
-        // Fetch diseases if stored in DB (Modify based on DB structure)
+        // Fetch donor's blood type
+        $this->blood_type = $this->fetchBloodTypeFromDB();
+
+        // Fetch diseases if stored in DB
         $this->diseases = $this->fetchDiseasesFromDB();
 
         // If no diseases stored, randomly assign diseases (10% chance)
         if (empty($this->diseases) && rand(0, 9) === 0) {
-            $this->diseases = array_rand(array_flip(static::$permanently_ineligible_diseases), rand(1, count(static::$permanently_ineligible_diseases)));
+            $this->diseases = (array) array_intersect_key(
+                static::$permanently_ineligible_diseases,
+                array_flip(array_rand(static::$permanently_ineligible_diseases, rand(1, count(static::$permanently_ineligible_diseases))))
+            );
         }
 
         // Fetch all donations associated with this donor
         $this->loadDonations();
     }
 
-    public static function create(string $name, string $dob, string $nationalId, string $address, string $phone): int
-    {
-        $sql = "INSERT INTO Donor (name, date_of_birth, national_id, address_id, phone_number) VALUES (?, ?, ?, ?, ?)";
-        return self::executeUpdate($sql, 'sssss', $name, $dob, $nationalId, $address, $phone);
+    /**
+     * Create a new donor if not exists, otherwise return existing one
+     */
+    public static function create(
+        string $name, 
+        string $date_of_birth, 
+        string $phone_number, 
+        string $national_id, 
+        string $username, 
+        string $password, 
+        int $address_id, 
+        string $blood_type = null,
+    ): int {
+        // Ensure person exists
+        $person_id = Person::create($name, $date_of_birth, $phone_number, $national_id, $username, $password, $address_id);
+
+        // Check if donor already exists
+        $existing = static::fetchSingle("SELECT person_id FROM donors WHERE person_id = ?", "i", $person_id);
+
+        if ($existing) {
+            return $existing['person_id']; // Return existing donor's ID
+        }
+
+        // Insert new donor
+        static::executeUpdate(
+            "INSERT INTO " . self::table_name . " (person_id, blood_type) VALUES (?, ?)",
+            "is",
+            $person_id, 
+            $blood_type
+        );
+
+        return $person_id; // Return new donor's ID
     }
-  
+
+
+    /**
+     * Fetch donor blood type from the database
+     */
+    private function fetchBloodTypeFromDB(): BloodTypeEnum {
+        $row = $this->fetchSingle("SELECT blood_type FROM donors WHERE person_id = ?", "i", $this->person_id);
+        if ($row) {
+            return BloodTypeEnum::from($row['blood_type']);
+        }
+        throw new Exception("Blood type not found for donor ID: {$this->person_id}");
+    }
+
     /**
      * Fetch donor diseases from the database
      * @return string[]
@@ -73,13 +122,14 @@ class Donor extends Person {
     /**
      * Delete the donor
      */
-    // public function delete(): void {
-    //     static::executeUpdate(
-    //         "DELETE FROM Donor WHERE person_id = ?",
-    //         "i",
-    //         $this->person_id
-    //     );
-    // 
-    //     parent::delete();
-    // }
+    public function delete(): void {
+        static::executeUpdate(
+            "DELETE FROM donors WHERE person_id = ?",
+            "i",
+            $this->person_id
+        );
+
+        parent::delete();
+    }
 }
+?>

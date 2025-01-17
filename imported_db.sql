@@ -249,17 +249,13 @@ CREATE TABLE IF NOT EXISTS `person` (
   `date_of_birth` date NOT NULL,
   `national_id` varchar(20) NOT NULL,
   `address_id` int(11) DEFAULT NULL,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `national_id` (`national_id`),
+  UNIQUE KEY `username` (`username`),
   KEY `address_id` (`address_id`)
-) ;
-
---
--- Dumping data for table `person`
---
-
-INSERT INTO `person` (`id`, `name`, `date_of_birth`, `national_id`, `address_id`) VALUES
-(1, 'Abdelrahman', '2002-12-12', '302092201012', 1);
+);
 
 -- --------------------------------------------------------
 
