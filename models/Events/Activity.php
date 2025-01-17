@@ -24,39 +24,63 @@ class Activity extends Model
         $this->location = $data['location'];
     }
 
-    public static function create(int $eventId, string $name, string $description, string $location): Activity
+    // Save method for inserting or updating the activity
+    public function save(): bool
     {
-        self::validateEventId($eventId);
+        if ($this->id === 0) {
+            // Insert new activity into the database
+            self::validateEventId($this->eventId);
 
-        $id = self::executeUpdate(
-            "INSERT INTO Activities (event_id, name, description, location) VALUES (?, ?, ?, ?)",
-            "isss",
-            $eventId,
-            $name,
-            $description,
-            $location
-        );
+            $id = self::executeUpdate(
+                "INSERT INTO Activities (event_id, name, description, location) VALUES (?, ?, ?, ?)",
+                "isss",
+                $this->eventId,
+                $this->name,
+                $this->description,
+                $this->location
+            );
 
-        return new Activity($id);
+            $this->id = $id;  // Set the ID after insertion
+            return true;
+        } else {
+            // Update existing activity
+            self::executeUpdate(
+                "UPDATE Activities SET name = ?, description = ?, location = ? WHERE id = ?",
+                "sssi",
+                $this->name,
+                $this->description,
+                $this->location,
+                $this->id
+            );
+
+            return true;
+        }
     }
 
+    // Create a new activity
+    public static function create(int $eventId, string $name, string $description, string $location): Activity
+    {
+        $activity = new static(0);  // Set ID to 0 for new activity
+        $activity->eventId = $eventId;
+        $activity->name = $name;
+        $activity->description = $description;
+        $activity->location = $location;
+        $activity->save();
+
+        return $activity;
+    }
+
+    // Update an existing activity
     public function update(string $name, string $description, string $location): void
     {
-        self::executeUpdate(
-            "UPDATE Activities SET name = ?, description = ?, location = ? WHERE id = ?",
-            "sssi",
-            $name,
-            $description,
-            $location,
-            $this->id
-        );
-
         $this->name = $name;
         $this->description = $description;
         $this->location = $location;
+
+        $this->save();
     }
 
-    // Static method to load all Activities for a given eventId
+    // Static method to load all activities for a given eventId
     public static function load(int $eventId): array
     {
         $data = self::fetchAll(
@@ -76,7 +100,6 @@ class Activity extends Model
 
         return $activities;
     }
-
 
     public function delete(): void
     {
@@ -99,7 +122,5 @@ class Activity extends Model
             throw new Exception("Event with ID $eventId does not exist.");
         }
     }
-
 }
-
 ?>

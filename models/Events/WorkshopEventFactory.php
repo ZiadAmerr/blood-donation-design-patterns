@@ -1,7 +1,7 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "event.php";
-require_once "WorkshopEvent.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/WorkshoEvent.php";
 
 class WorkShopEventFactory extends EventFactory{
 
