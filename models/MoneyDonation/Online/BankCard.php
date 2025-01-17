@@ -1,20 +1,37 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
+require_once __DIR__ . '/IBankGateway.php';
+require_once __DIR__ . '/BankGatewayProxy.php';
+require_once __DIR__ . '/IPaymentMethod.php';
 
-class BankCard implements IPaymentMethod {
-    private int $cardNumber;
+class BankCard implements IPaymentMethod
+{
+    private string $cardNumber;
     private string $cvv;
-    private float $expiryDate;
+    private string $expiryDate;
     private IBankGateway $bankGateway;
 
-    public function __construct($cardNumber, $cvv, $expiryDate) {
+    public function __construct(string $cardNumber, string $cvv, string $expiryDate)
+    {
         $this->cardNumber = $cardNumber;
         $this->cvv = $cvv;
         $this->expiryDate = $expiryDate;
         $this->bankGateway = new BankGatewayProxy();
     }
 
-    public function processPayment($amount): bool {
-        return $this->bankGateway->validatePayment($amount, $this->cardNumber, $this->expiryDate, $this->cvv);
+    public function processPayment(float $amount): bool
+    {
+        if ($amount <= 0) {
+            return false;  // Invalid payment amount
+        }
+
+        if ($this->bankGateway->validatePayment($amount, $this->cardNumber, $this->expiryDate, $this->cvv)){
+            MoneyStock::getInstance()->addCash($amount);
+            return true;
+        }
+        else{
+            false;
+        }
     }
 }
+?>

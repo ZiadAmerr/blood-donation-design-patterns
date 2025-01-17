@@ -10,7 +10,7 @@ class EWallet implements IPaymentMethod {
         $this->password = $password;
     }
 
-    public function processPayment($amount): bool {
+    public function processPayment(float $amount): bool {
         // Process payment using EWallet API
         // TODO: IMPLEMENT EWallet API HERE..
         return true;
