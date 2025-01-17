@@ -1,4 +1,7 @@
 -- Drop dependent tables first
+DROP TABLE IF EXISTS `blooddonation`;
+DROP TABLE IF EXISTS `bloodstock`;
+DROP TABLE IF EXISTS `donation`;
 DROP TABLE IF EXISTS `outreach_event_activities`;
 DROP TABLE IF EXISTS `outreach_event_organizations`;
 DROP TABLE IF EXISTS `workshop_event_workshops`;
@@ -91,12 +94,12 @@ INSERT INTO `diseases` (`name`, `prevents`) VALUES
 
 
 -- Table: donationcomponents
-CREATE TABLE IF NOT EXISTS donationcomponents (
+CREATE TABLE donationcomponents (
     id INT AUTO_INCREMENT PRIMARY KEY
 );
 
 -- Table: donationcampaigns
-CREATE TABLE IF NOT EXISTS donationcampaigns (
+CREATE TABLE donationcampaigns (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -104,18 +107,8 @@ CREATE TABLE IF NOT EXISTS donationcampaigns (
     FOREIGN KEY (parent_campaign_id) REFERENCES donationcampaigns(id)  -- Self-referencing foreign key
 );
 
-
-
--- Table: addresses (Assuming you need to create an address table for reference)
-CREATE TABLE IF NOT EXISTS addresses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    parentId INT,  -- Optional parent ID if necessary (e.g., hierarchical address)
-    FOREIGN KEY (parentId) REFERENCES addresses(id) -- Self-reference for parent-child addresses
-);
-
 -- Table: events
-CREATE TABLE IF NOT EXISTS `events` (
+CREATE TABLE `events` (
     id INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     maxattendees INT NOT NULL,
@@ -125,7 +118,7 @@ CREATE TABLE IF NOT EXISTS `events` (
 );
 
 -- Table: fundraiserevents
-CREATE TABLE IF NOT EXISTS fundraiserevents (
+CREATE TABLE fundraiserevents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT,  -- Foreign key reference to events
     goalamount DECIMAL(10, 2) NOT NULL,
@@ -134,27 +127,27 @@ CREATE TABLE IF NOT EXISTS fundraiserevents (
 );
 
 -- Table: outreachevents
-CREATE TABLE IF NOT EXISTS outreachevents (
+CREATE TABLE outreachevents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT,  -- Foreign key reference to events
     FOREIGN KEY (event_id) REFERENCES `events`(id)
 );
 
 -- Table: workshopevents
-CREATE TABLE IF NOT EXISTS workshopevents (
+CREATE TABLE workshopevents (
     id INT AUTO_INCREMENT PRIMARY KEY,
     event_id INT,  -- Foreign key reference to events
     FOREIGN KEY (event_id) REFERENCES `events`(id)
 );
 
 -- Table: workshops
-CREATE TABLE IF NOT EXISTS workshops (
+CREATE TABLE workshops (
     id INT AUTO_INCREMENT PRIMARY KEY,
     topic VARCHAR(255) NOT NULL
 );
 
 -- Table: attendees
-CREATE TABLE IF NOT EXISTS attendees (
+CREATE TABLE attendees (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     date_of_birth DATE NOT NULL,
@@ -165,7 +158,7 @@ CREATE TABLE IF NOT EXISTS attendees (
 );
 
 -- Table: tickets
-CREATE TABLE IF NOT EXISTS tickets (
+CREATE TABLE tickets (
     id INT AUTO_INCREMENT PRIMARY KEY,
     attendee_id INT,  -- Foreign key reference to attendees
     event_id INT,     -- Foreign key reference to events
@@ -174,7 +167,7 @@ CREATE TABLE IF NOT EXISTS tickets (
 );
 
 -- Table: organizations
-CREATE TABLE IF NOT EXISTS organizations (
+CREATE TABLE organizations (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     address_id INT,  -- Foreign key reference to addresses
@@ -185,14 +178,14 @@ CREATE TABLE IF NOT EXISTS organizations (
 );
 
 -- Junction table to represent the many-to-many relationship between outreachevents and activities
-CREATE TABLE IF NOT EXISTS outreach_event_activities (
+CREATE TABLE outreach_event_activities (
     outreach_event_id INT, 
     activity VARCHAR(255) NOT NULL,
     FOREIGN KEY (outreach_event_id) REFERENCES outreachevents(id)
 );
 
 -- Junction table to represent the many-to-many relationship between outreachevents and organizations
-CREATE TABLE IF NOT EXISTS outreach_event_organizations (
+CREATE TABLE outreach_event_organizations (
     outreach_event_id INT,
     organization_id INT,
     FOREIGN KEY (outreach_event_id) REFERENCES outreachevents(id),
@@ -200,9 +193,40 @@ CREATE TABLE IF NOT EXISTS outreach_event_organizations (
 );
 
 -- Junction table to represent the many-to-many relationship between workshopevents and workshops
-CREATE TABLE IF NOT EXISTS workshop_event_workshops (
+CREATE TABLE workshop_event_workshops (
     workshopevent_id INT,
     workshop_id INT,
     FOREIGN KEY (workshopevent_id) REFERENCES workshopevents(id),
     FOREIGN KEY (workshop_id) REFERENCES workshops(id)
+);
+
+-- Create table `blooddonation` with indexes, AUTO_INCREMENT, and foreign key constraint
+CREATE TABLE `blooddonation` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `donor_id` int(11) NOT NULL,
+    `number_of_liters` float NOT NULL,
+    `blooddonationtype` enum('Blood','Plasma') NOT NULL,
+    `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `donor_id` (`donor_id`),
+    FOREIGN KEY (`donor_id`) REFERENCES `donors`(`person_id`) ON DELETE CASCADE
+);
+
+-- Create table `bloodstock` with primary key
+CREATE TABLE `bloodstock` (
+    `blood_type` enum('A+','A-','B+','B-','AB+','AB-','O+','O-') NOT NULL,
+    `amount` float NOT NULL,
+    `is_plasma` tinyint(1) NOT NULL,
+    PRIMARY KEY (`blood_type`, `is_plasma`)
+);
+
+-- Create table `donation` with indexes, AUTO_INCREMENT, and foreign key constraint
+CREATE TABLE `donation` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `donor_id` int(11) NOT NULL,
+    `type` enum('Blood','Money') NOT NULL,
+    `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    KEY `donor_id` (`donor_id`),
+    FOREIGN KEY (`donor_id`) REFERENCES `donors`(`person_id`) ON DELETE CASCADE
 );
