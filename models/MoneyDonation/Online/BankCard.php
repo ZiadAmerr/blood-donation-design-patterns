@@ -1,8 +1,8 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
-require_once __DIR__ . '/IBankGateway.php';
-require_once __DIR__ . '/BankGatewayProxy.php';
-require_once __DIR__ . '/IPaymentMethod.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/BankGateway/IBankGateway.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/BankGateway/BankGatewayProxy.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/IPaymentMethod.php';
 
 class BankCard implements IPaymentMethod
 {

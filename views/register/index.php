@@ -105,6 +105,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </select>
 
         <button type="submit">Register</button>
+        <a href="finances.php">
+            <button type="button" style="background-color: #5bc0de;">Finances</button>
+        </a>
     </form>
 </div>
 </body>

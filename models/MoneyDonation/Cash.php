@@ -3,7 +3,8 @@
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 
 // IMPORTANT: use a slash (/) rather than a dot+slash (./) after __DIR__
-require_once __DIR__ . './IMoneyDonationMethod.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . './models/MoneyDonation/IMoneyDonationMethod.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyStock.php';
 
 class Cash implements IMoneyDonationMethod
 {
