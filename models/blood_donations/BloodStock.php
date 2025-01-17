@@ -9,7 +9,7 @@ class BloodStock extends Model implements IBloodStock
 {
     private static ?BloodStock $instance = null;
     private array $listOfBeneficiaries = [];
-    private array $bloodAmounts;
+    private array $bloodAmounts;  
     private array $plasmaAmounts; // Added for plasma amounts
 
     /**
@@ -188,7 +188,7 @@ class BloodStock extends Model implements IBloodStock
     public function notifyBeneficiaries(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): void
     {
         foreach ($this->listOfBeneficiaries as $beneficiary) {
-            $beneficiary->update($bloodDonationType, $bloodType, $amount);
+            $beneficiary->update($this->bloodAmounts, $this->plasmaAmounts);
         }
     }
 }

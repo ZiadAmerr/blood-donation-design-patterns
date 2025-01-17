@@ -10,6 +10,8 @@ class WaitingPatients implements IBeneficiary
     private string $name;
     private array $requestedBloodAmounts; // Blood amounts requested by the waiting patient
     private BloodStock $bloodStock; // Shared instance of BloodStock
+    private array $ownedPlasmaAmounts; 
+    private array $ownedBloodAmounts; 
 
     public function __construct(string $name, BloodStock $bloodStock)
     {
@@ -24,9 +26,10 @@ class WaitingPatients implements IBeneficiary
     /**
      * Called by the BloodStock instance when stock is updated.
      */
-    public function update(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): bool
+    public function update( array $ownedBloodAmounts, array $ownedPlasmaAmounts): bool
     {
-        // Patient is notified about the stock update (without echoing)
+        $this->ownedBloodAmounts = $ownedBloodAmounts; 
+        $this->ownedPlasmaAmounts = $ownedPlasmaAmounts;
         return true;
     }
 
@@ -36,9 +39,22 @@ class WaitingPatients implements IBeneficiary
     public function requestBlood(BloodTypeEnum $bloodType, float $amount): bool
     {
         // Attempt to remove the requested blood from BloodStock
-        if ($this->bloodStock->removeFromStock($bloodType, $amount)) {
+        if ($this->bloodStock->removeFromBloodStock($bloodType, $amount)) {
             // If successful, add the requested amount to requestedBloodAmounts
             $this->requestedBloodAmounts[$bloodType] += $amount;
+            return true;
+        }
+
+        // If removal failed, return false
+        return false;
+    }
+
+    public function requestPlasma(BloodTypeEnum $bloodType, float $amount): bool
+    {
+        // Attempt to remove the requested blood from BloodStock
+        if ($this->bloodStock->removeFromPlasmaStock($bloodType, $amount)) {
+            // If successful, add the requested amount to ownedBloodAmounts
+            $this->ownedBloodAmounts[$bloodType] += $amount;
             return true;
         }
 
