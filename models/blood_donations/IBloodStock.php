@@ -3,7 +3,8 @@
 
 interface IBloodStock
 {
-    public function addBeneficiary(IBeneficiaries $beneficiary): void;
-    public function removeBeneficiary(IBeneficiaries $beneficiary): void;
-    public function updateBloodStock(): void;
+    public function addBeneficiary(IBeneficiary $beneficiary): void;
+    public function removeBeneficiary(IBeneficiary $beneficiary): void;
+    public function notifyBeneficiaries(BloodTypeEnum $bloodType, float $amount): void;
+
 }
