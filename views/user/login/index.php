@@ -135,6 +135,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 </script>
 
+<?php if ($response['success']): ?>
+    <script>
+        setTimeout(() => {
+            window.location.href = '/views/';
+        }, 2000);
+    </script>
+<?php endif; ?>
+
 </body>
 </html>
 

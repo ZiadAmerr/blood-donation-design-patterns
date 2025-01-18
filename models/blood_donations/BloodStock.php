@@ -192,6 +192,5 @@ class BloodStock extends Model implements IBloodStock
         }
     }
 }
-?>
 
 ?>

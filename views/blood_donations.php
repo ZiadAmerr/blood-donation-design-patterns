@@ -1,8 +1,18 @@
 <?php
+// Start the session
+session_start();
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/BloodDonationController.php';
 
 $controller = new BloodDonationController();
 $donations = $controller->getDonations();
+if (!isset($_SESSION['user'])) {
+    header('Location: /views/user/login');
+
+    exit();
+}
+
+$user = new Donor($_SESSION['user']['person_id']);
 ?>
 
 <!DOCTYPE html>
@@ -60,7 +70,7 @@ $donations = $controller->getDonations();
                 <th>Donor Name</th>
                 <th>Blood Donation Type</th>
                 <th>Blood Type</th>
-                <th>Amount (Liters)</th>
+                <th>Amount</th>
                 <th>Date</th>
             </tr>
         </thead>
@@ -71,17 +81,32 @@ $donations = $controller->getDonations();
                 </tr>
             <?php else: ?>
                 <?php foreach ($donations as $donation): ?>
-                    <tr>
-                        <?php
-                        $name = $controller->getDonorName($donation['donor_id'])
-                        ?>
-                        <td><?php echo htmlspecialchars($name); ?></td>
-                        <td><?php echo htmlspecialchars($donation['blooddonationtype']); ?></td>
-                        <td><?php echo htmlspecialchars($donation['blood_type']); ?></td>
-                        <td><?php echo number_format($donation['number_of_liters'], 2); ?></td>
-                        <td><?php echo htmlspecialchars($donation['date']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
+    <?php
+    // Skip if the donation's donor_id doesn't match the logged-in user's person_id
+    if ($donation['donor_id'] !== $user->person_id) {
+        continue;
+    }
+    ?>
+
+    <tr>
+        <td><?php echo htmlspecialchars($user->getAsJson()['name']); ?></td>
+        <td><?php echo htmlspecialchars($donation['blooddonationtype']); ?></td>
+        <td><?php echo htmlspecialchars($user->blood_type->getAsValue()); ?></td>
+        <td>
+            <?php 
+            if ($donation['blooddonationtype'] === 'Blood') {
+                echo number_format($donation['number_of_liters'], 2) . ' L';
+            } elseif ($donation['blooddonationtype'] === 'Plasma') {
+                echo number_format($donation['number_of_liters'], 2) . ' mL';
+            } else {
+                echo number_format($donation['number_of_liters'], 2);
+            }
+            ?>
+        </td>
+        <td><?php echo htmlspecialchars($donation['date']); ?></td>
+    </tr>
+<?php endforeach; ?>
+
             <?php endif; ?>
         </tbody>
     </table>

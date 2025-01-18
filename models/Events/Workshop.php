@@ -1,5 +1,5 @@
 <?php
-require "Volunteer.php";
+require_once "Volunteer.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/people/Volunteer.php";
 

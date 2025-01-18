@@ -20,17 +20,11 @@ class PlasmaDonationController
         return Donor::getDonorNameById($donorId);
     }
 
-    public function processDonation(array $data): array
+    public function processDonation(array $data, Donor $donor): array
     {
-        $dr = DonationRemote::create((Donor::create(
-            $data['donor_name'],
-            $data['dob'],
-            $data['national_id'],
-            $data['address'],
-            $data['phone']
-        )));
+        $dr = DonationRemote::create($donor);
 
-        $bloodType = BloodTypeEnum::fromString($data['blood_type']);
+        $bloodType = BloodTypeEnum::fromString($donor->blood_type->getAsValue());
         // Validate blood type to prevent passing NULL
         if ($bloodType === null) {
             throw new Exception("Invalid blood type provided: " . $data['blood_type']);

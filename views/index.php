@@ -1,5 +1,7 @@
 
 <?php
+session_start();
+
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
 
 // Error handling setup
@@ -86,6 +88,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood Donation System</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -145,12 +148,19 @@ try {
 
 <header>
     <h1>Blood Donation System</h1>
+    <?php if (isset($_SESSION['user'])): ?>
+        <p>Welcome, <?php echo htmlspecialchars($_SESSION['user']['name']); ?>!</p>
+    <?php endif; ?>
 </header>
 
 <nav>
     <a href="index.php">Home</a>
-    <a href="user/login">Login</a>
-    <a href="user/register">Register</a>
+    <?php if (!isset($_SESSION['user'])): ?>
+        <a href="user/login">Login</a>
+        <a href="user/register">Register</a>
+    <?php else: ?>
+        <a href="user/logout">Logout</a>
+    <?php endif; ?>
     <a href="money_donations.php">Money Donations</a>
     <a href="blood_donations.php">Blood Donations</a>
     <a href="beneficiary.php">Beneficiary</a>
