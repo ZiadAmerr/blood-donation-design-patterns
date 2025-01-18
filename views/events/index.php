@@ -22,30 +22,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $data = [
                 'name' => $_POST['campaign_name'],
                 'description' => $_POST['campaign_description'],
-                'start_date' => $_POST['campaign_start_date'],
-                'end_date' => $_POST['campaign_end_date'],
-                'target_amount' => $_POST['campaign_target_amount']
             ];
 
             $message = $eventController->createDonationCampaign($data);
-        } elseif (isset($_POST['create_event'])) {
-            // Handle creation of a new event
+        } if (isset($_POST['create_event'])) {
+            // Collect form data
             $data = [
-                'campaign_id' => $_POST['event_campaign_id'],
+                'campaign_id' => !empty($_POST['event_campaign_id']) ? (int)$_POST['event_campaign_id'] : null,
                 'event_type' => $_POST['event_type'],
-                'title' => $_POST['event_title'],
-                'max_attendees' => $_POST['event_max_attendees'],
-                'address_id' => $_POST['event_address_id'],
-                'date_time' => $_POST['event_date_time'],
-                // Additional fields based on event type
-                'goal_amount' => $_POST['event_goal_amount'] ?? null,
-                'raised_amount' => $_POST['event_raised_amount'] ?? null,
-                'instructor_id' => $_POST['event_instructor_id'] ?? null,
-                'description' => $_POST['workshop_description'] ?? null,
-                'volunteer_id' => $_POST['workshop_volunteer_id'] ?? null
+                'title' => trim($_POST['event_title']),
+                'maxattendees' => (int)$_POST['event_max_attendees'],
+                'country' => trim($_POST['event_country']),
+                'city' => trim($_POST['event_city']),
+                'datetime' => $_POST['event_date_time'],
+                'goal_amount' => isset($_POST['event_goal_amount']) ? (float)$_POST['event_goal_amount'] : null,
+                'raised_amount' => isset($_POST['event_raised_amount']) ? (float)$_POST['event_raised_amount'] : 0.00,
+                'instructor_id' => isset($_POST['event_instructor_id']) ? (int)$_POST['event_instructor_id'] : null,
+                'description' => trim($_POST['workshop_description'] ?? ''),
+                'volunteer_id' => isset($_POST['workshop_volunteer_id']) ? (int)$_POST['workshop_volunteer_id'] : null,
+                'activities' => isset($_POST['outreach_activity']) ? array_map('trim', explode(',', $_POST['outreach_activity'])) : [],
+                'organizations' => isset($_POST['outreach_organization']) ? array_map('trim', explode(',', $_POST['outreach_organization'])) : [],
             ];
+        
+            // Call controller method to create the event
             $message = $eventController->createEvent($data);
-        } elseif (isset($_POST['register_attendee'])) {
+        
+            // Display success or error message
+            if ($message['success']) {
+                echo "<div class='message success'>{$message['message']}</div>";
+            } else {
+                echo "<div class='message error'>{$message['message']}</div>";
+            }
+        }
+            
+         elseif (isset($_POST['register_attendee'])) {
             // Handle attendee registration
             $data = [
                 'name' => $_POST['attendee_name'],
@@ -110,6 +120,7 @@ $campaigns = $eventController->getDonationCampaigns();
         }
         .container {
             width: 95%;
+            max-width: 1200px; /* Added max-width */
             margin: auto;
             padding: 20px;
             background-color: #fff;
@@ -140,7 +151,7 @@ $campaigns = $eventController->getDonationCampaigns();
             margin-top: 10px;
         }
         input[type="text"], input[type="number"], input[type="date"], input[type="datetime-local"], textarea, select {
-            width: 100%;
+            width: calc(100% - 16px); /* Adjusted width to account for padding */
             padding: 8px;
             margin-top: 5px;
         }
@@ -186,76 +197,79 @@ $campaigns = $eventController->getDonationCampaigns();
             <label for="campaign_description">Description:</label>
             <textarea id="campaign_description" name="campaign_description" rows="4" required></textarea>
 
-            <label for="campaign_start_date">Start Date:</label>
-            <input type="date" id="campaign_start_date" name="campaign_start_date" required>
-
-            <label for="campaign_end_date">End Date:</label>
-            <input type="date" id="campaign_end_date" name="campaign_end_date" required>
-
-            <label for="campaign_target_amount">Target Amount:</label>
-            <input type="number" id="campaign_target_amount" name="campaign_target_amount" step="0.01" required>
-
             <input type="submit" name="create_campaign" value="Create Campaign">
         </form>
 
         <!-- Form to Create a New Event -->
-        <h2>Create New Event</h2>
-        <form method="POST" action="">
-            <label for="event_campaign_id">Select Donation Campaign:</label>
-            <select id="event_campaign_id" name="event_campaign_id" required>
-                <option value="">-- Select Campaign --</option>
-                <?php foreach ($campaigns as $campaign): ?>
-                    <option value="<?php echo $campaign->getId(); ?>">
-                        <?php echo htmlspecialchars($campaign->getTitle()); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+<h2>Create New Event</h2>
+<form method="POST" action="">
+    <label for="event_campaign_id">Select Donation Campaign:</label>
+    <select id="event_campaign_id" name="event_campaign_id" required>
+        <option value="">-- No Campaign (None) --</option>
+        <?php if (!empty($campaigns)): ?>
+            <?php foreach ($campaigns as $campaign): ?>
+                <option value="<?php echo $campaign->getId(); ?>">
+                    <?php echo htmlspecialchars($campaign->getTitle()); ?>
+                </option>
+            <?php endforeach; ?>
+        <?php endif; ?>
+    </select>
 
-            <label for="event_type">Event Type:</label>
-            <select id="event_type" name="event_type" required onchange="toggleEventTypeFields()">
-                <option value="">-- Select Event Type --</option>
-                <option value="outreach">Outreach Event</option>
-                <option value="fundraiser">Fundraiser Event</option>
-                <option value="workshop">Workshop Event</option>
-            </select>
+    <label for="event_type">Event Type:</label>
+    <select id="event_type" name="event_type" required onchange="toggleEventTypeFields()">
+        <option value="">-- Select Event Type --</option>
+        <option value="outreach">Outreach Event</option>
+        <option value="fundraiser">Fundraiser Event</option>
+        <option value="workshop">Workshop Event</option>
+    </select>
 
-            <div id="common_event_fields" style="display:none;">
-                <label for="event_title">Event Title:</label>
-                <input type="text" id="event_title" name="event_title" required>
+    <div id="common_event_fields" style="display:none;">
+        <label for="event_title">Event Title:</label>
+        <input type="text" id="event_title" name="event_title" required>
 
-                <label for="event_max_attendees">Max Attendees:</label>
-                <input type="number" id="event_max_attendees" name="event_max_attendees" required>
+        <label for="event_max_attendees">Max Attendees:</label>
+        <input type="number" id="event_max_attendees" nammax_attendeese="event_" required>
 
-                <label for="event_address_id">Address ID:</label>
-                <input type="number" id="event_address_id" name="event_address_id" required>
+        <!-- Add Country and City Input Fields -->
+        <label for="event_country">Country:</label>
+        <input type="text" id="event_country" name="event_country" required>
 
-                <label for="event_date_time">Date and Time:</label>
-                <input type="datetime-local" id="event_date_time" name="event_date_time" required>
-            </div>
+        <label for="event_city">City:</label>
+        <input type="text" id="event_city" name="event_city" required>
 
-            <!-- Additional fields for Fundraiser Event -->
-            <div id="fundraiser_fields" style="display:none;">
-                <label for="event_goal_amount">Goal Amount:</label>
-                <input type="number" id="event_goal_amount" name="event_goal_amount" step="0.01">
+        <label for="event_date_time">Date and Time:</label>
+        <input type="datetime-local" id="event_date_time" name="event_date_time" required>
+    </div>
 
-                <label for="event_raised_amount">Raised Amount:</label>
-                <input type="number" id="event_raised_amount" name="event_raised_amount" step="0.01" value="0.00">
-            </div>
+    <div id="fundraiser_fields" style="display:none;">
+        <label for="event_goal_amount">Goal Amount:</label>
+        <input type="number" id="event_goal_amount" name="event_goal_amount" step="0.01">
 
-            <!-- Additional fields for Workshop Event -->
-            <div id="workshop_fields" style="display:none;">
-                <label for="event_instructor_id">Instructor ID:</label>
-                <input type="number" id="event_instructor_id" name="event_instructor_id">
+        <label for="event_raised_amount">Raised Amount:</label>
+        <input type="number" id="event_raised_amount" name="event_raised_amount" step="0.01" value="0.00">
+    </div>
 
-                <label for="workshop_description">Workshop Description:</label>
-                <textarea id="workshop_description" name="workshop_description" rows="3"></textarea>
+    <div id="workshop_fields" style="display:none;">
+        <label for="event_instructor_id">Instructor ID:</label>
+        <input type="number" id="event_instructor_id" name="event_instructor_id">
 
-                <label for="workshop_volunteer_id">Volunteer ID:</label>
-                <input type="number" id="workshop_volunteer_id" name="workshop_volunteer_id">
-            </div>
+        <label for="workshop_description">Workshop Description:</label>
+        <textarea id="workshop_description" name="workshop_description" rows="3"></textarea>
 
-            <input type="submit" name="create_event" value="Create Event">
-        </form>
+        <label for="workshop_volunteer_id">Volunteer ID:</label>
+        <input type="number" id="workshop_volunteer_id" name="workshop_volunteer_id">
+    </div>
+
+    <div id="outreach_fields" style="display:none;">
+        <label for="outreach_activity">Activity:</label>
+        <textarea id="outreach_activity" name="outreach_activity" rows="3"></textarea>
+
+        <label for="outreach_organization">Organization:</label>
+        <input type="text" id="outreach_organization" name="outreach_organization">
+    </div>
+
+    <input type="submit" name="create_event" value="Create Event">
+</form>
 
         <!-- Form to Register an Attendee -->
         <h2>Register Attendee</h2>
@@ -287,7 +301,7 @@ $campaigns = $eventController->getDonationCampaigns();
                 <?php
                 // Fetch outreach events from campaigns
                 foreach ($campaigns as $campaign):
-                    foreach ($campaign->getEvents() as $event):
+                    foreach ($campaign->getDonationComponents() as $event):
                         if ($event instanceof OutreachEvent):
                 ?>
                             <option value="<?php echo $event->getId(); ?>">
@@ -402,9 +416,6 @@ $campaigns = $eventController->getDonationCampaigns();
                 <div class="campaign">
                     <h3><?php echo htmlspecialchars($campaign->getTitle()); ?></h3>
                     <p><?php echo htmlspecialchars($campaign->getDescription()); ?></p>
-                    <p><strong>Start Date:</strong> <?php echo htmlspecialchars($campaign->getStartDate()->format('Y-m-d')); ?></p>
-                    <p><strong>End Date:</strong> <?php echo htmlspecialchars($campaign->getEndDate()->format('Y-m-d')); ?></p>
-                    <p><strong>Target Amount:</strong> $<?php echo htmlspecialchars(number_format($campaign->getTargetAmount(), 2)); ?></p>
 
                     <!-- List of Events under this Campaign -->
                     <div class="event-list">
@@ -429,7 +440,7 @@ $campaigns = $eventController->getDonationCampaigns();
                                     <?php elseif ($event instanceof WorkshopEvent): ?>
                                         <p><strong>Workshops:</strong></p>
                                         <ul>
-                                            <?php foreach ($event->getWorkshops() as $workshop): ?>
+                                            <?php foreach ($event->loadWorkshops() as $workshop): ?>
                                                 <li>
                                                     <strong>Description:</strong> <?php echo htmlspecialchars($workshop['description']); ?>,
                                                     <strong>Volunteer ID:</strong> <?php echo htmlspecialchars($workshop['volunteer_id']); ?>
@@ -482,6 +493,7 @@ $campaigns = $eventController->getDonationCampaigns();
             const commonFields = document.getElementById('common_event_fields');
             const fundraiserFields = document.getElementById('fundraiser_fields');
             const workshopFields = document.getElementById('workshop_fields');
+            const outreachFields = document.getElementById('outreach_fields');
 
             if (eventType) {
                 commonFields.style.display = 'block';
@@ -492,17 +504,24 @@ $campaigns = $eventController->getDonationCampaigns();
             if (eventType === 'fundraiser') {
                 fundraiserFields.style.display = 'block';
                 workshopFields.style.display = 'none';
-            } else {
-                fundraiserFields.style.display = 'none';
-            }
-
-            if (eventType === 'workshop') {
+                outreachFields.style.display = 'none';
+            } else if (eventType === 'workshop') {
                 workshopFields.style.display = 'block';
                 fundraiserFields.style.display = 'none';
-            } else {
+                outreachFields.style.display = 'none';
+            } else if (eventType === 'outreach') {
+                outreachFields.style.display = 'block';
+                fundraiserFields.style.display = 'none';
                 workshopFields.style.display = 'none';
+            } else {
+                fundraiserFields.style.display = 'none';
+                workshopFields.style.display = 'none';
+                outreachFields.style.display = 'none';
             }
         }
+
+        // Call the function when the page loads to set the correct fields visibility
+        document.addEventListener('DOMContentLoaded', toggleEventTypeFields);
     </script>
 </body>
 </html>

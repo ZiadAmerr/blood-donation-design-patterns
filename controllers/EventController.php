@@ -9,7 +9,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Events/Activity.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Events/Organization.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/services/database_service.php';
 
-class EventController
+class EventController extends Model
 {
     // Get all donation campaigns from the database
     public function getDonationCampaigns(): array
@@ -33,66 +33,94 @@ class EventController
         }
     }
 
-    // Create a new event under a specific campaign
     public function createEvent(array $data): array
-    {
-        // Get the donation campaign by ID
-        $campaign = DonationCampaign::loadById($data['campaign_id']);
+{
+    // Check if city and country exist, otherwise create them
+    $countryName = $data['country']; // Assuming country is passed in $data
+    $cityName = $data['city']; // Assuming city is passed in $data
 
-        if (!$campaign) {
-            return ['success' => false, 'message' => "Campaign not found!"];
-        }
+    // Create or fetch country address
+    $countryAddressId = $this->createAddressIfNotExists($countryName);
+    
+    // Create or fetch city address as child of country
+    $cityAddressId = $this->createAddressIfNotExists($cityName, $countryAddressId);
 
-        // Determine event type and create event accordingly
-        $event = null;
-        $eventID = 0; // Will be auto-generated
-        $dateTime = new DateTime($data['date_time']);
-        
-        switch ($data['event_type']) {
-            case 'outreach':
-                $event = new OutreachEvent(
-                    $eventID, 
-                    $data['title'],
-                    $data['max_attendees'],
-                    $data['address_id'],
-                    $dateTime
-                );
-                break;
-            case 'fundraiser':
-                $event = new FundraiserEvent(
-                    $eventID,  // Event ID
-                    $data['title'],  // Event title
-                    $data['address_id'],  // Address ID
-                    $dateTime,  // Event date and time
-                    $data['goal_amount'],  // Goal amount for fundraising
-                    $data['raised_amount'] ?? 0.0  // Raised amount, default to 0.0 if not provided
-                );
-                break;
-            case 'workshop':
-                // Assuming $data['instructor_id'] contains the ID of the instructor (person_id)
-                // Create the Volunteer object using the instructor's ID
-                $instructor = new Volunteer($data['instructor_id']);  // This will use the person_id constructor and load volunteer details
-                
-                // Create a new WorkshopEvent with the necessary parameters
-                $event = new WorkshopEvent(
-                    $eventID,           // Event ID
-                    $data['title'],     // Event title
-                    $data['max_attendees'], // Max attendees
-                    $dateTime,          // DateTime object for the event date and time
-                    $data['address_id'],    // Address ID (not Address object)
-                    [$instructor]       // Array of workshops (assuming just the instructor is passed here for simplicity)
-                );
-                break;
-            default:
-                return ['success' => false, 'message' => "Invalid event type!"];
-        }
+    // Get the donation campaign by ID
+    $campaign = DonationCampaign::loadById($data['campaign_id']);
 
-        // Link event to the campaign and save
-        $campaign->addDonationComponent($event);
-        $event->save();
-
-        return ['success' => true, 'message' => "Event '{$event->getTitle()}' created successfully in campaign '{$campaign->getTitle()}'!"];
+    if (!$campaign) {
+        return ['success' => false, 'message' => "Campaign not found!"];
     }
+
+    // Determine event type and create event accordingly
+    $event = null;
+    $eventID = 0; // Will be auto-generated
+    $dateTime = new DateTime($data['datetime']);
+    
+    switch ($data['event_type']) {
+        case 'outreach':
+            $event = new OutreachEvent(
+                $eventID, 
+                $data['title'],
+                $data['maxattendees'],
+                $cityAddressId, // Use city address as event location
+                $dateTime
+            );
+            break;
+        case 'fundraiser':
+            $event = new FundraiserEvent(
+                $eventID,  // Event ID
+                $data['title'],  // Event title
+                $cityAddressId,  // City address ID
+                $dateTime,  // Event date and time
+                $data['goal_amount'],  // Goal amount for fundraising
+                $data['raised_amount'] ?? 0.0  // Raised amount, default to 0.0 if not provided
+            );
+            break;
+        case 'workshop':
+            // Assuming $data['instructor_id'] contains the ID of the instructor (person_id)
+            // Create the Volunteer object using the instructor's ID
+            $instructor = new Volunteer($data['instructor_id']);  // This will use the person_id constructor and load volunteer details
+            
+            // Create a new WorkshopEvent with the necessary parameters
+            $event = new WorkshopEvent(
+                $eventID,           // Event ID
+                $data['title'],     // Event title
+                $data['max_attendees'], // Max attendees
+                $dateTime,          // DateTime object for the event date and time
+                $cityAddressId,     // City address ID (not Address object)
+                [$instructor]       // Array of workshops (assuming just the instructor is passed here for simplicity)
+            );
+            break;
+        default:
+            return ['success' => false, 'message' => "Invalid event type!"];
+    }
+
+    // Link event to the campaign and save
+    $campaign->addDonationComponent($event);
+    $event->save();
+
+    return ['success' => true, 'message' => "Event '{$event->getTitle()}' created successfully in campaign '{$campaign->getTitle()}'!"];
+}
+
+// Helper method to create address if not exists, and return the address ID
+private function createAddressIfNotExists(string $name, ?int $parentId = null): int
+{
+    // Check if address already exists
+    $address = self::fetchSingle(
+        "SELECT id FROM " . 'addresses' . " WHERE name = ? AND parent_id = ?",
+        "si",
+        $name,
+        $parentId
+    );
+
+    if ($address) {
+        return $address['id']; // Return existing address ID
+    }
+
+    // Create new address if not found
+    return Address::create($name, $parentId); // This will insert the new record and return the ID
+}
 
     // Register an attendee for a specific event
     public function registerAttendee(array $data): array

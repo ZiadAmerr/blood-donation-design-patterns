@@ -8,7 +8,7 @@ abstract class Event extends Model implements IDonationComponent
     protected string $title;
     protected int $maxAttendees;
     protected DateTime $dateTime;
-    protected int $addressID; // Changed to store address_id (as per schema)
+    protected string $address; // Changed to store address_id (as per schema)
     protected array $attendees = [];
     protected array $volunteers = [];
     protected array $tickets = [];
@@ -19,13 +19,13 @@ abstract class Event extends Model implements IDonationComponent
         string $title,
         int $maxAttendees,
         DateTime $dateTime,
-        int $addressID // Changed to accept address_id
+        int $address // Changed to accept address_id
     ) {
         $this->eventID = $eventID;
         $this->title = $title;
         $this->maxAttendees = $maxAttendees;
         $this->dateTime = $dateTime;
-        $this->addressID = $addressID;
+        $this->address = $address;
     }
 
     public function getTitle(): string {
@@ -47,7 +47,7 @@ abstract class Event extends Model implements IDonationComponent
             $this->title,
             $this->maxAttendees,
             $this->dateTime->format('Y-m-d H:i:s'),
-            $this->addressID // Changed to show address_id
+            $this->address // Changed to show address_id
         );
     }
 

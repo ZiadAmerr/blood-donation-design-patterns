@@ -4,7 +4,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Iterators/IterableEvent
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/IDonationComponent.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php";
 
-class DonationCampaign implements IDonationComponent, IIterableEvent {
+class DonationCampaign extends Model implements IDonationComponent, IIterableEvent {
     private array $components = [];  // Holds both Event and DonationCampaign instances
     private string $name;
     private string $description;
@@ -15,6 +15,7 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
         $this->description = $description;
         $this->id = $id;
     }
+
 
     public function save(): bool {
         $db = Database::getInstance();
@@ -40,6 +41,9 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
             $stmt->bind_param("ssi", $this->name, $this->description, $this->id);
             return $stmt->execute();
         }
+    }
+    public function getId(): ?int {
+        return $this->id;
     }
 
     public static function loadById(int $id): ?DonationCampaign {
@@ -75,28 +79,20 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
 
     public static function fetchAllCampaigns(): array {
         $db = Database::getInstance();
-        $query = "SELECT * FROM donationcampaigns";
-        $stmt = $db->prepare($query);
-
-        if (!$stmt) {
-            throw new Exception("Failed to prepare statement: " . $db->error);
-        }
-
+        $sql = "SELECT * FROM donationcampaigns";
+        $stmt = $db->prepare($sql);
         $stmt->execute();
-        $result = $stmt->get_result(); // Fetch the result set
-
-        if (!$result) {
-            throw new Exception("Failed to execute query: " . $stmt->error);
-        }
+        $result = $stmt->get_result();
 
         $campaigns = [];
         while ($row = $result->fetch_assoc()) {
-            $campaigns[] = new DonationCampaign(
+            $campaigns[] = new self(
                 $row['name'],
                 $row['description'],
-                (int)$row['id'] // Explicitly cast to integer
+                $row['id']
             );
         }
+
         return $campaigns;
     }
 
@@ -118,6 +114,17 @@ class DonationCampaign implements IDonationComponent, IIterableEvent {
 
     public function createEventIterator(): EventIterator {
         return new EventIterator($this->components);
+    }
+    public function getEvents(): array {
+        return array_filter($this->components, function ($component) {
+            return $component instanceof Event;
+        });
+    }
+    public function getDescription(): string {
+        return $this->description;
+    }
+    public function getDonationComponents(): array {
+        return $this->components;
     }
 }
 ?>
