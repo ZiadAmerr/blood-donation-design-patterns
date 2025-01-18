@@ -11,12 +11,13 @@ class Donor extends Person {
     public BloodTypeEnum $blood_type;
     public float $weight;
     public const table_name = "donors";
+    public int $age;
 
     /** @var int[] List of disease IDs that the donor has */
     public array $diseases = [];
 
     /** @var Donation[] List of donations */
-    public array $donations = [];
+    public array $blooddonations = [];
 
     public function __construct(int $person_id) {
         parent::__construct($person_id);
@@ -29,23 +30,40 @@ class Donor extends Person {
         $this->diseases = $this->fetchDiseasesFromDB();
 
         // Fetch all donations associated with this donor
-        $this->loadDonations();
+        // $this->loadbloodDonations();
+        $date_of_birth = new DateTime($this->date_of_birth);
+        $current_date = new DateTime();
+        $this->age = $current_date->diff($date_of_birth)->y;
     }
   
     /**
      * Load all donations associated with this donor
      */
-    private function loadDonations(): void {
-        // ToDo: Implement this method
-        // $rows = $this->fetchAll(
-        //     "SELECT id FROM donations WHERE donor_id = ?",
-        //     "i",
-        //     $this->person_id
-        // );
+    public function getDonorLastDonationInterval(): int {
 
-        // foreach ($rows as $row) {
-        //     $this->donations[] = new Donation((int) $row['id']);
-        // }
+        $rows = $this->fetchAll(
+            "SELECT id FROM blooddonations WHERE donor_id = ?",
+            "i",
+            $this->person_id
+        );
+        $donations = BloodDonation::fetchAllBloodDonations("SELECT * FROM BloodDonation");
+        $mostRecentDate = null;
+
+        foreach ($donations as $donation) {
+            $donationDate = new DateTime($donation['date']);
+            
+            if ($mostRecentDate === null || $donationDate > $mostRecentDate) {
+                $mostRecentDate = $donationDate;
+            }
+        }
+        
+        if ($mostRecentDate !== null) {
+            $currentDate = new DateTime();
+            $interval = $currentDate->diff($mostRecentDate);
+        return $interval->days;
+        }else{
+            return 0;
+        }
     }
   
     /**

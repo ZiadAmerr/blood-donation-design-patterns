@@ -1,4 +1,5 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibility/DonorStateContext.php";
 
 abstract class DonorValidationTemplate {
     // Template method defines the steps for validation.
@@ -23,40 +24,36 @@ abstract class DonorValidationTemplate {
         return $report->generateXML();
     }
 
-    protected function validateAge(array $donor): bool {
-        return $donor['age'] >= 18 && $donor['age'] <= 65;
+    protected function validateAge(Donor $donor): bool {
+        return $donor->age >= 18 && $donor->age <= 65;
     }
+    
 
-    protected function validateWeight(array $donor): bool {
-        return $donor['weight'] >= 50;
+    protected function validateWeight(Donor $donor): bool {
+        return $donor->weight >= 50;
     }
 
     protected function getEligibility(Donor $donor): string {
-        $donorStateContext = new DonorStateContext($this->$donor);
+        $donorStateContext = new DonorContext($donor);
         $state = $donorStateContext->getState();
-        return $state->getAsStr();
+        return $state->getAsString();
     }
 
-    protected function validateLastDonationDate(array $donor): bool {
-        $lastDonation = new DateTime($donor['last_donation_date']);
-        $today = new DateTime();
-        $interval = $lastDonation->diff($today);
-
-        return $interval->days >= 60; // Donor can donate once every 2 months.
+    protected function validateLastDonationDate(Donor $donor): bool {
+        return $donor->getDonorLastDonationInterval() >= 60; // Donor can donate once every 2 months.
     }
-    protected function calculateRemainingTime(array $donor): ?string {
-        if ($donor['age'] < 18) {
-            $remainingYears = 18 - $donor['age'];
-            return "$remainingYears years until eligible";
+    protected function calculateRemainingTime(Donor $donor): ?int {
+        
+        if ($donor->age < 18) {
+            $remainingYears = 18 - $donor->age;
+            return $remainingYears*365;
         }
 
-        $lastDonation = new DateTime($donor['last_donation_date']);
-        $today = new DateTime();
-        $interval = $lastDonation->diff($today);
+        $interval = $donor->getDonorLastDonationInterval();
 
-        if ($interval->days < 60) {
-            $remainingDays = 60 - $interval->days;
-            return "$remainingDays days until eligible";
+        if ($interval < 60) {
+            $remainingDays = 60 - $interval;
+            return $remainingDays;
         }
 
         return null;
