@@ -210,7 +210,7 @@ class Donor extends Person {
             'blood_type' => $this->blood_type->getAsValue(),
             'weight' => $this->weight,
             'diseases' => $this->diseases,
-            'donations' => array_map(fn($donation) => $donation->jsonSerialize(), $this->donations)
+            'donations' => array_map(fn($donation) => $donation->jsonSerialize(), $this->blooddonations)
         ];
     }
 
