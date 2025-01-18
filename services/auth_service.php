@@ -26,10 +26,11 @@ class AuthService {
 
             // Start session
             session_start();
-            $_SESSION['user'] = $donor;
+
+            $_SESSION['user'] = $donor->getAsJson();
 
             $response['success'] = true;
-            $response['message'] = "Login successful!";
+            $response['message'] = "Login successful! Redirecting...";
         } catch (Exception $e) {
             $response['message'] = $e->getMessage();
         }

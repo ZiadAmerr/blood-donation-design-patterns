@@ -29,11 +29,6 @@ class RegistrationService {
             // Extract selected diseases
             $diseases = isset($postData['diseases']) ? array_map('intval', $postData['diseases']) : [];
 
-            // Print diseases
-            foreach ($diseases as $disease) {
-                echo $disease . "<br>";
-            }
-
             // Address Handling
             $new_address_name = $postData['new_address_name'] ?? null;
             $parent_address_id = !empty($postData['parent_address_id']) ? (int)$postData['parent_address_id'] : null;

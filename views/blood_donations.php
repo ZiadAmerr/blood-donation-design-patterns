@@ -1,8 +1,12 @@
 <?php
+// Start the session
+session_start();
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/BloodDonationController.php';
 
 $controller = new BloodDonationController();
 $donations = $controller->getDonations();
+
 ?>
 
 <!DOCTYPE html>

@@ -25,4 +25,8 @@ enum BloodTypeEnum: string {
     public static function fromString(string $blood_type): self {
         return self::tryFrom($blood_type) ?? throw new Exception("Invalid blood type: $blood_type");
     }
+
+    public function getAsValue(): string {
+        return $this->value;
+    }
 }
