@@ -3,6 +3,7 @@
 session_start();
 
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/blood_donations/BloodStock.php';
 
 // Error handling setup
 function handleError($message) {
@@ -37,49 +38,22 @@ function getCount($table) {
     }
 }
 
-/*
-// Fetch summary data with error handling
 try {
     $summary = [
-        // 'totalPersons' => getCount("Person"),
-        // 'totalAddresses' => getCount("Address"),
-        // 'totalDonors' => getCount("Donor"),
-        // 'totalDonations' => getCount("Donation"),
-        'totalPersons' => 0,
-        'totalAddresses' => 0,
-        'totalDonors' => 0,
-        'totalDonations' => 0,
+        'totalPersons' => getCount("Persons"),
+        'totalAddresses' => getCount("Addresses"),
+        'totalDonors' => getCount("Donors"),
+        'totalDonations' => getCount("bloodDonation"),
+        
     ];
 } catch (Exception $e) {
     handleError($e->getMessage());
 }
 
-// Fetch blood stock information with error handling
-try {
-    $db = Database::getInstance();
-    $query = $db->prepare("SELECT blood_type, SUM(amount) as total_amount FROM BloodStock GROUP BY blood_type");
 
-    if (!$query) {
-        throw new Exception("Failed to prepare blood stock query: " . $db->error);
-    }
+$bloodStock = BloodStock::getInstance()->getAllBloodStocks();
+$plasmaStock = BloodStock::getInstance()->getAllPlasmaStocks();
 
-    if (!$query->execute()) {
-        throw new Exception("Failed to execute blood stock query: " . $query->error);
-    }
-
-    $result = $query->get_result();
-    if (!$result) {
-        throw new Exception("Failed to fetch blood stock data.");
-    }
-
-    $bloodStock = [];
-    while ($row = $result->fetch_assoc()) {
-        $bloodStock[] = $row;
-    }
-} catch (Exception $e) {
-    handleError($e->getMessage());
-}
-*/
 ?>
 
 <!DOCTYPE html>
@@ -184,16 +158,38 @@ try {
         <thead>
             <tr>
                 <th>Blood Type</th>
-                <th>Total Amount (Liters)</th>
+                <th>Total Amount</th>
+                <th>Blood/Plasma</th>
             </tr>
         </thead>
         <tbody>
-            <?php foreach ($bloodStock as $stock): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($stock['blood_type']); ?></td>
-                    <td><?php echo number_format($stock['total_amount'], 2); ?></td>
-                </tr>
-            <?php endforeach; ?>
+        <?php 
+foreach ($bloodStock as $bloodType => $totalAmount): ?>
+    <tr>
+        <!-- Display the blood type using the enum value -->
+        <td><?php echo htmlspecialchars($bloodType); ?></td>
+        
+        <!-- Display the total amount with two decimal places -->
+        <td><?php echo number_format($totalAmount, 2); ?> L</td>
+
+        <!-- Static value indicating the type -->
+        <td>Blood</td>
+    </tr>
+<?php endforeach; ?>
+
+<?php 
+foreach ($plasmaStock as $bloodType => $totalAmount): ?>
+    <tr>
+        <!-- Display the blood type using the enum value -->
+        <td><?php echo htmlspecialchars($bloodType); ?></td>
+        
+        <!-- Display the total amount with two decimal places -->
+        <td><?php echo number_format($totalAmount, 2); ?> mL</td>
+
+        <!-- Static value indicating the type -->
+        <td>Plazma</td>
+    </tr>
+<?php endforeach; ?>
             <?php if (empty($bloodStock)): ?>
                 <tr>
                     <td colspan="2">No blood stock data available.</td>
