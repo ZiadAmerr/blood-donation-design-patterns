@@ -10,7 +10,7 @@ class GetListOfDonations implements Command {
         $this->receiver = $receiver;
     }
 
-    public function execute(DonationFacade $receiver, Donor $donor): bool {
+    public function execute(DonationFacade $receiver, Donor $donor, Donation $donation = null): bool {
         $receiver->get_donor_donations($donor);
         return true;
     }

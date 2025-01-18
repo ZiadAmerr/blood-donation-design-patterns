@@ -8,24 +8,27 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/models/people/Donor.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorValidation/DonorValidationTemplate.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibility/DonorStateContext.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/services/blood_donation_service.php";
 
-
-
-class DonationType
+enum DonationType: string
 {
-    const PLASMA = 'Plasma';
-    const BLOOD = 'Blood';
+    case PLASMA = 'Plasma';
+    case BLOOD = 'Blood';
 
-    // Method to get a string value of the type
-    public static function getType(string $value): string
+    // Method to get a string value of the enum
+    public function getType(): string
     {
-        return $value;
+        return $this->value;
     }
 
-    // Method to create a type from a string value
-    public static function fromString(string $value): ?string
+    // Method to create an enum from a string value
+    public static function fromString(string $value): ?self
     {
-        return in_array($value, [self::PLASMA, self::BLOOD]) ? $value : null;
+        return match ($value) {
+            'Plasma' => self::PLASMA,
+            'Blood' => self::BLOOD,
+            default => null,
+        };
     }
 }
 
@@ -48,22 +51,27 @@ class BloodDonation extends Donation
     }
     public function validate(): bool
     {
-        return true;
-        // try {
-        //     $xml_ret = $this->validationTemplate->validateDonor($this->$donor);
-        //     $donorStateContext = new DonorStateContext($this->$donor);
-        //     if ($donorStateContext->getChangedSinceLastCheck()) {
-                
-        //         $smsAdapter = new SMSAdapter(new SmsService(), $this->$donor, $xml_ret);
-        //         $smsAdapter->sendNotification();
+        try {
+            $BloodDonationService = new BloodDonationService();
+            $xml_ret = $this->validationTemplate->validateDonor($this->donor, $this->blooddonationtype->getType());
+            if ($BloodDonationService->checkEligibility($xml_ret)){
+                $donorStateContext = new DonorContext($this->donor);
+                if ($donorStateContext->hasChangedSinceLastCheck()) {
+                    
+                    $smsAdapter = new SMSAdapter(new SmsService(), $this->donor, $xml_ret);
+                    $smsAdapter->sendNotification();
 
-        //         $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->$donor, $xml_ret);
-        //         $whatsappAdapter->sendNotification();
-        //     }
-        //     return true;
-        // } catch (Exception $e) {
-        //     return false;
-        // }
+                    $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->donor, $xml_ret);
+                    $whatsappAdapter->sendNotification();
+                }
+                return true;
+            }
+            else {
+                return false;
+            }
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     public function increaseBloodStock(): bool
@@ -84,13 +92,12 @@ class BloodDonation extends Donation
 
     public function saveDonationToDatabase(): void
     {
-        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, blooddonationtype, date) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blooddonationtype, date) VALUES (?, ?, ?, ?)";
         self::executeUpdate(
             $sql,
-            "iisss",
+            "iiss",
             $this->donor->person_id,  
             $this->Number_of_liters,
-            $this->BloodTypeEnum->value, 
             $this->blooddonationtype->getType(), 
             $this->date->format('Y-m-d H:i:s')
         );

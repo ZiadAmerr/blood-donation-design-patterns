@@ -1,12 +1,10 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "event.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Event.php";
 
-// Abstract Factory Class for creating different types of events
 
 abstract class EventFactory {
     
-    // create an event and return it
     public function createEvent($args): ?Event
     {
         $event = $this->eventFactory($args);

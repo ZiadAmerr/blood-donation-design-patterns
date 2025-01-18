@@ -1,11 +1,10 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/database_service.php";
-require_once "event.php";
-require_once "FundRaiserEvent.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/Event.php";
+require_once $_SERVER['DOCUMENT_ROOT'] . "/models/Events/FundRaiserEvent.php";
 
 class FundRaiserEventFactory extends EventFactory{
     
-    // create an object of Fundraiser event and return it
     public function eventFactory($args): ?Event
     {
         // extract arguments from the list args

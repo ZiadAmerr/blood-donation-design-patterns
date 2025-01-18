@@ -188,10 +188,9 @@ class BloodStock extends Model implements IBloodStock
     public function notifyBeneficiaries(DonationType $bloodDonationType, BloodTypeEnum $bloodType, float $amount): void
     {
         foreach ($this->listOfBeneficiaries as $beneficiary) {
-            $beneficiary->update($bloodDonationType, $bloodType, $amount);
+            $beneficiary->update($this->bloodAmounts, $this->plasmaAmounts);
         }
     }
 }
-?>
 
 ?>
