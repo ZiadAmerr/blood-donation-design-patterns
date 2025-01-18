@@ -10,7 +10,6 @@ require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/DonorEligibili
 require_once $_SERVER['DOCUMENT_ROOT'] . "/models/blood_donations/Notifications/NotificationAdapters.php";
 require_once $_SERVER['DOCUMENT_ROOT'] . "/services/blood_donation_service.php";
 
-
 enum DonationType: string
 {
     case PLASMA = 'Plasma';
@@ -52,29 +51,28 @@ class BloodDonation extends Donation
     }
     public function validate(): bool
     {
-        
         try {
             $BloodDonationService = new BloodDonationService();
             $xml_ret = $this->validationTemplate->validateDonor($this->donor, $this->blooddonationtype->getType());
             if ($BloodDonationService->checkEligibility($xml_ret)){
-            $donorStateContext = new DonorContext($this->donor);
-            if ($donorStateContext->hasChangedSinceLastCheck()) {
-                
-                $smsAdapter = new SMSAdapter(new SmsService(), $this->donor, $xml_ret);
-                $smsAdapter->sendNotification();
+                $donorStateContext = new DonorContext($this->donor);
+                if ($donorStateContext->hasChangedSinceLastCheck()) {
+                    
+                    $smsAdapter = new SMSAdapter(new SmsService(), $this->donor, $xml_ret);
+                    $smsAdapter->sendNotification();
 
-                $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->donor, $xml_ret);
-                $whatsappAdapter->sendNotification();
+                    $whatsappAdapter = new WhatsAppAdapter(new WhatsAppService(), $this->donor, $xml_ret);
+                    $whatsappAdapter->sendNotification();
+                }
+                return true;
             }
-            return true;
-        }
-        else {
+            else {
+                return false;
+            }
+        } catch (Exception $e) {
             return false;
         }
-    } catch (Exception $e) {
-        return false;
     }
-}
 
     public function increaseBloodStock(): bool
     {

@@ -171,6 +171,21 @@ class VolunteerController
         $personId = (int)($_GET['volunteer_id'] ?? 0);
         $skill    = $_POST['skill'] ?? '';
 
+        $volunteer = new Volunteer((int)$volunteerId);
+
+        // Wrap volunteer with decorator
+        switch ($skillType) {
+        case 'driving':
+            $decoratedVolunteer = new Driving($volunteer);
+            break;
+        case 'nursing':
+            $decoratedVolunteer = new Nursing($volunteer);
+            break;
+        default:
+            $decoratedVolunteer = $volunteer; // fallback
+            break;
+        }
+        
         if ($skill) {
             $volunteer = new Volunteer($personId);
             $volunteer->addSkill($skill);
@@ -189,6 +204,9 @@ class VolunteerController
         $personId = (int)($_GET['volunteer_id'] ?? 0);
         $skill    = $_GET['skill'] ?? '';
 
+        $volunteer = new Volunteer((int)$volunteerId);
+        $volunteer->removeSkill($skillName);
+        
         if ($skill) {
             // Easiest way is to remove from DB, then reload from constructor
             static::executeUpdate(

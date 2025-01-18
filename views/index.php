@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -38,22 +37,28 @@ function getCount($table) {
     }
 }
 
+// Fetch summary data
 try {
     $summary = [
         'totalPersons' => getCount("Persons"),
         'totalAddresses' => getCount("Addresses"),
         'totalDonors' => getCount("Donors"),
         'totalDonations' => getCount("bloodDonation"),
-        
     ];
 } catch (Exception $e) {
     handleError($e->getMessage());
 }
 
+// Fetch blood and plasma stock information
+try {
+    $bloodStock = BloodStock::getInstance()->getAllBloodStocks();
+    $plasmaStock = BloodStock::getInstance()->getAllPlasmaStocks();
+} catch (Exception $e) {
+    handleError($e->getMessage());
+}
 
-$bloodStock = BloodStock::getInstance()->getAllBloodStocks();
-$plasmaStock = BloodStock::getInstance()->getAllPlasmaStocks();
-
+$isLoggedIn = isset($_SESSION['user']);
+$user = $isLoggedIn ? $_SESSION['user'] : null;
 ?>
 
 <!DOCTYPE html>
@@ -122,14 +127,14 @@ $plasmaStock = BloodStock::getInstance()->getAllPlasmaStocks();
 
 <header>
     <h1>Blood Donation System</h1>
-    <?php if (isset($_SESSION['user'])): ?>
-        <p>Welcome, <?php echo htmlspecialchars($_SESSION['user']['name']); ?>!</p>
+    <?php if ($isLoggedIn): ?>
+        <p>Welcome, <?php echo htmlspecialchars($user['name']); ?>!</p>
     <?php endif; ?>
 </header>
 
 <nav>
     <a href="index.php">Home</a>
-    <?php if (!isset($_SESSION['user'])): ?>
+    <?php if (!$isLoggedIn): ?>
         <a href="user/login">Login</a>
         <a href="user/register">Register</a>
     <?php else: ?>
@@ -163,36 +168,23 @@ $plasmaStock = BloodStock::getInstance()->getAllPlasmaStocks();
             </tr>
         </thead>
         <tbody>
-        <?php 
-foreach ($bloodStock as $bloodType => $totalAmount): ?>
-    <tr>
-        <!-- Display the blood type using the enum value -->
-        <td><?php echo htmlspecialchars($bloodType); ?></td>
-        
-        <!-- Display the total amount with two decimal places -->
-        <td><?php echo number_format($totalAmount, 2); ?> L</td>
-
-        <!-- Static value indicating the type -->
-        <td>Blood</td>
-    </tr>
-<?php endforeach; ?>
-
-<?php 
-foreach ($plasmaStock as $bloodType => $totalAmount): ?>
-    <tr>
-        <!-- Display the blood type using the enum value -->
-        <td><?php echo htmlspecialchars($bloodType); ?></td>
-        
-        <!-- Display the total amount with two decimal places -->
-        <td><?php echo number_format($totalAmount, 2); ?> mL</td>
-
-        <!-- Static value indicating the type -->
-        <td>Plazma</td>
-    </tr>
-<?php endforeach; ?>
-            <?php if (empty($bloodStock)): ?>
+            <?php foreach ($bloodStock as $bloodType => $totalAmount): ?>
                 <tr>
-                    <td colspan="2">No blood stock data available.</td>
+                    <td><?php echo htmlspecialchars($bloodType); ?></td>
+                    <td><?php echo number_format($totalAmount, 2); ?> L</td>
+                    <td>Blood</td>
+                </tr>
+            <?php endforeach; ?>
+            <?php foreach ($plasmaStock as $bloodType => $totalAmount): ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($bloodType); ?></td>
+                    <td><?php echo number_format($totalAmount, 2); ?> mL</td>
+                    <td>Plasma</td>
+                </tr>
+            <?php endforeach; ?>
+            <?php if (empty($bloodStock) && empty($plasmaStock)): ?>
+                <tr>
+                    <td colspan="3">No stock data available.</td>
                 </tr>
             <?php endif; ?>
         </tbody>

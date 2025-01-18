@@ -42,6 +42,7 @@ abstract class DonorValidationTemplate {
     protected function validateLastDonationDate(Donor $donor): bool {
         return $donor->getDonorLastDonationInterval() >= 60; // Donor can donate once every 2 months.
     }
+
     protected function calculateRemainingTime(Donor $donor): ?int {
         
         if ($donor->age < 18) {

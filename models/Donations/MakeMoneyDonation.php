@@ -2,6 +2,7 @@
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationFacade.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyDonation.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/Command.php';
 
 class MakeMoneyDonation implements Command {
 
@@ -15,7 +16,7 @@ class MakeMoneyDonation implements Command {
         if ($donation === null) {
             return false;
         }
-        if ($donation instanceof BloodDonation) {
+        if ($donation instanceof MoneyDonation) {
             /** @var MoneyDonation $donation */
             return $receiver->donateMoney($donation);
         }

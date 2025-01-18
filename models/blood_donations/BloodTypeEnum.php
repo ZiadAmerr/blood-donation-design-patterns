@@ -30,3 +30,5 @@ enum BloodTypeEnum: string {
         return $this->value;
     }
 }
+
+?>

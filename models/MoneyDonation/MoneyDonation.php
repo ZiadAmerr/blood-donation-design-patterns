@@ -9,10 +9,10 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Donation.php';
 class MoneyDonation extends Donation
 {
     public Donor $donor;
-    private IMoneyDonationMethod $moneyDonationMethod;
+    public IMoneyDonationMethod $moneyDonationMethod;
 
     // How much money is being donated
-    private float $amount;
+    public float $amount;
 
     // Optionally: private $moneyDonationDetails;  // if you have extra detail
 
@@ -37,58 +37,22 @@ class MoneyDonation extends Donation
         // $this->moneyDonationDetails = $moneyDonationDetails;
     }
 
-    
-
-    // /**
-    //  * Actually process the money donation, calling the method's donate() function.
-    //  * Returns true on success, false otherwise.
-    //  */
-    // public function processDonation(): bool
-    // {
-    //     // e.g., record the donation in DB if needed:
-    //     // Donation::create($this->donor->person_id, 'money');
-
-    //     $success = $this->moneyDonationMethod->donate($this->amount);
-
-    //     if ($success) {
-    //         echo "MoneyDonation: Payment method processed {$this->amount} successfully.<br>";
-    //     } else {
-    //         echo "MoneyDonation: Payment method failed to process donation.<br>";
-    //     }
-
-    //     return $success;
-    // }
-
-    public static function create(float $amount, string $date, string $donor_id): bool
+    public static function create(float $amount, string $date, string $type, string $id): bool
     {
-        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `national_id`) VALUES (?,?,?)";
+        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `type`, `donor_id`) VALUES (?,?,?,?)";
     
         // Ensure $date is in 'YYYY-MM-DD' format
         $formattedDate = date('Y-m-d', strtotime($date));
     
         // Execute the query with proper data types: double (d), string (s), integer (i)
-        return self::executeUpdate($sql, 'dsi', $amount, $formattedDate, $donor_id) > 0;
+        return self::executeUpdate($sql, 'dsss', $amount, $formattedDate, $type, $id) > 0;
     }
     
-    
-
     public static function fetchAllMoneyDonations(): array
     {
-        $sql = "SELECT d.name as donor_name, md.amount, md.date 
-                FROM MoneyDonation md 
-                JOIN Donor d ON md.national_id = d.national_id";
+        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date, md.type
+                FROM moneydonation md 
+                JOIN Donor d ON md.donor_id = d.national_id";
         return self::fetchAll($sql);
     }
-
-    // /**
-    //  * getReceipt()
-    //  * 
-    //  * Here you might generate or display a receipt, store it in DB, etc.
-    //  */
-    // public function getReceipt(): bool
-    // {
-    //     // Minimal example: just echo a message or return true
-    //     echo "MoneyDonation: Generating receipt for {$this->amount}.<br>";
-    //     return true;
-    // }
 }

@@ -1,6 +1,5 @@
 <?php
 // File: Hospitals.php
-
 require_once __DIR__ . '/IBeneficiary.php';
 require_once __DIR__ . '/BloodTypeEnum.php';
 require_once __DIR__ . '/BloodStock.php';
@@ -28,7 +27,7 @@ class Hospitals implements IBeneficiary
         // Register this hospital as an observer
         $this->bloodStock->addBeneficiary($this);
     }
-
+    
     /**
      * Called by the BloodStock instance when stock is updated.
      */
@@ -68,7 +67,7 @@ class Hospitals implements IBeneficiary
         // If removal failed, return false
         return false;
     }
-    
+
     public function getPlasmaStockAmounts(): array
     {
         return $this->plasmaStockAmounts;
@@ -80,4 +79,5 @@ class Hospitals implements IBeneficiary
         return $this->bloodStockAmounts;
     }
 }
+
 ?>

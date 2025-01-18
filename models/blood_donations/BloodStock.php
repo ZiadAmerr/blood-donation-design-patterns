@@ -9,7 +9,7 @@ class BloodStock extends Model implements IBloodStock
 {
     private static ?BloodStock $instance = null;
     private array $listOfBeneficiaries = [];
-    private array $bloodAmounts;  
+    private array $bloodAmounts;
     private array $plasmaAmounts; // Added for plasma amounts
 
     /**
