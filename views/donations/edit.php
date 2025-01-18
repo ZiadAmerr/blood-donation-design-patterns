@@ -1,3 +1,11 @@
+<?php
+// Check if the donation data exists
+if (!isset($donation) || empty($donation)) {
+    echo "<p style='color:red;'>Error: Donation record not found.</p>";
+    exit();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,17 +15,18 @@
 </head>
 <body>
     <h2>Edit Donation Record</h2>
-    <form action="index.php?action=editDonation&id=<?php echo $donation['id']; ?>" method="POST">
+    
+    <form action="/views/donations/donationAdminV.php?action=editDonation&id=<?= htmlspecialchars($donation['id']) ?>" method="POST">
         <label for="name">Name:</label>
-        <input type="text" name="name" id="name" value="<?php echo htmlspecialchars($donation['name']); ?>" required>
+        <input type="text" name="name" id="name" value="<?= isset($donation['name']) ? htmlspecialchars($donation['name']) : '' ?>" required>
         <br>
 
         <label for="donation_type">Donation Type:</label>
-        <input type="text" name="donation_type" id="donation_type" value="<?php echo htmlspecialchars($donation['donation_type']); ?>" required>
+        <input type="text" name="donation_type" id="donation_type" value="<?= isset($donation['donation_type']) ? htmlspecialchars($donation['donation_type']) : '' ?>" required>
         <br>
 
         <label for="status">Status:</label>
-        <input type="text" name="status" id="status" value="<?php echo htmlspecialchars($donation['status']); ?>" required>
+        <input type="text" name="status" id="status" value="<?= isset($donation['status']) ? htmlspecialchars($donation['status']) : '' ?>" required>
         <br>
 
         <button type="submit">Update Donation</button>

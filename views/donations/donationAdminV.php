@@ -1,26 +1,33 @@
 <?php
+// File: /views/donations/donationAdminV.php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/DonationAdminController.php';
 
-$admin = new DonationAdmin(); // Instantiate the controller
-
-$action = $_GET['action'] ?? 'showDonations'; // Default to show donations
+$admin = new DonationAdmin();
+$action = $_GET['action'] ?? 'showDonations';
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 switch ($action) {
     case 'showDonations':
         $admin->showDonations();
         break;
+        
     case 'editDonation':
-        $id = $_GET['id'] ?? 0;
-        if ($id) {
+        if ($id > 0) {
             $admin->editDonation($id);
+        } else {
+            echo "Invalid donation ID.";
         }
         break;
+        
     case 'deleteDonation':
-        $id = $_GET['id'] ?? 0;
-        if ($id) {
+        if ($id > 0) {
             $admin->deleteDonation($id);
+        } else {
+            echo "Invalid donation ID.";
         }
         break;
+        
     default:
         echo "Invalid action!";
         break;

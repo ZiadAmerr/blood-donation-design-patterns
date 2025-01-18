@@ -1,48 +1,78 @@
 <?php
+// File: /controllers/DonationAdminController.php
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Admins/BloodDonationModel.php';
 
 class DonationAdmin
 {
+    /**
+     * Display all blood donations.
+     */
     public function showDonations(): void
     {
-        // Fetch all donations from the database
         $donations = BloodDonationModel::getAllDonations();
-        // Include the view that displays the list of donations
         include $_SERVER['DOCUMENT_ROOT'] . '/views/donations/list.php';
     }
 
-    // Edit a specific donation record
+    /**
+     * Edit a specific donation record.
+     */
     public function editDonation(int $id): void
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $name = $_POST['name'];
-            $donationType = $_POST['donation_type'];
-            $status = $_POST['status'];
+        $error = '';
 
-            // Update the donation record
-            if (BloodDonationModel::updateDonation($id, $name, $donationType, $status)) {
-                // Redirect to the donations list after successful update
-                header("Location: index.php?action=showDonations");
-                exit();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name'] ?? '');
+            $donationType = trim($_POST['donation_type'] ?? '');
+            $status = trim($_POST['status'] ?? '');
+
+            if ($name === '' || $donationType === '' || $status === '') {
+                $error = "All fields are required.";
+            } else {
+                $updateSuccess = BloodDonationModel::updateDonation($id, $name, $donationType, $status);
+                
+                if ($updateSuccess) {
+                    header("Location: /views/donations/donationAdminV.php?action=showDonations&message=update_success");
+                    exit();
+                } else {
+                    $error = "Failed to update the donation.";
+                }
             }
         }
 
-        // Fetch the current donation details for editing
         $donation = BloodDonationModel::getDonationById($id);
-        // Include the view to edit the donation
+        if (!$donation) {
+            echo "Donation not found.";
+            exit();
+        }
+
         include $_SERVER['DOCUMENT_ROOT'] . '/views/donations/edit.php';
     }
 
-    // Delete a specific donation record
+    /**
+     * Delete a specific donation record.
+     */
     public function deleteDonation(int $id): void
     {
-        // Delete the donation record
-        if (BloodDonationModel::deleteDonation($id)) {
-            // Redirect to the donations list after successful deletion
-            header("Location: index.php?action=showDonations");
-            exit();
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $deleteSuccess = BloodDonationModel::deleteDonation($id);
+            
+            if ($deleteSuccess) {
+                header("Location: /views/donations/donationAdminV.php?action=showDonations&message=delete_success");
+                exit();
+            } else {
+                echo "Failed to delete the donation.";
+                exit();
+            }
+        } else {
+            $donation = BloodDonationModel::getDonationById($id);
+            if (!$donation) {
+                echo "Donation not found.";
+                exit();
+            }
+
+            include $_SERVER['DOCUMENT_ROOT'] . '/views/donations/delete_confirm.php';
         }
     }
-
 }
 ?>
