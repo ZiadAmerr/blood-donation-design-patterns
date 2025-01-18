@@ -1,4 +1,6 @@
 -- Drop dependent tables first
+DROP TABLE IF EXISTS `moneystock`;
+DROP TABLE IF EXISTS `moneydonation`;
 DROP TABLE IF EXISTS `blooddonation`;
 DROP TABLE IF EXISTS `bloodstock`;
 DROP TABLE IF EXISTS `donation`;
@@ -229,4 +231,19 @@ CREATE TABLE `donation` (
     PRIMARY KEY (`id`),
     KEY `donor_id` (`donor_id`),
     FOREIGN KEY (`donor_id`) REFERENCES `donors`(`person_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `moneydonation` (
+    `donation_id` int(11) NOT NULL,
+    `amount` float NOT NULL,
+    `date` date NOT NULL,
+    `type` varchar(20) NOT NULL DEFAULT 'money',
+    `donor_id` INT NOT NULL,
+    PRIMARY KEY (`donation_id`),
+    FOREIGN KEY (`donor_id`) REFERENCES `donors`(`person_id`) ON DELETE CASCADE
+);
+
+CREATE TABLE `moneystock` (
+    `totalCash` double NOT NULL DEFAULT 0,
+    PRIMARY KEY (`totalCash`)
 );

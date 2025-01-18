@@ -1,19 +1,18 @@
 <?php
 // File: MoneyDonationController.php
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Payment/Cash.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Payment/Online/EWallet.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Payment/Online/BankCard.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Cash.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/EWallet.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/Online/BankCard.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/models/MoneyDonation/MoneyDonation.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationRemote.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/DonationFacade.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/models/Donations/MakeMoneyDonation.php';
 
 class MoneyDonationController
 {
     public function getDonations(): array
     {
-        return MoneyDonation::fetchAllMoneyDonations();
+        // Fetch past money donations from the database
+        // This is a placeholder, replace with actual database fetching logic
+        return MoneyDonation::fetchAllMoneyDonations("SELECT * FROM MoneyDonation");
     }
 
     public function processDonation(array $data): array
@@ -56,61 +55,5 @@ class MoneyDonationController
             return ['success' => false, 'message' => "Donation failed."];
         }
     }
-
-    public function processDonation(array $data): array
-    {
-        // Pass logged in donor
-        // $dr = DonationRemote::create((Donor::create(
-        //     '',
-        //     '',
-        //     $data['national_id'],
-        //     '',
-        //     ''
-        // )));
-        $donor = Donor::findByNationalId($data['national_id']);
-        $dr = DonationRemote::create($donor);
-
-        $amount = 0;
-        $type = 'money';
-        $method = null;
-
-        if ($data['payment_method'] === 'Cash') {
-            $amount = floatval($data['cash_amount']);
-            $type = 'Cash';
-            $method = new Cash();
-        } elseif ($data['payment_method'] === 'EWallet') {
-            $email = $data['email'];
-            $password = $data['password'];
-            $amount = floatval($data['ewallet_amount']);
-            $type = 'EWallet';
-            $method = new EWallet($email, $password);
-        } elseif ($data['payment_method'] === 'BankCard') {
-            $cardNumber = $data['card_number'];
-            $cvv = $data['cvv'];
-            $expiryDate = $data['expiry_date'];
-            $amount = floatval($data['card_amount']);
-            $type = 'Bank Card';
-            $method = new BankCard($cardNumber, $cvv, $expiryDate);
-        }
-
-        $df = new DonationFacade($dr->donor);
-        $dr->setCommand(new MakeMoneyDonation($df));
-        $result = $dr->execute($df, $dr->donor, new MoneyDonation(
-            $dr->donor,
-            $method,
-            $amount,
-            ));
-
-        if ($result) {
-            MoneyDonation::create($amount, date('Y-m-d'), $type, $donor->person_id);
-            return ['success' => true, 'message' => "Donated $amount !"];
-        } else {
-            return ['success' => false, 'message' => 'Money Donation failed.'];
-        }
-       
-    }
-
-    // ToDo: Choose One!
-
 }
-
+?>
