@@ -37,22 +37,31 @@ class MoneyDonation extends Donation
         // $this->moneyDonationDetails = $moneyDonationDetails;
     }
 
-    public static function create(float $amount, string $date, string $type, string $id): bool
+    public static function create(
+        int $donor_id, 
+        string $type,
+        float $amount = 0,
+        string $date = null,
+    ): int
     {
-        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `type`, `donor_id`) VALUES (?,?,?,?)";
+        $sql = "INSERT INTO `moneydonation`(`amount`, `date`, `donor_id`) VALUES (?,?,?)";
     
         // Ensure $date is in 'YYYY-MM-DD' format
         $formattedDate = date('Y-m-d', strtotime($date));
     
         // Execute the query with proper data types: double (d), string (s), integer (i)
-        return self::executeUpdate($sql, 'dsss', $amount, $formattedDate, $type, $id) > 0;
+        $exec_update = self::executeUpdate($sql, 'dsss', $amount, $formattedDate, $donor_id) > 0;
+
+        $id = parent::create($donor_id, $type);
+
+        return $id;
     }
     
     public static function fetchAllMoneyDonations(): array
     {
-        $sql = "SELECT d.name as donor_name, d.national_id, md.amount, md.date, md.type
-                FROM moneydonation md 
-                JOIN Donor d ON md.donor_id = d.national_id";
+        $sql = "SELECT p.name as person_name, p.national_id, md.amount, md.date, md.type
+        FROM moneydonation md 
+                JOIN persons p ON md.donor_id = p.national_id";
         return self::fetchAll($sql);
     }
 }

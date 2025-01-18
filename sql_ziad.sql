@@ -234,10 +234,9 @@ CREATE TABLE `donation` (
 );
 
 CREATE TABLE `moneydonation` (
-    `donation_id` int(11) NOT NULL,
+    `donation_id` int(11) NOT NULL AUTO_INCREMENT,
     `amount` float NOT NULL,
     `date` date NOT NULL,
-    `type` varchar(20) NOT NULL DEFAULT 'money',
     `donor_id` INT NOT NULL,
     PRIMARY KEY (`donation_id`),
     FOREIGN KEY (`donor_id`) REFERENCES `donors`(`person_id`) ON DELETE CASCADE
@@ -247,3 +246,4 @@ CREATE TABLE `moneystock` (
     `totalCash` double NOT NULL DEFAULT 0,
     PRIMARY KEY (`totalCash`)
 );
+

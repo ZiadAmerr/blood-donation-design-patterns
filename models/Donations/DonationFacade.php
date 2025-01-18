@@ -28,49 +28,49 @@ class DonationFacade {
 
     
     public function donateMoney(MoneyDonation $moneyDonation): bool {
-        try {
-            $this->money_donation_setter($moneyDonation);
-            $moneyDonation->getReceipt();
-            return true;
-        } catch (Exception $e) {
-            echo "Error processing money donation: " . $e->getMessage();
-            return false;
-        }
+            //donor, method, amount
+            return ($moneyDonation->moneyDonationMethod->donate($moneyDonation->amount));
+
+            // $this->money_donation_setter($moneyDonation);
+            // $moneyDonation->getReceipt();
+            // return true;
+        
     }
 
     
     public function donateBlood(BloodDonation $bloodDonation): bool
-    {
-        // Ensure correct blood donation type
-        if ($bloodDonation->blooddonationtype !== DonationType::BLOOD) {
-            return false;
-        }
-        // Add blood to stock
-        if ($bloodDonation->increaseBloodStock()) {
-            // Save donation to database
-            $bloodDonation->saveDonationToDatabase();
-            return true;
-        }
-
+{
+    // Ensure correct blood donation type
+    if ($bloodDonation->blooddonationtype !== DonationType::BLOOD) {
         return false;
     }
 
-    public function donatePlasma(BloodDonation $bloodDonation): bool
-    {
-        // Ensure correct plasma donation type
-        if ($bloodDonation->blooddonationtype !== DonationType::PLASMA) {
-            return false;
-        }
+    // Add blood to stock
+    if ($bloodDonation->increaseBloodStock()) {
+        // Save donation to database
+        $bloodDonation->saveDonationToDatabase();
+        return true;
+    }
 
-        // Add plasma to stock
-        if ($bloodDonation->increaseBloodStock()) {
-            // Save plasma donation to database
-            $bloodDonation->saveDonationToDatabase();
-            return true;
-        }
+    return false;
+}
 
+public function donatePlasma(BloodDonation $bloodDonation): bool
+{
+    // Ensure correct plasma donation type
+    if ($bloodDonation->blooddonationtype !== DonationType::PLASMA) {
         return false;
     }
+
+    // Add plasma to stock
+    if ($bloodDonation->increaseBloodStock()) {
+        // Save plasma donation to database
+        $bloodDonation->saveDonationToDatabase();
+        return true;
+    }
+
+    return false;
+}
 
 }
 ?>

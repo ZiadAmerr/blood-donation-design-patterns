@@ -140,7 +140,7 @@ $user = $isLoggedIn ? $_SESSION['user'] : null;
     <?php else: ?>
         <a href="user/logout">Logout</a>
     <?php endif; ?>
-    <a href="money_donations.php">Money Donations</a>
+    <a href="money/donations.php">Money Donations</a>
     <a href="blood_donations.php">Blood Donations</a>
     <a href="beneficiary.php">Beneficiary</a>
     <a href="events/">Events</a>

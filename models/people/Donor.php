@@ -160,21 +160,21 @@ class Donor extends Person {
         return $this->diseases;
     }
     public static function getDonorNameById(int $id): ?string
-{
-    // Query to fetch the donor name by ID
-    $sql = "SELECT name FROM Donor WHERE id = ?";
+    {
+        // Query to fetch the donor name by ID
+        $sql = "SELECT name FROM Donor WHERE id = ?";
 
-    // Fetch the donor name
-    $row = self::fetchSingle($sql, "i", $id);
+        // Fetch the donor name
+        $row = self::fetchSingle($sql, "i", $id);
 
-    // If no donor is found, return null
-    if (!$row) {
-        return null;
+        // If no donor is found, return null
+        if (!$row) {
+            return null;
+        }
+
+        // Return the name
+        return $row['name'];
     }
-
-    // Return the name
-    return $row['name'];
-}
 
     /**
      * Delete the donor

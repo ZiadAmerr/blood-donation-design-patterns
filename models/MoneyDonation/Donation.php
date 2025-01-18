@@ -22,7 +22,7 @@ abstract class Donation extends Model
         }
     }
 
-    public static function create(int $donor_id, string $type): Donation
+    public static function create(int $donor_id, string $type): int
     {
         $id = static::executeUpdate(
             "INSERT INTO Donation (donor_id, type) VALUES (?, ?)",
@@ -30,7 +30,8 @@ abstract class Donation extends Model
             $donor_id,
             $type
         );
-        return new static($id);
+
+        return $id;
     }
 
     public function delete(): void
