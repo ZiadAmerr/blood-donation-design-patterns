@@ -18,7 +18,7 @@ $response = ['success' => false, 'message' => ''];
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $controller = new BloodDonationController();
-    $response = $controller->processDonation($_POST);
+    $response = $controller->processDonation($_POST, $user);
 }
 ?>
 

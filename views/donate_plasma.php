@@ -1,4 +1,15 @@
 <?php
+require_once $_SERVER['DOCUMENT_ROOT'] . '/models/people/Donor.php';
+
+session_start();
+
+if (!isset($_SESSION['user'])) {
+    header('Location: /views/user/login');
+    exit();
+}
+
+$user = new Donor($_SESSION['user']['person_id']);
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/controllers/PlasmaDonationController.php';
 
 $response = ['success' => false, 'message' => ''];
@@ -6,7 +17,7 @@ $response = ['success' => false, 'message' => ''];
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $controller = new PlasmaDonationController();
-    $response = $controller->processDonation($_POST);
+    $response = $controller->processDonation($_POST, $user);
 }
 ?>
 
@@ -16,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta charset="UTF-8">
     <title>Donate Plasma</title>
     <style>
-        /* Add some basic styling */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f9;
@@ -49,11 +59,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         button:hover {
             background-color: #4cae4c;
         }
-        .hidden {
-            display: none;
-        }
         .success { color: green; text-align: center; }
         .error { color: red; text-align: center; }
+        input[readonly], select:disabled {
+            background-color: #f0f0f0;
+            color: #888;
+            border: 1px solid #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -69,31 +82,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <form method="POST" action="">
         <label for="donor_name">Name:</label>
-        <input type="text" name="donor_name" id="donor_name" required>
+        <input type="text" name="donor_name" id="donor_name" 
+            value="<?= htmlspecialchars($user->getName() ?? '') ?>" readonly>
 
         <label for="dob">Date of Birth:</label>
-        <input type="date" name="dob" id="dob" required>
+        <input type="date" name="dob" id="dob" 
+            value="<?= htmlspecialchars($user->getDateOfBirth() ?? '') ?>" readonly>
 
         <label for="national_id">National ID:</label>
-        <input type="text" name="national_id" id="national_id" required>
+        <input type="text" name="national_id" id="national_id" 
+            value="<?= htmlspecialchars($user->getNationalId() ?? '') ?>" readonly>
 
         <label for="address">Address:</label>
-        <input type="text" name="address" id="address" required>
+        <input type="text" name="address" id="address" 
+            value="<?= htmlspecialchars($user->getAddress() ?? '') ?>" readonly>
 
         <label for="phone">Phone Number:</label>
-        <input type="text" name="phone" id="phone" required>
+        <input type="text" name="phone" id="phone" 
+            value="<?= htmlspecialchars($user->getPhoneNumber() ?? '') ?>" readonly>
 
         <label for="blood_type">Select Blood Type:</label>
-        <select name="blood_type" id="blood_type" required>
-            <option value="">-- Choose Type --</option>
-            <option value="A+">A+</option>
-            <option value="B+">B+</option>
-            <option value="AB+">AB+</option>
-            <option value="O+">O+</option>
-            <option value="A-">A-</option>
-            <option value="B-">B-</option>
-            <option value="AB-">AB-</option>
-            <option value="O-">O-</option>
+        <select name="blood_type" id="blood_type" disabled>
+            <option value="<?= htmlspecialchars($user->getBloodTypeString() ?? '') ?>" selected>
+                <?= htmlspecialchars($user->getBloodTypeString() ?? '-- Choose Type --') ?>
+            </option>
         </select>
 
         <label for="volume_of_plasma">Volume of Plasma (in millilitres):</label>
@@ -101,6 +113,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <button type="submit">Confirm Plasma Donation</button>
     </form>
+
 </div>
 
 </body>

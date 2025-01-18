@@ -88,13 +88,12 @@ class BloodDonation extends Donation
 
     public function saveDonationToDatabase(): void
     {
-        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blood_type, blooddonationtype, date) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO BloodDonation (donor_id, number_of_liters, blooddonationtype, date) VALUES (?, ?, ?, ?)";
         self::executeUpdate(
             $sql,
-            "iisss",
+            "iiss",
             $this->donor->person_id,  
             $this->Number_of_liters,
-            $this->BloodTypeEnum->value, 
             $this->blooddonationtype->getType(), 
             $this->date->format('Y-m-d H:i:s')
         );
